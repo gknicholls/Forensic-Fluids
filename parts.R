@@ -86,7 +86,9 @@ prt
 ##########################################################################
 #Some experiments simulating synthetic data
 
-set.seed(1)
+{
+set.seed(4)
+F=2; Mg=5; Nf=15; #for a figure you can actually read
 F=5; Mg=5; Nf=25; #5 fluid types, 25 obs per FT, 5 markers target each FT
 
 #indices of rows and columns
@@ -162,10 +164,12 @@ plot.fluid.marker.matrix<-function(F,col.set,Y,cols,digits=NA,box.vec,axis.col=3
   j=col.set[[1]]
   par(mai=c(box.vec[1:3],0))
   plot(Y[,j],axis.col=axis.col,col=cols,key=NULL,ann=FALSE,digits=digits,text.cell=list(cex=0.8,adj=c(0.5,0.35)))
-  for (g in 2:(F-1)) {
-    j=col.set[[g]]; 
-    par(mai=c(box.vec[1],0.15,box.vec[3],0))
-    plot(Y[,j],axis.col=axis.col,axis.row=NULL,col=cols,key=NULL,ann=FALSE,digits=digits,text.cell=list(cex=0.8,adj=c(0.5,0.35)))
+  if (F>2) {
+    for (g in 2:(F-1)) {
+      j=col.set[[g]]; 
+      par(mai=c(box.vec[1],0.15,box.vec[3],0))
+      plot(Y[,j],axis.col=axis.col,axis.row=NULL,col=cols,key=NULL,ann=FALSE,digits=digits,text.cell=list(cex=0.8,adj=c(0.5,0.35)))
+    }
   }
   j=col.set[[F]]; 
   par(mai=c(box.vec[1],0.15,box.vec[3],box.vec[4]))
@@ -177,9 +181,11 @@ plot.marker.matrix<-function(F,row.set,col.set,Y,cols,digits=NA) {
   par(mfrow=c(F,F),omi=c(0.1,0.1,0.1,0.1))
   i=row.set[[1]]
   plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.2,0.1),axis.col=3)
-  for (f in 2:(F-1)) {
-    i=row.set[[f]]; 
-    plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL)
+  if (F>2) {
+    for (f in 2:(F-1)) {
+      i=row.set[[f]]; 
+      plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL)
+    }
   }
   i=row.set[[F]]; 
   plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL)
@@ -187,6 +193,13 @@ plot.marker.matrix<-function(F,row.set,col.set,Y,cols,digits=NA) {
 
 #sort the rows so they are grouped by the row clusters in R
 row.set=lapply(R,unlist)
+#pdf(file = "similated-data.pdf")
 plot.marker.matrix(F,row.set,col.set,Y=X,cols=c('black','white'))
+#dev.off()
+#pdf(file = "simulated-theta.pdf")
 plot.marker.matrix(F,row.set,col.set,Y=theta,cols=col.ramp,digits=2)
+#dev.off()
+#pdf(file = "simulated-fkgl-matrix.pdf")
 plot.marker.matrix(F,row.set,col.set,Y=fkgl,cols=col.ramp,digits=9)
+#dev.off()
+}
