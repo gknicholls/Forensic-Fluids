@@ -1,8 +1,21 @@
+
+#setwd("~/collab - Jessie/Forensic-Fluids")
+#load("allParts5And7EltsMats.rda")
 load("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsMats.rda")
 
 
+#missing?
+#load("allParts5And7EltsVarFormats.rda")
+#elts5AllPartSet=elts5AllPartList
+#elts7AllPartSet=elts7AllPartList
+
 singleTypeFilePath = "/Users/chwu/Documents/research/bfc/data/data.csv"
+#singleTypeFilePath = "data.csv"
 single.df = read.csv(singleTypeFilePath, header = TRUE) # whole single sample data
+
+#library(plot.matrix)
+#plot(as.matrix(single.df[,-1]),col=c("black","white"),polygon.cell=list(border=par("fg")),key=NULL,ann=FALSE,cex.axis=0.5,las=2)
+
 single.df <-single.df[,-1] # single sample data, delete the index column
 sum(single.df$Sample == 1) # number observations of CVF
 sum(single.df$Sample == 2) # MB
