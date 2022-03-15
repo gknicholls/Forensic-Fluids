@@ -1,5 +1,8 @@
 
-#FOrensic Body Fluids stuff - 07-03-22 GKN
+#Forensic Body Fluids stuff - 07-03-22 GKN
+#Simulation and image of simulated matrices 15-03-22
+
+#########################################################
 #exploring different partition models
 #for example for paritioning rows within a fluid type we would have n=30 say and might want 
 #a priori 2-4 clusters. Could do this with for eg
@@ -87,9 +90,9 @@ prt
 #Some experiments simulating synthetic data
 
 {
-set.seed(4)
-F=2; Mg=5; Nf=15; #for a figure you can actually read
-F=5; Mg=5; Nf=25; #5 fluid types, 25 obs per FT, 5 markers target each FT
+set.seed(15)
+F=2; Mg=5; Nf=10; #for a figure you can actually read
+#F=5; Mg=5; Nf=25; #5 fluid types, 25 obs per FT, 5 markers target each FT
 
 #indices of rows and columns
 row.set=lapply(1:F,function(f){ c(((f-1)*Nf+1):(f*Nf)) } )
@@ -157,10 +160,8 @@ for (f in 1:F) {
 #plot some figures illustrating the notation and realised X, theta and (f(k),g(l)) patterns
 library('plot.matrix')
 
-col.ramp=colorRampPalette(c("white","red","orange","yellow","green","skyblue","black"))
-
 #plot everything for one fluid type - assumes you want all the marker groups for this fluid type
-plot.fluid.marker.matrix<-function(F,col.set,Y,cols,digits=NA,box.vec,axis.col=3) {
+plot.fluid.marker.matrix<-function(F,col.set,Y,cols,digits=NA,box.vec,axis.col=3,breaks=NULL) {
   j=col.set[[1]]
   par(mai=c(box.vec[1:3],0))
   plot(Y[,j],axis.col=axis.col,col=cols,key=NULL,ann=FALSE,digits=digits,text.cell=list(cex=0.8,adj=c(0.5,0.35)))
@@ -180,26 +181,60 @@ plot.fluid.marker.matrix<-function(F,col.set,Y,cols,digits=NA,box.vec,axis.col=3
 plot.marker.matrix<-function(F,row.set,col.set,Y,cols,digits=NA) {
   par(mfrow=c(F,F),omi=c(0.1,0.1,0.1,0.1))
   i=row.set[[1]]
-  plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.2,0.1),axis.col=3)
+  plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.2,0.1),axis.col=3,breaks=range(Y) )
   if (F>2) {
     for (f in 2:(F-1)) {
       i=row.set[[f]]; 
-      plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL)
+      plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL,breaks=range(Y))
     }
   }
   i=row.set[[F]]; 
-  plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL)
+  plot.fluid.marker.matrix(F,col.set,Y[i,],cols,digits=digits,box.vec=c(0,0.2,0.1,0.1),axis.col=NULL,breaks=range(Y))
 }
 
 #sort the rows so they are grouped by the row clusters in R
+
 row.set=lapply(R,unlist)
-#pdf(file = "similated-data.pdf")
+col.ramp=colorRampPalette(c("white","red","orange","yellow","green","skyblue","black"))
+
+#pdf(file = "similated-data.pdf",width=6,height=6)
 plot.marker.matrix(F,row.set,col.set,Y=X,cols=c('black','white'))
 #dev.off()
-#pdf(file = "simulated-theta.pdf")
-plot.marker.matrix(F,row.set,col.set,Y=theta,cols=col.ramp,digits=2)
+
+#pdf(file = "simulated-theta.pdf",width=6,height=6)
+plot.marker.matrix(F,row.set,col.set,Y=theta,cols=grey(seq(0,1,length.out=10),alpha=1),digits=2)
 #dev.off()
-#pdf(file = "simulated-fkgl-matrix.pdf")
+
+#pdf(file = "simulated-fkgl-matrix.pdf",width=6,height=6)
 plot.marker.matrix(F,row.set,col.set,Y=fkgl,cols=col.ramp,digits=9)
 #dev.off()
 }
+
+#no longer needed as figured out how to get color levels to match across different images (using "breaks")
+# #just for paper example - nicer to treat whole matrix in one block so colors match across blocks
+#assumes F=2; Mg=5; Nf=15; options
+# row.set=lapply(R,unlist)
+# X<-X[unlist(row.set),]
+# X=cbind(X[,1:5],rep(NA,30),X[,6:10])
+# X=rbind(X[1:15,],rep(NA,11),X[16:30,])
+# 
+# pdf(file = "similated-data.pdf")
+# plot(X,key=NULL,col=c('black','white'),ann=FALSE,cex.axis=0.7,na.cell=FALSE)
+# dev.off()
+# 
+# theta<-theta[unlist(row.set),]
+# theta=cbind(theta[,1:5],rep(NA,30),theta[,6:10])
+# theta=rbind(theta[1:15,],rep(NA,11),theta[16:30,])
+# 
+# pdf(file = "simulated-theta.pdf")
+# plot(theta,key=NULL,col=grey(seq(0,1,length.out=20),alpha=0.5),digits=2,text.cell=list(cex=0.7,adj=c(0.5,0.35)),ann=FALSE,cex.axis=0.7,na.cell=FALSE)
+# dev.off()
+# 
+# fkgl<-fkgl[unlist(row.set),]
+# fkgl=cbind(fkgl[,1:5],rep(NA,30),fkgl[,6:10])
+# fkgl=rbind(fkgl[1:15,],rep(NA,11),fkgl[16:30,])
+# 
+# pdf(file = "simulated-fkgl-matrix.pdf")
+# plot(fkgl,key=NULL,col=col.ramp,digits=9,text.cell=list(cex=0.6,adj=c(0.5,0.35)),ann=FALSE,cex.axis=0.7,na.cell=FALSE)
+# dev.off()
+
