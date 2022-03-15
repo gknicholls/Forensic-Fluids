@@ -1,3 +1,4 @@
+## Print out all possible partitions for a given set of elements.
 printClust = function(rawPart = NULL){
   clustCount = max(rawPart)
   tempPart = c()
@@ -13,7 +14,7 @@ printClust = function(rawPart = NULL){
   return(clust)
 }
 
-
+## Calculate all permutation
 permute = function(vec){
   if(length(vec) ==1){
     return(vec)
@@ -34,6 +35,7 @@ permute = function(vec){
   
 }
 
+## Calculate the power sets for a given set of elements.
 powerSet = function(k, vec){
   if(k ==1){
     return(vec)
@@ -57,27 +59,44 @@ powerSet = function(k, vec){
   
 }
 
+##################################################################################
+############ Calculate all possible partitions for 5 elements #################### 
+##################################################################################
+
+## Calculate the power set for 5 elements.
 power5set = powerSet(5, 1:5)
-groups5 = unique(unlist(apply(power5set, 1, function(z){paste(sort(table(z)), collapse=", ") } )))
+## Calculate all possible partition counts.
+groups5 = unique(unlist(apply(power5set, 1, 
+                              function(z){
+                                paste(sort(table(z)), collapse=", ") 
+                                } 
+                              )
+                        )
+                 )
+## Calculate all possible partition membership vector
 groups5List = lapply(groups5, function(z){ 
   groupCount = as.numeric(unlist(strsplit(z, split = ", ")) )
   return(rep(1:length(groupCount), groupCount))
   })
   
-  
+## Calculate all permutation
 perm5 = permute(1:5)
 
+## Calculate all partitions
 group5partList = list()
 for(groupCountIndex in 1:length(groups5List)){
   group5tmp = matrix(groups5List[[groupCountIndex]][t(perm5)], ncol = 5, byrow = T)
   group5partList[[groupCountIndex]] = unique(apply(group5tmp, 1, printClust))
 }
 
+## Count the number different partitions
 sum(unlist(lapply(group5partList, length)))
 
+##################################################################################
+############ Calculate all possible partitions for 7 elements #################### 
+##################################################################################
 
-length(unique(apply(permute(c(1,2,3,4)), 1, paste, collapse="")))
-
+######################## Calculate all permutations ##############################
 x1 = c(1:7)
 x2 = c()
 
@@ -144,8 +163,9 @@ for(i in 1:nrow(x6)){
     x7 = rbind(x7, temp)
   }
 }
+##################################################################################
 
-
+##################### Calculate all possible partition counts#####################
 grp1 = rep(1, 7)
 grp2.1 = c(1, rep(2, 6))
 grp2.2 = c(rep(1,2), rep(2, 5))
@@ -161,14 +181,14 @@ grp5.1 = c(1:4, rep(5, 3))
 grp5.2 = c(1:3, rep(4, 2), rep(5, 2))
 grp6 = c(1:5, rep(6, 2))
 grp7 = 1:7
+##################################################################################
 
+############## Calculate partition for a given number of clusters ################
 tmp1 = matrix(grp1[t(x7)], ncol = 7, byrow = T)
 part1 = unique(apply(tmp1, 1, paste, collapse=""))
 
 tmp2.1 = matrix(grp2.1[t(x7)], ncol = 7, byrow = T)
 clustCount = max(grp2.1)
-
-
 
 part2.1 = unique(apply(tmp2.1, 1, printClust))
 
@@ -200,17 +220,27 @@ part4.2 = unique(apply(tmp4.2, 1, printClust))
 tmp4.3 = matrix(grp4.3[t(x7)], ncol = 7, byrow = T)
 part4.3 = unique(apply(tmp4.3, 1, printClust))
 
-
-
 tmp5.1 = matrix(grp5.1[t(x7)], ncol = 7, byrow = T)
 part5.1 = unique(apply(tmp5.1, 1, printClust))
 
 tmp5.2 = matrix(grp5.2[t(x7)], ncol = 7, byrow = T)
 part5.2 = unique(apply(tmp5.2, 1, printClust))
 
-
 tmp6 = matrix(grp6[t(x7)], ncol = 7, byrow = T)
 part6 = unique(apply(tmp6, 1, printClust))
 
 tmp7  = matrix(grp7[t(x7)], ncol = 7, byrow = T)
 part7 = unique(apply(tmp7, 1, printClust))
+
+
+group7partList = list(part1, 
+                      part2.1, part2.2, part2.3, 
+                      part3.1, part3.2, part3.3, part3.4,
+                      part4.1, part4.2, part4.3, 
+                      part5.1, part5.2,
+                      part6, part7)
+sum(unlist(lapply(group7partList, length)))
+##################################################################################
+
+save(group5partList, group7partList,
+     file="allParts5And7Elts.rda")
