@@ -185,11 +185,9 @@ grp7 = 1:7
 
 ############## Calculate partition for a given number of clusters ################
 tmp1 = matrix(grp1[t(x7)], ncol = 7, byrow = T)
-part1 = unique(apply(tmp1, 1, paste, collapse=""))
+part1 = unique(apply(tmp1, 1, printClust))
 
 tmp2.1 = matrix(grp2.1[t(x7)], ncol = 7, byrow = T)
-clustCount = max(grp2.1)
-
 part2.1 = unique(apply(tmp2.1, 1, printClust))
 
 tmp2.2 = matrix(grp2.2[t(x7)], ncol = 7, byrow = T)
@@ -242,5 +240,42 @@ group7partList = list(part1,
 sum(unlist(lapply(group7partList, length)))
 ##################################################################################
 
+getMemVec = function(z, k){
+  elts = NA
+  if(length(grep(x = z, pattern = "), (", fixed = T)) >0){
+    elts = unlist(strsplit(gsub(z, pattern="), (", replace=")_(", fixed = T) , "_"))
+  }else{
+    elts = z
+  }
+  
+  partIndex = vector(length = k)
+  for(i in 1:length(elts)){
+    tmpStr = gsub(elts[i], pattern = "(", replace = "", fixed = T)
+    tmpStr = gsub(tmpStr, pattern = ")", replace = "", fixed = T)
+    indexes = as.numeric(unlist(strsplit(tmpStr, split = ", ")))
+    partIndex[indexes] = i
+  }
+  return(partIndex)
+}
+
+elts5AllPartList = lapply(unlist(group5partList), 
+                          getMemVec, k = 5)
+elts5AllPartMat = do.call(rbind, elts5AllPartList)
+elts5AllPart = unique(unlist(apply(elts5AllPartMat, 1, paste, collapse="")))
+length(elts5AllPart )
+
+elts7AllPartList = lapply(unlist(group7partList), 
+                          getMemVec, k = 7)
+elts7AllPartMat = do.call(rbind, elts7AllPartList)
+elts7AllPart = unique(unlist(apply(elts7AllPartMat, 1, paste, collapse="")))
+length(elts7AllPart )
+
+
 save(group5partList, group7partList,
-     file="allParts5And7Elts.rda")
+     elts5AllPartMat, elts7AllPartMat,
+     elts5AllPartList, elts7AllPartList,
+     file="/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsVarFormats.rda")
+
+
+save(elts5AllPartMat, elts7AllPartMat,
+     file="/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsMats.rda")
