@@ -258,11 +258,34 @@ getMemVec = function(z, k){
   return(partIndex)
 }
 
+
+
+getMemList = function(z, k){
+  elts = NA
+  if(length(grep(x = z, pattern = "), (", fixed = T)) >0){
+    elts = unlist(strsplit(gsub(z, pattern="), (", replace=")_(", fixed = T) , "_"))
+  }else{
+    elts = z
+  }
+  
+  partList = list()
+  for(i in 1:length(elts)){
+    tmpStr = gsub(elts[i], pattern = "(", replace = "", fixed = T)
+    tmpStr = gsub(tmpStr, pattern = ")", replace = "", fixed = T)
+    partList[[i]] = as.numeric(unlist(strsplit(tmpStr, split = ", ")))
+  }
+  return(partList)
+}
+
 elts5AllPartList = lapply(unlist(group5partList), 
                           getMemVec, k = 5)
 elts5AllPartMat = do.call(rbind, elts5AllPartList)
 elts5AllPart = unique(unlist(apply(elts5AllPartMat, 1, paste, collapse="")))
 length(elts5AllPart )
+
+
+elts5AllPartSet = lapply(unlist(group5partList), 
+                          getMemList, k = 5)
 
 elts7AllPartList = lapply(unlist(group7partList), 
                           getMemVec, k = 7)
@@ -270,12 +293,18 @@ elts7AllPartMat = do.call(rbind, elts7AllPartList)
 elts7AllPart = unique(unlist(apply(elts7AllPartMat, 1, paste, collapse="")))
 length(elts7AllPart )
 
+elts7AllPartSet = lapply(unlist(group7partList), 
+                         getMemList, k = 7)
+
+
 
 save(group5partList, group7partList,
      elts5AllPartMat, elts7AllPartMat,
      elts5AllPartList, elts7AllPartList,
+     elts5AllPartSet, elts7AllPartSet,
      file="/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsVarFormats.rda")
 
 
 save(elts5AllPartMat, elts7AllPartMat,
-     file="/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsMats.rda")
+     elts5AllPartSet, elts7AllPartSet,
+     file="/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsMatsAndSets.rda")
