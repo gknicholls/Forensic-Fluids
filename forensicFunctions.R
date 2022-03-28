@@ -83,6 +83,27 @@ calcLogTypeLik = function(eltsAllPartSet = NULL, sample = NULL, subtypeList = NU
   return(logSubTypeLik)
 }
 
+## Calculate the MDP prior
+calcMDPPrior = function(alpha = NULL, subtypeList = NULL, setCountMax = NULL){
+  
+  setCount = length(subtypeList)
+  setSizes = lapply(subtypeList, length)
+  logFrac1 = lgamma(alpha) - setCount*lgamma(alpha/setCountMax)
+  logFrac2 = lfactorial(setCountMax) - lfactorial(setCountMax - setCount)
+  logFrac3 = sum(lgamma(alpha/setCountMax + setSizes)) - lgamma(alpha + sum(setSizes))
+  
+  partPrior = logFrac1 + logFrac2 + logFrac3
+  
+  return(partPrior)
+    
+}
+
+chainLength = 1000
+for(stepIndex in 1:chainLength){
+  
+  
+}
+
 
 # calcLogSubTypeLik(eltsAllPartSet = elts5AllPartSet, sample = slv.df, mkrList = mkrList)
 # calLikIntAllPart(eltsAllPartSet = elts5AllPartSet, sample = slv.sub.col5.df)
