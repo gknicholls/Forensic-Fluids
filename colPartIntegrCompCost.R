@@ -1,20 +1,10 @@
-
-#setwd("~/collab - Jessie/Forensic-Fluids")
-#load("allParts5And7EltsMats.rda")
 load("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allParts5And7EltsMatsAndSets.rda")
 
 
-#missing?
-#load("allParts5And7EltsVarFormats.rda")
-#elts5AllPartSet=elts5AllPartList
-#elts7AllPartSet=elts7AllPartList
 
-singleTypeFilePath = "/Users/chwu/Documents/research/bfc/data/data.csv"
-#singleTypeFilePath = "data.csv"
+singleTypeFilePath = "data.csv"
 single.df = read.csv(singleTypeFilePath, header = TRUE) # whole single sample data
 
-#library(plot.matrix)
-#plot(as.matrix(single.df[,-1]),col=c("black","white"),polygon.cell=list(border=par("fg")),key=NULL,ann=FALSE,cex.axis=0.5,las=2)
 
 single.df <-single.df[,-1] # single sample data, delete the index column
 sum(single.df$Sample == 1) # number observations of CVF
@@ -42,6 +32,11 @@ mkrList = list("cvf" = cvfMkrs,
 alphaC = 1; betaC = 1
 
 startTime <- Sys.time()
+
+########################################################################################
+############# Calculation with full column integration over 5 columns ##################
+########################################################################################
+
 slv.sub.col5.df = slv.df[,slvMkrs]
 
 pXgvColPartVec = vector(length = length(elts5AllPartSet))
