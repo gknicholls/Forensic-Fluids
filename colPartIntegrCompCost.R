@@ -37,7 +37,7 @@ alphaC = 1; betaC = 1
 
 startTime <- Sys.time()
 
-slv.sub.col5.df = slv.df[,slvMkrs]
+slv.sub.col5.df = slv.df[, slvMkrs]
 
 pXgvCol5PartVec = vector(length = length(elts5AllPartSet))
 ## Iterate through all possible partitions across 5 columns.
@@ -56,7 +56,6 @@ for(partIndex in 1:length(elts5AllPartSet)){
     col5PartCellCount = NA
     setColsDim = dim(setCols)
     
-    
     if(is.null(setColsDim)){
       
       ## If there is only a single column, then the total number of cells is 
@@ -68,6 +67,7 @@ for(partIndex in 1:length(elts5AllPartSet)){
       ## Otherwise,the total number of cells is the product 
       ## if the dimensions of the 2-D lattice.
       col5PartCellCount = prod(setColsDim)
+      
     }
     
     ## Compute the number of 1's in the columns of the current set.
@@ -76,7 +76,7 @@ for(partIndex in 1:length(elts5AllPartSet)){
     col5Part0Count = col5PartCellCount - col5Part1Count
     ## Update the likelihood of that partition.
     pXgvCol5PartVec[partIndex] = pXgvCol5PartVec[partIndex] * 
-      beta(alphaC + colPart1Count, betaC + colPart0Count)
+      beta(alphaC + col5Part1Count, betaC + col5Part0Count)
   }
 }
 
