@@ -31,31 +31,52 @@ mkrList = list("cvf" = cvfMkrs,
 
 alphaC = 1; betaC = 1
 
-startTime <- Sys.time()
-
 ########################################################################################
 ############# Calculation with full column integration over 5 columns ##################
 ########################################################################################
 
+startTime <- Sys.time()
+
 slv.sub.col5.df = slv.df[,slvMkrs]
 
-pXgvColPartVec = vector(length = length(elts5AllPartSet))
+pXgvCol5PartVec = vector(length = length(elts5AllPartSet))
+## Iterate through all possible partitions across 5 columns.
 for(partIndex in 1:length(elts5AllPartSet)){
-  pXgvColPartVec[partIndex] = 1
+  
+  ## Initiate the likelihood for calculating the product of 
+  ## likelihoods across sets within the current partition scheme.
+  pXgvCol5PartVec[partIndex] = 1
   setCount = length(elts5AllPartSet[[partIndex]])
-  for(setIndex in 1:setCount ){
-    colPart1Count = sum(slv.sub.col5.df[,elts5AllPartSet[[partIndex]][[setIndex]]])
-    setCols = slv.sub.col5.df[,elts5AllPartSet[[partIndex]][[setIndex]]]
-    colPartCellCount = NA
+  
+  ## Iterate through each set within the current partition scheme for 5 columns.
+  for(setIndex in 1:setCount){
+    
+    ## Extract the columns of the current set.
+    setCols = slv.sub.col5.df[, elts5AllPartSet[[partIndex]][[setIndex]]]
+    col5PartCellCount = NA
     setColsDim = dim(setCols)
+    
+    
     if(is.null(setColsDim)){
-      colPartCellCount = length(setCols)
+      
+      ## If there is only a single column, then the total number of cells is 
+      ## the length of that column.
+      col5PartCellCount = length(setCols)
+      
     }else{
-      colPartCellCount = prod(setColsDim)
+      
+      ## Otherwise,the total number of cells is the product 
+      ## if the dimensions of the 2-D lattice.
+      col5PartCellCount = prod(setColsDim)
     }
-    colPart0Count = colPartCellCount - colPart1Count
-    pXgvColPartVec[partIndex] = pXgvColPartVec[partIndex] * 
-      beta(alphaC + colPart1Count , betaC + colPart0Count)
+    
+    ## Compute the number of 1's in the columns of the current set.
+    col5Part1Count = sum(slv.sub.col5.df[, elts5AllPartSet[[partIndex]][[setIndex]]])
+    ## Compute the number of 0's in the columns of the current set.
+    col5Part0Count = col5PartCellCount - col5Part1Count
+    ## Update the likelihood of that partition.
+    pXgvCol5PartVec[partIndex] = pXgvCol5PartVec[partIndex] * 
+      beta(alphaC + colPart1Count, betaC + colPart0Count)
   }
 }
 
@@ -68,20 +89,40 @@ startTime <- Sys.time()
 slv.sub.col7.df = slv.df[,mtbMkrs]
 
 pXgvCol7PartVec = vector(length = length(elts7AllPartSet))
+## Iterate through all possible partitions across 7 columns.
 for(partIndex in 1:length(elts7AllPartSet)){
+  
+  ## Initiate the likelihood for calculating the product of 
+  ## likelihoods across sets within the current partition scheme.
   pXgvCol7PartVec[partIndex] = 1
   setCount = length(elts7AllPartSet[[partIndex]])
+  
+  ## Iterate through each set within the current partition scheme for 7 columns.
   for(setIndex in 1:setCount){
-    colPart1Count = sum(slv.sub.col7.df[,elts7AllPartSet[[partIndex]][[setIndex]]])
+    
+    ## Extract the columns of the current set.
+    
     setCols = slv.sub.col7.df[,elts7AllPartSet[[partIndex]][[setIndex]]]
     colPartCellCount = NA
     setColsDim = dim(setCols)
+    
     if(is.null(setColsDim)){
+      
+      ## If there is only a single column, then the total number of cells is 
+      ## the length of that column.
       colPartCellCount = length(setCols)
     }else{
+      
+      ## Otherwise,the total number of cells is the product 
+      ## if the dimensions of the 2-D lattice.
       colPartCellCount = prod(setColsDim)
     }
+    
+    ## Compute the number of 1's in the columns of the current set.
+    colPart1Count = sum(slv.sub.col7.df[,elts7AllPartSet[[partIndex]][[setIndex]]])
+    ## Compute the number of 0's in the columns of the current set.
     colPart0Count = colPartCellCount - colPart1Count
+    ## Update the likelihood of that partition.
     pXgvCol7PartVec[partIndex] = pXgvCol7PartVec[partIndex] * 
       beta(alphaC + colPart1Count , betaC + colPart0Count)
   }
