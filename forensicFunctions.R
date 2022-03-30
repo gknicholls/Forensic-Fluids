@@ -1,4 +1,4 @@
-calLikIntAllPart = function(eltsAllPartSet = NULL, 
+calcLikIntAllPart = function(eltsAllPartSet = NULL, 
                             sample = NULL, 
                             alphaC = NULL, 
                             betaC = NULL){
@@ -45,22 +45,28 @@ calLikIntAllPart = function(eltsAllPartSet = NULL,
    
   }
   
-  return(sum(pXgvColPartVec))
+  return(pXgvColPartVec)
 
 }
 
 ## Calculate the log likelihood of a give fluid subtype
-calcLogSubTypeLik = function(eltsAllPartSetList = NULL, sample = NULL, mkrList = NULL, alphaC = NULL, betaC = NULL){
+calcLogSubTypeLik = function(eltsAllPartSetList = NULL, 
+                             eltsAllPartSetPriorList = NULL,
+                             sample = NULL, mkrList = NULL, alphaC = NULL, betaC = NULL){
   
   logSubTypeLik = 0
   
   ## Iterate through each marker group
   for(mkrGrpIndex in 1:length(mkrList)){
-
+    
+    colPartPriorVec = eltsAllPartSetPriorList[[mkrGrpIndex]]
+    colPartLikVec = calcLikIntAllPart(eltsAllPartSet = eltsAllPartSetList[[mkrGrpIndex]], 
+                                sample = sample[, mkrList[[mkrGrpIndex]]],
+                                alphaC = alphaC, 
+                                betaC = betaC)
+    
     logSubTypeLik = logSubTypeLik + 
-      log(calLikIntAllPart(eltsAllPartSet = eltsAllPartSetList[[mkrGrpIndex]], 
-                           sample = sample[, mkrList[[mkrGrpIndex]]],
-                           alphaC = alphaC, betaC = betaC))
+      log(sum(colPartPriorVec * colPartLikVec ))
       
     
   }
@@ -69,7 +75,13 @@ calcLogSubTypeLik = function(eltsAllPartSetList = NULL, sample = NULL, mkrList =
 }
 
 ## Calculate the log likelihood of a give fluid type
-calcLogTypeLik = function(eltsAllPartSetList = NULL, sample = NULL, subtypeList = NULL, mkrList = NULL, alphaC = NULL, betaC = NULL){
+calcLogTypeLik = function(eltsAllPartSetList = NULL, 
+                          eltsAllPartSetPriorList = NULL, 
+                          sample = NULL, 
+                          subtypeList = NULL, 
+                          mkrList = NULL, 
+                          alphaC = NULL, 
+                          betaC = NULL){
   
   logSubTypeLik = 0
   
@@ -78,6 +90,7 @@ calcLogTypeLik = function(eltsAllPartSetList = NULL, sample = NULL, subtypeList 
     if(length(subtypeList[[subtypeIndex]]) > 0){
       logSubTypeLik = logSubTypeLik + 
         calcLogSubTypeLik(eltsAllPartSetList = eltsAllPartSetList, 
+                          eltsAllPartSetPriorList = eltsAllPartSetPriorList,
                           sample = sample[subtypeList[[subtypeIndex]], ],
                           mkrList = mkrList,
                           alphaC = alphaC, 
@@ -89,11 +102,31 @@ calcLogTypeLik = function(eltsAllPartSetList = NULL, sample = NULL, subtypeList 
   return(logSubTypeLik)
 }
 
+calcLogMDPColPrior = function(alpha = NULL, setList = NULL){
+  setCountMax = length(unlist(setList))
+  nonEmptySets = which(lapply(setList, length) > 0)
+  setCount = length(nonEmptySets)
+  
+  setSizes = unlist(lapply(setList, length))
+  logFrac1 = lgamma(alpha) - setCount*lgamma(alpha/setCountMax)
+  logFrac2 = lfactorial(setCountMax) - lfactorial(setCountMax - setCount)
+  logFrac3 = sum(lgamma(alpha/setCountMax + setSizes)) - lgamma(alpha + sum(setSizes))
+  
+  logPartPrior = logFrac1 + logFrac2 + logFrac3
+  
+  return(exp(logPartPrior))
+  
+}
+
+
 ## Calculate the MDP prior
 calcLogMDPPrior = function(alpha = NULL, subtypeList = NULL){
   setCountMax = length(subtypeList)
-  setCount = length(subtypeList)
+  nonEmptySets = which(lapply(subtypeList, length) > 0)
+  setCount = length(nonEmptySets)
+  
   setSizes = unlist(lapply(subtypeList, length))
+  setSizes = setSizes[setSizes > 0]
   logFrac1 = lgamma(alpha) - setCount*lgamma(alpha/setCountMax)
   logFrac2 = lfactorial(setCountMax) - lfactorial(setCountMax - setCount)
   logFrac3 = sum(lgamma(alpha/setCountMax + setSizes)) - lgamma(alpha + sum(setSizes))
@@ -125,68 +158,82 @@ singleRowProposal = function(subtypeList = NULL, obsCount = NULL){
   
 }
 
-# # Work in progress!
-# accept = 0
-# chainLength = 10000
-# sample.df = slv.df[,-1]
-# sampleObsCount = nrow(sample.df)
-# slvSubtypeList = list(c(1:16), 17:32, 33:48, 49:64, 65:81)
-# mkr27EltsAllPartSetList = list(elts5AllPartSet, elts7AllPartSet, elts5AllPartSet, elts5AllPartSet, elts5AllPartSet)
-# 
-# logPriorCurr = calcMDPPrior(alpha = 1, subtypeList = slvSubtypeList)
-# logLikCurr = calcLogTypeLik(eltsAllPartSetList = mkr27EltsAllPartSetList,
-#                             sample = sample.df,
-#                             subtypeList = slvSubtypeList,
-#                             mkrList = mkrList,
-#                             alphaC = 1,
-#                             betaC = 1)
-# logPostCurr = logPriorCurr + logLikCurr
-# 
-# postPart = matrix(nrow = chainLength, ncol = nrow(sample.df))
-# temp = c()
-# for(stepIndex in 1:chainLength){
-#   propSubtypeList = singleRowProposal(subtypeList = slvSubtypeList,
-#                                       obsCount = sampleObsCount)
-# 
-#   logPriorProp = calcMDPPrior(alpha = 1, subtypeList = propSubtypeList)
-#   logLikProp = calcLogTypeLik(eltsAllPartSetList = mkr27EltsAllPartSetList,
-#                           sample = sample.df,
-#                           subtypeList = propSubtypeList,
-#                           mkrList = mkrList,
-#                           alphaC = 1,
-#                           betaC = 1)
-#   logPostProp = logLikProp + logPriorProp
-# 
-#   propSubtypeList
-#   logLikProp
-#   logLikCurr
-#   
-#   if(log(runif(1)) <= min((logPostProp - logPostCurr), 0)){
-#     logPriorCurr = logPriorProp
-#     logLikCurr = logLikProp
-#     logPostCurr = logPostProp
-#     slvSubtypeList = propSubtypeList
-#     accept = accept + 1
-# 
-#   }
-#   temp[stepIndex] = logLikCurr
-# 
-# 
-#   for(setIndex in 1:length(slvSubtypeList)){
-#     if(length(slvSubtypeList[[setIndex]]) > 0){
-#       postPart[stepIndex, slvSubtypeList[[setIndex]]] = setIndex
-#     }
-#   }
-# 
-#   if(stepIndex %% 100 == 0){
-#     message(stepIndex)
-#   }
-# 
-# }
-# 
-# temp = kmeans(sample.df, centers = 3, nstart = 10)
+# Work in progress!
+accept = 0
+chainLength = 10000
+sample.df = slv.df[,-1]
+sampleObsCount = nrow(sample.df)
+slvSubtypeList = list(c(1:16), 17:32, 33:48, 49:64, 65:81)
+mkr27EltsAllPartSetList = list(elts5AllPartSet, elts7AllPartSet, elts5AllPartSet, elts5AllPartSet, elts5AllPartSet)
+
+elts5AllPartSetMDPPrior = unlist(lapply(mkr27EltsAllPartSetList[[1]], calcLogMDPColPrior, alpha = 1))
+elts7AllPartSetMDPPrior = unlist(lapply(mkr27EltsAllPartSetList[[2]], calcLogMDPColPrior, alpha = 1))
+mkr27EltsAllPartSetPriorList = list(elts5AllPartSetMDPPrior, 
+                                    elts7AllPartSetMDPPrior,
+                                    elts5AllPartSetMDPPrior,
+                                    elts5AllPartSetMDPPrior,
+                                    elts5AllPartSetMDPPrior)
+
+logPriorCurr = calcLogMDPPrior(alpha = 1, subtypeList = slvSubtypeList)
+logLikCurr = calcLogTypeLik(eltsAllPartSetList = mkr27EltsAllPartSetList,
+                            eltsAllPartSetPriorList = mkr27EltsAllPartSetPriorList,
+                            sample = sample.df,
+                            subtypeList = slvSubtypeList,
+                            mkrList = mkrList,
+                            alphaC = 1,
+                            betaC = 1)
+logPostCurr = logPriorCurr + logLikCurr
+
+postPart = matrix(nrow = chainLength, ncol = nrow(sample.df) + 3)
+for(stepIndex in 1:chainLength){
+  propSubtypeList = singleRowProposal(subtypeList = slvSubtypeList,
+                                      obsCount = sampleObsCount)
+  
+  logPriorProp = calcLogMDPPrior(alpha = 1, subtypeList = propSubtypeList)
+  logLikProp = calcLogTypeLik(eltsAllPartSetList = mkr27EltsAllPartSetList,
+                              eltsAllPartSetPriorList = mkr27EltsAllPartSetPriorList,
+                          sample = sample.df,
+                          subtypeList = propSubtypeList,
+                          mkrList = mkrList,
+                          alphaC = 1,
+                          betaC = 1)
+  logPostProp = logLikProp + logPriorProp
+
+  if(log(runif(1)) <= min((logPostProp - logPostCurr), 0)){
+    logPriorCurr = logPriorProp
+    logLikCurr = logLikProp
+    logPostCurr = logPostProp
+    slvSubtypeList = propSubtypeList
+    accept = accept + 1
+
+  }
+
+
+  for(setIndex in 1:length(slvSubtypeList)){
+    if(length(slvSubtypeList[[setIndex]]) > 0){
+      postPart[stepIndex, slvSubtypeList[[setIndex]]] = setIndex
+    }
+  }
+  
+  postPart[stepIndex, nrow(sample.df) + 1] = logPriorCurr
+  postPart[stepIndex, nrow(sample.df) + 2] = logLikCurr
+  postPart[stepIndex, nrow(sample.df) + 3] = logPostCurr
+
+  if(stepIndex %% 100 == 0){
+    message(stepIndex)
+  }
+
+}
+
+temp1 = kmeans(sample.df, centers = 3, nstart = 10)
 # which(temp$cluster==1)
-# calcLogSubTypeLik(eltsAllPartSet = elts5AllPartSet, sample = slv.df, mkrList = mkrList, alphaC = 1, betaC = 1)
+
+start = Sys.time()
+calcLogSubTypeLik(eltsAllPartSetList = mkr27EltsAllPartSetList, 
+                  eltsAllPartSetPriorList = mkr27EltsAllPartSetPriorList,
+                  sample = slv.df[1:16,-1], mkrList = mkrList, alphaC = 1, betaC = 1)
+end = Sys.time()
+end- start
 # 
 # calcLogTypeLik(eltsAllPartSetList = mkr27EltsAllPartSetList, 
 #                sample = slv.df, 
@@ -202,4 +249,8 @@ singleRowProposal = function(subtypeList = NULL, obsCount = NULL){
 #                alphaC = 1, 
 #                betaC = 1)
 
-
+par(mfrow = c(3,4), mar = c(5, 4, 1, 1))
+for(i in 0:9){
+  plot(x = 1:1000+1000*i, y = temp[1:1000+1000*i], type = "l",
+       xlab = "MCMC steps", ylab = "log-likelihood")
+}
