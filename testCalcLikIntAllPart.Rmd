@@ -1,9 +1,168 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: Test the likelihood calculation integrated across all partiions within a marker
+  group for a given subtype
+output:
+  pdf_document: default
+  html_notebook: default
 ---
 
+# Preliminaries
 
+```{r}
+setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/")
+source("forensicFunctions.R")
+```
+
+```{r}
+library(salso)
+```
+
+```{r}
+
+load("allParts5And7EltsMatsAndSets.rda")
+
+singleTypeFilePath = "data.csv"
+single.df = read.csv(singleTypeFilePath, header = TRUE) # whole single sample data
+slv.df = single.df[single.df$Sample == 3,] # saliva
+dim(slv.df)
+
+sample.df = slv.df[,-1] # single sample data, delete the index column
+dim(sample.df)
+```
+
+# Partition with three elements
+
+```{r}
+enumerate.partitions(3)
+# [,1] [,2] [,3]
+# [1,]    1    1    1
+# [2,]    1    1    2
+# [3,]    1    2    1
+# [4,]    1    2    2
+# [5,]    1    2    3
+```
+
+```{r}
+set.seed(222)
+kmeansClust3Index = c(1, 3, 1, 2, 2, 2, 2, 2, 2, 3, 3, 2, 3, 2, 3, 2, 2, 1, 
+                      3, 2, 3, 1, 2, 2, 2, 2, 2, 3, 2, 3, 2, 1, 2, 3, 2, 1, 
+                      2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 1, 1, 1, 2, 2, 
+                      3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 2, 2, 2, 2, 3, 3, 1, 2, 
+                      1, 1, 1, 1, 1, 1, 3, 3, 1)
+slvClust1ExIndx = sample(which(kmeansClust3Index==1), 2)
+# 180 183 
+#  75  78
+slvClust2ExIndx = sample(which(kmeansClust3Index==2), 5)
+# 146 147 145 121 122 
+#  41  42  40  16  17 
+slvClust3ExIndx = sample(which(kmeansClust3Index==3), 3)
+# 185 162 126 
+#  80  57  21
+
+rowExIndx = c(slvClust1ExIndx, slvClust2ExIndx, slvClust3ExIndx)
+sample.df[rowExIndx ,1:5]
+
+
+
+colExIndx = c(1,2,5)
+slvEx1.df = sample.df[rowExIndx, c("CYP", "HBD1", "MUC4")]
+rowSums(slvEx1.df)
+colSums(slvEx1.df)
+
+prod(dim(slvEx1.df))
+sum(slvEx1.df)
+prod(dim(slvEx1.df)) - sum(slvEx1.df)
+```
+
+```{r}
+# 1    1    1
+prod(dim(slvEx1.df))
+sum(slvEx1.df)
+prod(dim(slvEx1.df)) - sum(slvEx1.df)
+
+exp(sum(log(1:9)) - sum(log(25:34)))
+```
+
+```{r}
+calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2, 3))), 
+                             sample = slvEx1.df, 
+                             alphaC = 2, 
+                             betaC = 3)
+```
+
+```{r}
+# 1    1    2
+prod(dim(slvEx1.df[, 1:2]))
+sum(slvEx1.df[, 1:2])
+prod(dim(slvEx1.df[, 1:2])) - sum(slvEx1.df[, 1:2])
+
+length(slvEx1.df[, 3])
+sum(slvEx1.df[, 3])
+
+length(slvEx1.df[, 3]) - sum(slvEx1.df[, 3])
+
+exp((sum(log(1:4)) - sum(log(20:24))))*exp((sum(log(1:6)) - sum(log(8:14))))
+
+calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2), c(3))), 
+                  sample = slvEx1.df, 
+                  alphaC = 2, 
+                  betaC = 3)
+```
+
+```{r}
+# 1    2    1
+prod(dim(slvEx1.df[, c(1,3)]))
+sum(slvEx1.df[, c(1,3)])
+length(slvEx1.df[, 2]) - sum(slvEx1.df[, 2])
+
+expt3 = exp((sum(log(1:7)) - sum(log(17:24))))*exp((sum(log(1:3)) - sum(log(11:14))))
+ans3 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 3), c(2))), 
+                  sample = slvEx1.df, 
+                  alphaC = 2, 
+                  betaC = 3)
+expt3 - ans3
+```
+
+```{r}
+# 1    2    2
+length(slvEx1.df[, 1])
+sum(slvEx1.df[, 1])
+prod(dim(slvEx1.df[, c(2,3)]))
+sum(slvEx1.df[, c(2,3)])
+```
+
+```{r}
+
+expt4 = exp(-sum(log(c(6, 13, 14))))*exp((sum(log(1:8)) - sum(log(16:24))))
+ans4 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 3))), 
+                         sample = slvEx1.df, 
+                         alphaC = 2, 
+                         betaC = 3)
+expt4 - ans4
+```
+
+```{r}
+# 1    2    3
+length(slvEx1.df[, 1])
+sum(slvEx1.df[, 1])
+length(slvEx1.df[, 2])
+sum(slvEx1.df[, 2])
+length(slvEx1.df[, 3])
+sum(slvEx1.df[, 3])
+```
+
+```{r}
+
+expt5 = exp(-sum(log(c(6, 13, 14))))*exp(-sum(log(c(2, 11, 13, 14))))*
+  exp(sum(log(1:6))-sum(log(c(8:14))))
+ans5 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2), c(3))), 
+                         sample = slvEx1.df, 
+                         alphaC = 2, 
+                         betaC = 3)
+expt5 - ans5
+```
+
+# Partition with four elements
 
 ```{r}
 enumerate.partitions(4)
@@ -27,14 +186,15 @@ enumerate.partitions(4)
 
 ```{r}
 set.seed(123)
-slvClust1ExIndx2 = sample(which(temp1$cluster==1), 2)
-slvClust2ExIndx2 = sample(which(temp1$cluster==2), 5)
-slvClust3ExIndx2 = sample(which(temp1$cluster==3), 3)
+slvClust1ExIndx2 = sample(which(kmeansClust3Index==1), 2)
+slvClust2ExIndx2 = sample(which(kmeansClust3Index==2), 5)
+slvClust3ExIndx2 = sample(which(kmeansClust3Index==3), 3)
 ```
 
 ```{r}
 rowExIndx2 = c(slvClust1ExIndx2, slvClust2ExIndx2, slvClust3ExIndx2)
-slvEx2.df = sample.df[rowExIndx2 ,12 + c(1:4)]
+slvEx2.df = sample.df[rowExIndx2 ,c("HTN3", "MUC7", "PRB4", "SMR3B" )]
+slvEx2.df
 ```
 
 ## Partition 1
