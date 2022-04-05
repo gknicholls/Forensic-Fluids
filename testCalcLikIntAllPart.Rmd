@@ -33,7 +33,7 @@ dim(sample.df)
 
 # Partition with three elements
 
-```{r ex2_enum_part}
+```{r ex1_enum_part}
 enumerate.partitions(3)
 # [,1] [,2] [,3]
 # [1,]    1    1    1
@@ -43,12 +43,16 @@ enumerate.partitions(3)
 # [5,]    1    2    3
 ```
 
-```{r}
+```{r ex1_row_sampling}
 set.seed(222)
-kmeansClust3Index = c(1, 3, 1, 2, 2, 2, 2, 2, 2, 3, 3, 2, 3, 2, 3, 2, 2, 1, 
-                      3, 2, 3, 1, 2, 2, 2, 2, 2, 3, 2, 3, 2, 1, 2, 3, 2, 1, 
-                      2, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 1, 1, 1, 2, 2, 
-                      3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 2, 2, 2, 2, 3, 3, 1, 2, 
+kmeansClust3Index = c(1, 3, 1, 2, 2, 2, 2, 2, 2, 
+                      3, 3, 2, 3, 2, 3, 2, 2, 1, 
+                      3, 2, 3, 1, 2, 2, 2, 2, 2, 
+                      3, 2, 3, 2, 1, 2, 3, 2, 1, 
+                      2, 1, 1, 2, 2, 2, 2, 2, 2, 
+                      2, 3, 2, 2, 1, 1, 1, 2, 2, 
+                      3, 3, 3, 3, 3, 2, 3, 3, 3, 
+                      3, 2, 2, 2, 2, 3, 3, 1, 2, 
                       1, 1, 1, 1, 1, 1, 3, 3, 1)
 slvClust1ExIndx = sample(which(kmeansClust3Index==1), 2)
 # 180 183 
@@ -64,108 +68,152 @@ rowExIndx = c(slvClust1ExIndx, slvClust2ExIndx, slvClust3ExIndx)
 sample.df[rowExIndx ,1:5]
 ```
 
-```{r}
+```{r ex1_col_sampling}
 colExIndx = c(1,2,5)
 slvEx1.df = sample.df[rowExIndx, c("CYP", "HBD1", "MUC4")]
 slvEx1.df
 ```
 
-# Partition 1
+## Partition 1
 
-```{r}
-# 1    1    1
+Partition: (1, 1, 1)
+
+```{r ex1_part1_clust1}
 prod(dim(slvEx1.df))
 sum(slvEx1.df)
 prod(dim(slvEx1.df)) - sum(slvEx1.df)
 
-exp(sum(log(1:9)) - sum(log(25:34)))
+
 ```
 
-```{r}
-calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2, 3))), 
+```{r ex1_part1_calc_lik}
+ex1.expt1 = sum(log(1:9)) - sum(log(25:34))
+ex1.ans1 = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2, 3))), 
                              sample = slvEx1.df, 
                              alphaC = 2, 
-                             betaC = 3)
+                             betaC = 3))
+ex1.expt1
+ex1.ans1
+ex1.expt1 - ex1.expt1
+abs(ex1.expt1 - ex1.expt1) < 1e-10
 ```
 
-# Partition 2
+## Partition 2
 
-```{r}
-# 1    1    2
+Partition: (1, 1, 2)
+
+```{r ex1_part2_clust1}
 prod(dim(slvEx1.df[, 1:2]))
 sum(slvEx1.df[, 1:2])
 prod(dim(slvEx1.df[, 1:2])) - sum(slvEx1.df[, 1:2])
-
-length(slvEx1.df[, 3])
-sum(slvEx1.df[, 3])
-
-length(slvEx1.df[, 3]) - sum(slvEx1.df[, 3])
-
-exp((sum(log(1:4)) - sum(log(20:24))))*exp((sum(log(1:6)) - sum(log(8:14))))
-
-calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2), c(3))), 
-                  sample = slvEx1.df, 
-                  alphaC = 2, 
-                  betaC = 3)
 ```
 
-# Partition 3
+```{r ex1_part2_clust2}
+length(slvEx1.df[, 3])
+sum(slvEx1.df[, 3])
+```
 
-```{r}
-# 1    2    1
+```{r ex1_part2_calc_lik}
+length(slvEx1.df[, 3]) - sum(slvEx1.df[, 3])
+
+ex1.expt2 = (sum(log(1:4)) - sum(log(20:24))) + (sum(log(1:6)) - sum(log(8:14)))
+
+ex1.ans2 = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2), c(3))), 
+                  sample = slvEx1.df, 
+                  alphaC = 2, 
+                  betaC = 3))
+
+ex1.expt2
+ex1.ans2
+ex1.expt2 - ex1.expt2
+abs(ex1.expt2 - ex1.expt2) < 1e-10
+```
+
+## Partition 3
+
+Partition: (1, 2, 1)
+
+```{r ex1_part3_clust1}
 prod(dim(slvEx1.df[, c(1,3)]))
 sum(slvEx1.df[, c(1,3)])
-length(slvEx1.df[, 2]) - sum(slvEx1.df[, 2])
+```
 
-expt3 = exp((sum(log(1:7)) - sum(log(17:24))))*exp((sum(log(1:3)) - sum(log(11:14))))
-ans3 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 3), c(2))), 
+```{r ex1_part3_clust2}
+length(slvEx1.df[, 2]) - sum(slvEx1.df[, 2])
+```
+
+```{r ex1_part3_calc_lik}
+ex1.expt3 = ((sum(log(1:7)) - sum(log(17:24)))) + 
+  ((sum(log(1:3)) - sum(log(11:14))))
+ex1.ans3 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 3), c(2))), 
                   sample = slvEx1.df, 
                   alphaC = 2, 
                   betaC = 3)
-expt3 - ans3
+ex1.expt3 - ex1.ans3
+ex1.expt3 
+ex1.ans3
+abs(ex1.expt3 - ex1.expt3) < 1e-10
 ```
 
 # Partition 4
 
-```{r}
+Partition: (1, 2, 2)
+
+```{r ex1_part4_clust1}
 # 1    2    2
 length(slvEx1.df[, 1])
 sum(slvEx1.df[, 1])
+```
+
+```{r ex1_part4_clust2}
 prod(dim(slvEx1.df[, c(2,3)]))
 sum(slvEx1.df[, c(2,3)])
 ```
 
-```{r}
-
-expt4 = exp(-sum(log(c(6, 13, 14))))*exp((sum(log(1:8)) - sum(log(16:24))))
-ans4 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 3))), 
+```{r ex1_part4_calc_lik}
+ex1.expt4 = -sum(log(c(6, 13, 14))) + 
+  ((sum(log(1:8)) - sum(log(16:24))))
+ex1.ans4 = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 3))), 
                          sample = slvEx1.df, 
                          alphaC = 2, 
-                         betaC = 3)
-expt4 - ans4
+                         betaC = 3))
+ex1.expt4
+ex1.ans4
+ex1.expt4 - ex1.ans4
+abs(ex1.expt4 - ex1.ans4) < 1e-10
 ```
 
 # Partition 5
 
-```{r}
-# 1    2    3
+Partition: (1, 2, 3)
+
+```{r ex1_part5_clust1}
 length(slvEx1.df[, 1])
 sum(slvEx1.df[, 1])
+```
+
+```{r ex1_part5_clust2}
 length(slvEx1.df[, 2])
 sum(slvEx1.df[, 2])
+```
+
+```{r ex1_part5_clust3}
 length(slvEx1.df[, 3])
 sum(slvEx1.df[, 3])
 ```
 
-```{r}
-
-expt5 = exp(-sum(log(c(6, 13, 14))))*exp(-sum(log(c(2, 11, 13, 14))))*
-  exp(sum(log(1:6))-sum(log(c(8:14))))
-ans5 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2), c(3))), 
+```{r ex1_part5_calc_lik}
+ex1.expt5 = (-sum(log(c(6, 13, 14)))) + 
+  -sum(log(c(2, 11, 13, 14))) + 
+  (sum(log(1:6)) - sum(log(c(8:14))))
+ex1.ans5 = calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2), c(3))), 
                          sample = slvEx1.df, 
                          alphaC = 2, 
                          betaC = 3)
-expt5 - ans5
+ex1.expt5
+ex1.ans5
+ex1.expt5 - ex1.ans5
+abs(ex1.expt5 - ex1.ans5) < 1e-10
 ```
 
 # Partition with four elements
@@ -211,13 +259,13 @@ slvEx2.df
 
 ## Partition 1
 
-```{r ex1_part1_clust1}
+```{r ex2_part1_clust1}
 sum(slvEx2.df)
 prod(dim(slvEx2.df))
 ```
 
 
-```{r}
+```{r ex2_part1_calc_lik}
 ex2.expt1 = sum(log(1:13)) - sum(log(31:44))
 ex2.ans1 = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1:4))), 
                          sample = slvEx2.df, 
