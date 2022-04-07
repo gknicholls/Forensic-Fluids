@@ -98,6 +98,14 @@ ex1.expt1 - ex1.expt1
 abs(ex1.expt1 - ex1.expt1) < 1e-10
 ```
 
+```{r ex1_part1_calc_mdp}
+ex1.mdp.expt1 = 15/(7 * 13)
+ex1.mdp.ans1 = calcLogMDPColPrior(alpha = 12, setList = list(c(1,1,1)), setCountMax = 3)
+
+(ex1.mdp.expt1 - ex1.mdp.ans1)/max(c(ex1.mdp.expt1, ex1.mdp.ans1))
+abs((ex1.mdp.expt1 - ex1.mdp.ans1)/max(c(ex1.mdp.expt1, ex1.mdp.ans1))) < 1e-10
+```
+
 ## Partition 2
 
 Partition: (1, 1, 2)
@@ -129,6 +137,14 @@ ex1.expt2 - ex1.expt2
 abs(ex1.expt2 - ex1.expt2) < 1e-10
 ```
 
+```{r ex1_part2_calc_mdp}
+ex1.mdp.expt2 = 20/(7 * 13)
+ex1.mdp.ans2 = calcLogMDPColPrior(alpha = 12, setList = list(c(1,1), c(3)), setCountMax = 3)
+
+abs(ex1.mdp.expt2 - ex1.mdp.ans2)/max(c(ex1.mdp.expt2, ex1.mdp.ans2))
+abs((ex1.mdp.expt2 - ex1.mdp.ans2)/max(c(ex1.mdp.expt2, ex1.mdp.ans2))) < 1e-10
+```
+
 ## Partition 3
 
 Partition: (1, 2, 1)
@@ -153,6 +169,16 @@ ex1.expt3 - ex1.ans3
 ex1.expt3 
 ex1.ans3
 abs(ex1.expt3 - ex1.expt3) < 1e-10
+```
+
+```{r ex1_part3_calc_mdp}
+ex1.mdp.expt3 = 20/(7 * 13)
+ex1.mdp.ans3 = calcLogMDPColPrior(alpha = 12, 
+                                  setList = list(c(1,3), c(2)), 
+                                  setCountMax = 3)
+
+abs(ex1.mdp.expt3 - ex1.mdp.ans3)/max(c(ex1.mdp.expt3, ex1.mdp.ans3))
+abs((ex1.mdp.expt3 - ex1.mdp.ans3)/max(c(ex1.mdp.expt3, ex1.mdp.ans3))) < 1e-10
 ```
 
 # Partition 4
@@ -182,6 +208,17 @@ ex1.ans4
 ex1.expt4 - ex1.ans4
 abs(ex1.expt4 - ex1.ans4) < 1e-10
 ```
+
+```{r ex1_part4_calc_mdp}
+ex1.mdp.expt4 = 20/(7 * 13)
+ex1.mdp.ans4 = calcLogMDPColPrior(alpha = 12, 
+                                  setList = list(c(2,3), c(1)), 
+                                  setCountMax = 3)
+
+abs(ex1.mdp.expt4 - ex1.mdp.ans4)/max(c(ex1.mdp.expt4, ex1.mdp.ans4))
+abs((ex1.mdp.expt4 - ex1.mdp.ans4)/max(c(ex1.mdp.expt4, ex1.mdp.ans4))) < 1e-10
+```
+
 
 # Partition 5
 
@@ -214,6 +251,17 @@ ex1.expt5
 ex1.ans5
 ex1.expt5 - ex1.ans5
 abs(ex1.expt5 - ex1.ans5) < 1e-10
+```
+
+
+```{r ex1_part5_calc_mdp}
+ex1.mdp.expt5 = 16/(7 * 13)
+ex1.mdp.ans5 = calcLogMDPColPrior(alpha = 12, 
+                                  setList = list(c(1), c(2), c(3)), 
+                                  setCountMax = 3)
+
+abs(ex1.mdp.expt5 - ex1.mdp.ans5)/max(c(ex1.mdp.expt5, ex1.mdp.ans5))
+abs((ex1.mdp.expt5 - ex1.mdp.ans5)/max(c(ex1.mdp.expt5, ex1.mdp.ans5))) < 1e-10
 ```
 
 # Partition with four elements
