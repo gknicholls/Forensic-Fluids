@@ -327,6 +327,18 @@ ex2.expt1 - ex2.ans1
 all(abs(ex2.expt1 - ex2.ans1) < 1e-10)
 ```
 
+
+```{r ex2_part1_calc_mdp}
+ex2.mdp.expt1 = 35/(3 * 17 * 19)
+ex2.mdp.ans1 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2, 3, 4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt1 - ex2.mdp.ans1)/max(c(ex2.mdp.expt1, ex2.mdp.ans1))
+abs((ex2.mdp.expt1 - ex2.mdp.ans1)/max(c(ex2.mdp.expt1, ex2.mdp.ans1))) < 1e-10
+abs((ex2.mdp.expt1 - ex2.mdp.ans1)) < 1e-10
+```
+
 ## Partition 2
 
 Partition pattern: (1, 1, 1, 2)
@@ -357,6 +369,18 @@ print(ex2.ans2, digit = 12)
 
 ex2.expt2 - ex2.ans2
 all(abs(ex2.expt2 - ex2.ans2) < 1e-10)
+```
+
+
+```{r ex2_part2_calc_mdp}
+ex2.mdp.expt2 = 20/(17 * 19)
+ex2.mdp.ans2 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2, 3), c(4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt2 - ex2.mdp.ans2)/max(c(ex2.mdp.expt2, ex2.mdp.ans2))
+abs((ex2.mdp.expt2 - ex2.mdp.ans2)/max(c(ex2.mdp.expt2, ex2.mdp.ans2))) < 1e-10
+abs((ex2.mdp.expt2 - ex2.mdp.ans2)) < 1e-10
 ```
 
 ## Partition 3
@@ -391,6 +415,17 @@ ex2.expt3 - ex2.ans3
 all(abs(ex2.expt3 - ex2.ans3) < 1e-10)
 ```
 
+```{r ex2_part3_calc_mdp}
+ex2.mdp.expt3 = 20/(17 * 19)
+ex2.mdp.ans3 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2, 4), c(3)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt3 - ex2.mdp.ans3)/min(c(ex2.mdp.expt3, ex2.mdp.ans3))
+abs((ex2.mdp.expt3 - ex2.mdp.ans3)/min(c(ex2.mdp.expt3, ex2.mdp.ans3))) < 1e-10
+abs((ex2.mdp.expt3 - ex2.mdp.ans3)) < 1e-10
+```
+
 ## Partition 4
 
 Partition pattern: (1, 1, 2, 2)
@@ -423,6 +458,17 @@ ex2.expt4 - ex2.ans4
 all(abs(ex2.expt4 - ex2.ans4) < 1e-10)
 ```
 
+
+```{r ex2_part4_calc_mdp}
+ex2.mdp.expt4 = 50/(3 * 17 * 19)
+ex2.mdp.ans4 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2), c(3, 4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt4 - ex2.mdp.ans4)/min(c(ex2.mdp.expt4, ex2.mdp.ans4))
+abs((ex2.mdp.expt4 - ex2.mdp.ans4)/min(c(ex2.mdp.expt4, ex2.mdp.ans4))) < 1e-10
+abs((ex2.mdp.expt4 - ex2.mdp.ans4)) < 1e-10
+```
 
 ## Partition 5
 
@@ -462,6 +508,18 @@ ex2.expt5 - ex2.ans5
 all(abs(ex2.expt5 - ex2.ans5) < 1e-10)
 ```
 
+
+```{r ex2_part5_calc_mdp}
+ex2.mdp.expt5 = 80/(3 * 17 * 19)
+ex2.mdp.ans5 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2), c(3), c(4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt5 - ex2.mdp.ans5)/min(c(ex2.mdp.expt5, ex2.mdp.ans5))
+abs((ex2.mdp.expt5 - ex2.mdp.ans5)/min(c(ex2.mdp.expt5, ex2.mdp.ans5))) < 1e-10
+abs((ex2.mdp.expt5 - ex2.mdp.ans5)) < 1e-10
+```
+
 ## Partition 6
 
 Partition pattern: (1, 2, 1, 1)
@@ -492,6 +550,18 @@ print(ex2.ans6, digit = 12)
 
 ex2.expt6 - ex2.ans6
 all(abs(ex2.expt6 - ex2.ans6) < 1e-10)
+```
+
+
+```{r ex2_part6_calc_mdp}
+ex2.mdp.expt6 = 20/(17 * 19)
+ex2.mdp.ans6 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 3, 4), c(2)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt6 - ex2.mdp.ans6)/min(c(ex2.mdp.expt6, ex2.mdp.ans6))
+abs((ex2.mdp.expt6 - ex2.mdp.ans6)/min(c(ex2.mdp.expt6, ex2.mdp.ans6))) < 1e-10
+abs((ex2.mdp.expt6 - ex2.mdp.ans6)) < 1e-10
 ```
 
 ## Partition 7
@@ -527,6 +597,17 @@ ex2.expt7 - ex2.ans7
 all(abs(ex2.expt7 - ex2.ans7) < 1e-10)
 ```
 
+
+```{r ex2_part7_calc_mdp}
+ex2.mdp.expt7 = 50/(3 * 17 * 19)
+ex2.mdp.ans7 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 3), c(2, 4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt7 - ex2.mdp.ans7)/min(c(ex2.mdp.expt7, ex2.mdp.ans7))
+abs((ex2.mdp.expt7 - ex2.mdp.ans7)/min(c(ex2.mdp.expt7, ex2.mdp.ans7))) < 1e-10
+abs((ex2.mdp.expt7 - ex2.mdp.ans7)) < 1e-10
+```
 
 ## Partition 8
 
@@ -566,6 +647,18 @@ ex2.expt8 - ex2.ans8
 all(abs(ex2.expt8 - ex2.ans8) < 1e-10)
 ```
 
+
+```{r ex2_part8_calc_mdp}
+ex2.mdp.expt8 = 80/(3 * 17 * 19)
+ex2.mdp.ans8 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 3), c(2), c(4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt8 - ex2.mdp.ans8)/min(c(ex2.mdp.expt8, ex2.mdp.ans8))
+abs((ex2.mdp.expt8 - ex2.mdp.ans8)/min(c(ex2.mdp.expt8, ex2.mdp.ans8))) < 1e-10
+abs((ex2.mdp.expt8 - ex2.mdp.ans8)) < 1e-10
+```
+
 # Partition 9
 
 Partition: (1, 2, 2, 1)
@@ -597,6 +690,19 @@ print(ex2.ans9, digit = 12)
 
 ex2.expt9 - ex2.ans9
 all(abs(ex2.expt9 - ex2.ans9) < 1e-10)
+```
+
+
+
+```{r ex2_part9_calc_mdp}
+ex2.mdp.expt9 = 50/(3 * 17 * 19)
+ex2.mdp.ans9 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 4), c(2, 3)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt9 - ex2.mdp.ans9)/min(c(ex2.mdp.expt9, ex2.mdp.ans9))
+abs((ex2.mdp.expt9 - ex2.mdp.ans9)/min(c(ex2.mdp.expt9, ex2.mdp.ans9))) < 1e-10
+abs((ex2.mdp.expt9 - ex2.mdp.ans9)) < 1e-10
 ```
 
 ## Partition 10
@@ -631,6 +737,17 @@ print(ex2.ans10, digit = 12)
 
 ex2.expt10 - ex2.ans10
 all(abs(ex2.expt10 - ex2.ans10) < 1e-10)
+```
+
+```{r ex2_part10_calc_mdp}
+ex2.mdp.expt10 = 20/(17 * 19)
+ex2.mdp.ans10 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1), c(2, 3, 4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt10 - ex2.mdp.ans10)/min(c(ex2.mdp.expt10, ex2.mdp.ans10))
+abs((ex2.mdp.expt10 - ex2.mdp.ans10)/min(c(ex2.mdp.expt10, ex2.mdp.ans10))) < 1e-10
+abs((ex2.mdp.expt10 - ex2.mdp.ans10)) < 1e-10
 ```
 
 ## Partition 11
@@ -674,6 +791,19 @@ ex2.expt11 - ex2.ans11
 all(abs(ex2.expt11 - ex2.ans11) < 1e-10)
 ```
 
+
+
+```{r ex2_part11_calc_mdp}
+ex2.mdp.expt11 = 80/(3 * 17 * 19)
+ex2.mdp.ans11 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1), c(2, 3), c(4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt11 - ex2.mdp.ans11)/min(c(ex2.mdp.expt11, ex2.mdp.ans11))
+abs((ex2.mdp.expt11 - ex2.mdp.ans11)/min(c(ex2.mdp.expt11, ex2.mdp.ans11))) < 1e-10
+abs((ex2.mdp.expt11 - ex2.mdp.ans11)) < 1e-10
+```
+
 ## Partition 12
 
 Partition: (1, 2, 3, 1)
@@ -712,6 +842,19 @@ print(ex2.ans12, digit = 12)
 
 ex2.expt12 - ex2.ans12
 all(abs(ex2.expt12 - ex2.ans12) < 1e-10)
+```
+
+
+
+```{r ex2_part12_calc_mdp}
+ex2.mdp.expt12 = 80/(3 * 17 * 19)
+ex2.mdp.ans12 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 4), c(2), c(3)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt12 - ex2.mdp.ans12)/min(c(ex2.mdp.expt12, ex2.mdp.ans12))
+abs((ex2.mdp.expt12 - ex2.mdp.ans12)/min(c(ex2.mdp.expt12, ex2.mdp.ans12))) < 1e-10
+abs((ex2.mdp.expt12 - ex2.mdp.ans12)) < 1e-10
 ```
 
 ## Partition 13
@@ -756,6 +899,18 @@ ex2.expt13 - ex2.ans13
 all(abs(ex2.expt13 - ex2.ans13) < 1e-10)
 ```
 
+
+```{r ex2_part13_calc_mdp}
+ex2.mdp.expt13 = 80/(3 * 17 * 19)
+ex2.mdp.ans13 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1), c(2, 4), c(3)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt13 - ex2.mdp.ans13)/min(c(ex2.mdp.expt13, ex2.mdp.ans13))
+abs((ex2.mdp.expt13 - ex2.mdp.ans13)/min(c(ex2.mdp.expt13, ex2.mdp.ans13))) < 1e-10
+abs((ex2.mdp.expt13 - ex2.mdp.ans13)) < 1e-10
+```
+
 ## Partition 14
 
 Partition: (1, 2, 3, 3)
@@ -794,6 +949,19 @@ print(ex2.ans14, digit = 12)
 
 ex2.expt14 - ex2.ans14
 all(abs(ex2.expt14 - ex2.ans14) < 1e-10)
+```
+
+
+
+```{r ex2_part14_calc_mdp}
+ex2.mdp.expt14 = 80/(3 * 17 * 19)
+ex2.mdp.ans14 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1), c(2), c(3, 4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt14 - ex2.mdp.ans14)/min(c(ex2.mdp.expt14, ex2.mdp.ans14))
+abs((ex2.mdp.expt14 - ex2.mdp.ans14)/min(c(ex2.mdp.expt14, ex2.mdp.ans14))) < 1e-10
+abs((ex2.mdp.expt14 - ex2.mdp.ans14)) < 1e-10
 ```
 
 ## Partition 15
@@ -842,4 +1010,17 @@ print(ex2.ans15, digit = 12)
 
 ex2.expt15 - ex2.ans15
 all(abs(ex2.expt15 - ex2.ans15) < 1e-10)
+```
+
+
+
+```{r ex2_part15_calc_mdp}
+ex2.mdp.expt15 = 64/(3 * 17 * 19)
+ex2.mdp.ans15 = calcLogMDPColPrior(alpha = 16, 
+                                  setList = list(c(1), c(2), c(3), c(4)), 
+                                  setCountMax = 4)
+
+abs(ex2.mdp.expt15 - ex2.mdp.ans15)/min(c(ex2.mdp.expt15, ex2.mdp.ans15))
+abs((ex2.mdp.expt15 - ex2.mdp.ans15)/min(c(ex2.mdp.expt15, ex2.mdp.ans15))) < 1e-10
+abs((ex2.mdp.expt15 - ex2.mdp.ans15)) < 1e-10
 ```
