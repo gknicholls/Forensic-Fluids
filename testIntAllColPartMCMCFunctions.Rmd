@@ -17,6 +17,7 @@ setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/")
 ```{r load_lib}
 library(salso)
 source("forensicFunctions.R")
+load(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allPartSets10.RData")
 ```
 
 ```{r load_data}
@@ -32,16 +33,26 @@ dim(sample.df)
 ```
 
 ```{r func}
-checkAbsDiff = function(threshold = 1e-10, expected = NULL, answer = NULL){
+checkAbsDiff = function(threshold = 1e-10, expected = NULL, answer = NULL, print = T){
   test = abs(expected - answer)
-  message(paste("Absolute difference", signif(test, 5), sep = ": "))
-  message(paste("Test passed", test < threshold, sep = ": "))
+  if(print){
+    message(paste("Absolute difference", signif(test, 5), sep = ": "))
+    message(paste("Test passed", test < threshold, sep = ": "))
+  }else{
+    return(test < threshold)
+  }
+  
 }
 
-checkAbsRelativeDiff = function(threshold = 1e-10, expected = NULL, answer = NULL, rel = NULL){
+checkAbsRelativeDiff = function(threshold = 1e-10, expected = NULL, answer = NULL, rel = NULL, print = T){
   test = abs(expected - answer)/rel
-  message(paste("Absolute relative difference", signif(test, 5), sep = ": "))
-  message(paste("Test passed", test < threshold, sep = ": "))
+  if(print){
+    message(paste("Absolute relative difference", signif(test, 5), sep = ": "))
+    message(paste("Test passed", test < threshold, sep = ": "))
+  }else{
+    return(test < threshold)
+  }
+  
 }
 ```
 
@@ -1180,12 +1191,13 @@ elts4AllPartSetMDPPrior = unlist(lapply(elts4AllPartSet,
                                         calcMDPColPrior, 
                                         alpha = 16, 
                                         setCountMax = 4))
-ex2.subtype.log.lik.ans = calcLogSubTypeLik(eltsAllPartSetList = list(elts4AllPartSet), 
-                                            eltsAllPartSetPriorList = list(elts4AllPartSetMDPPrior),
-                                            sample = slvEx2.df, 
-                                            mkrList = list(colnames(slvEx2.df)), 
-                                            alphaC = 3, 
-                                            betaC = 2)
+ex2.subtype.log.lik.ans = 
+  calcLogSubTypeLik(eltsAllPartSetList = list(elts4AllPartSet),
+                    eltsAllPartSetPriorList = list(elts4AllPartSetMDPPrior),
+                    sample = slvEx2.df,
+                    mkrList = list(colnames(slvEx2.df)),
+                    alphaC = 3,
+                    betaC = 2)
 
 checkAbsDiff(expected = ex2.subtype.log.lik.expt, 
              answer = ex2.subtype.log.lik.ans)
@@ -1195,19 +1207,20 @@ checkAbsRelativeDiff(expected = ex1.subtype.log.lik.expt,
                                      ex1.subtype.log.lik.ans))))
 ```
 
-# Test \texttt{calcLogTypeLik} Function
+# Test \texttt{calcLogSubTypeLik} Function
 
-```{r}
+```{r ex_subtype_lik}
 ex.subtype.log.lik.expt = 
   ex1.subtype.log.lik.expt + ex2.subtype.log.lik.expt
-ex.subtype.log.lik.ans = calcLogSubTypeLik(eltsAllPartSetList = list(elts3AllPartSet,
-                                                                      elts4AllPartSet), 
-                                            eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior,
-                                                                           elts4AllPartSetMDPPrior),
-                                            sample = cbind(slvEx1.df, slvEx2.df), 
-                                            mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)), 
-                                            alphaC = c(2, 3), 
-                                            betaC = c(3, 2))
+ex.subtype.log.lik.ans = 
+  calcLogSubTypeLik(eltsAllPartSetList = list(elts3AllPartSet,
+                                              elts4AllPartSet),
+                    eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior,
+                                                   elts4AllPartSetMDPPrior),
+                    sample = cbind(slvEx1.df, slvEx2.df),
+                    mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)),
+                    alphaC = c(2, 3),
+                    betaC = c(3, 2))
 
 checkAbsDiff(expected = ex.subtype.log.lik.expt, 
              answer = ex.subtype.log.lik.ans)
@@ -1215,4 +1228,59 @@ checkAbsRelativeDiff(expected = ex.subtype.log.lik.expt,
                      answer = ex.subtype.log.lik.ans, 
                      rel = min(abs(c(ex.subtype.log.lik.expt, 
                                      ex.subtype.log.lik.ans))))
+```
+
+# Test \texttt{calcLogSubTypeLik} Function
+
+```{r ex_subtype_lik}
+
+subtype_lik_test1 = c()
+subtype_lik_test2 = c()
+for(partIndex in 1:length(allPartSets10List)){
+  ex.subtype.log.lik.expt = c()
+for(setIndex in 1:length(allPartSets10List[[partIndex]])){
+  obsPartIndexes = allPartSets10List[[partIndex]][[setIndex]]
+  ex.subtype.log.lik.expt[setIndex] = 
+    calcLogSubTypeLik(eltsAllPartSetList = list(elts3AllPartSet,
+                                              elts4AllPartSet),
+                    eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior,
+                                                   elts4AllPartSetMDPPrior),
+                    sample = cbind(slvEx1.df[obsPartIndexes, ], 
+                                   slvEx2.df[obsPartIndexes, ]),
+                    mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)),
+                    alphaC = c(2, 3),
+                    betaC = c(3, 2))
+}
+ex.subtype.log.lik.expt = sum(ex.subtype.log.lik.expt)
+
+setIndexes = sample(1:10, length(allPartSets10List[[partIndex]]))
+obsPartSets = list()
+for(index in 1:length(setIndexes)){
+  obsPartSets[[setIndexes[index]]] = allPartSets10List[[partIndex]][[index]]
+}
+
+
+ex.subtype.log.lik.ans = calcLogTypeLik(eltsAllPartSetList = list(elts3AllPartSet,
+                                              elts4AllPartSet), 
+                          eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior,
+                                                   elts4AllPartSetMDPPrior), 
+                          sample = cbind(slvEx1.df, 
+                                   slvEx2.df), 
+                          subtypeList = obsPartSets, 
+                          mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)), 
+                          alphaC = c(2, 3), 
+                          betaC = c(3, 2))
+
+subtype_lik_test1[partIndex] = checkAbsDiff(expected = ex.subtype.log.lik.expt, 
+                                            answer = ex.subtype.log.lik.ans,
+                                            print = FALSE)
+subtype_lik_test2[partIndex] = checkAbsRelativeDiff(expected = ex.subtype.log.lik.expt,
+                     answer = ex.subtype.log.lik.ans, 
+                     rel = min(abs(c(ex.subtype.log.lik.expt, 
+                                     ex.subtype.log.lik.ans))),
+                                            print = FALSE)
+  if(partIndex %%1000 ==0){
+    message(partIndex)
+  }
+}
 ```
