@@ -20,6 +20,8 @@ public class TestClusterLikelihood extends TestCase {
 
         double getBeta();
 
+        double[] getColPrior();
+
         ArrayList<Integer> getSubtypeIndexes();
     }
 
@@ -69,6 +71,17 @@ public class TestClusterLikelihood extends TestCase {
                     4.244733132751831e-11,
                     7.782010743378348e-11,
                     9.52002247410134e-12
+            };
+        }
+
+        @Override
+        public double[] getColPrior() {
+            return new double[]{
+                    0.1648351648351658,
+                    0.2197802197802201,
+                    0.2197802197802201,
+                    0.2197802197802201,
+                    0.1758241758241763
             };
         }
 
@@ -160,6 +173,28 @@ public class TestClusterLikelihood extends TestCase {
         }
 
         @Override
+        public double[] getColPrior() {
+            return new double[]{
+                    35.0/(3.0 * 17.0 * 19.0),
+                    20.0/(17.0 * 19.0),
+                    20.0/(17.0 * 19.0),
+                    50.0/(3.0 * 17.0 * 19.0),
+                    80.0/(3.0 * 17.0 * 19.0),
+                    20.0/(17.0 * 19.0),
+                    50.0/(3.0 * 17.0 * 19.0),
+                    80.0/(3.0 * 17.0 * 19.0),
+                    50.0/(3.0 * 17.0 * 19.0),
+                    20.0/(17.0 * 19.0),
+                    80.0/(3.0 * 17.0 * 19.0),
+                    80.0/(3.0 * 17.0 * 19.0),
+                    80.0/(3.0 * 17.0 * 19.0),
+                    80.0/(3.0 * 17.0 * 19.0),
+                    64.0/(3.0 * 17.0 * 19.0)
+
+            };
+        }
+
+        @Override
         public double getAlpha(){
             return 3;
         }
@@ -204,6 +239,30 @@ public class TestClusterLikelihood extends TestCase {
             }
         }
     }
+
+    public void testCalcLogSubtypeLikelihood(){
+        int[][][][] mkrGrpPartitions = new int[2][][][];
+        mkrGrpPartitions[0] = test0.getPartitions();
+        mkrGrpPartitions[1] = test1.getPartitions();
+
+        int[][][] data = new int[2][][];
+        data[0] = test0.getData();
+        data[1] = test1.getData();
+
+        double[][] colPriors = new double[2][];
+        colPriors[0] = test0.getColPrior();
+        colPriors[1] = test1.getColPrior();
+        double[] alphaC = new double[]{test0.getAlpha(), test1.getAlpha()};
+        double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
+
+        double logSubLik = ClusterLikelihood.CalcLogSubtypeLikelihood(mkrGrpPartitions,
+                colPriors, data, alphaC, betaC, test1.getSubtypeIndexes());
+
+        assertEquals(logSubLik, -49.6924097777349, 1e-10);
+
+    }
+
+
 
 
 

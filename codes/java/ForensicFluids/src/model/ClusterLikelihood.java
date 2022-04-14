@@ -40,7 +40,7 @@ public class ClusterLikelihood {
 
     }
 
-    public static int CalculateAmplifiedCount(int[][] sample, int[] set, ArrayList<Integer> subtypeIndexes){
+    private static int CalculateAmplifiedCount(int[][] sample, int[] set, ArrayList<Integer> subtypeIndexes){
         int amplified = 0;
         int col = 0;
 
@@ -61,14 +61,19 @@ public class ClusterLikelihood {
     public static double CalcLogSubtypeLikelihood(int[][][][] eltsAllPartSetList,
                                                   double[][] eltsAllPartSetPriorList,
                                                   int[][][] sample,
-                                                  double alphaC,
-                                                  double betaC,
+                                                  double[] alphaC,
+                                                  double[] betaC,
                                                   ArrayList<Integer> subtypeIndexes){
         double logSubtypeLikelihood = 0.0;
 
         for(int mkrGrpIndex = 0; mkrGrpIndex < sample.length; mkrGrpIndex++){
             double[] colPartLik =
-                    CalcIntAllPartsMkrGrpLik(eltsAllPartSetList[mkrGrpIndex], sample[mkrGrpIndex], alphaC, betaC, subtypeIndexes);
+                    CalcIntAllPartsMkrGrpLik(
+                            eltsAllPartSetList[mkrGrpIndex],
+                            sample[mkrGrpIndex],
+                            alphaC[mkrGrpIndex],
+                            betaC[mkrGrpIndex],
+                            subtypeIndexes);
 
             double subtypeMkrGrpLik = 0.0;
             for(int partIndex = 0; partIndex < eltsAllPartSetList[mkrGrpIndex].length; partIndex++){
@@ -92,8 +97,8 @@ public class ClusterLikelihood {
     public static double CalcLogTypeLikelihood(int[][][][] eltsAllPartSetList,
                                                double[][] eltsAllPartSetPriorList,
                                                int[][][] sample,
-                                               double alphaC,
-                                               double betaC,
+                                               double[] alphaC,
+                                               double[] betaC,
                                                ArrayList<ArrayList<Integer>> subtypeSets){
         double logTypeLikelihood = 0.0;
 
