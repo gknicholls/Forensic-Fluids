@@ -6,7 +6,7 @@ import org.apache.commons.math3.special.Gamma;
 import java.util.ArrayList;
 
 public class ClusterLikelihood {
-    public static double[] CalcLikIntAllParts(int[][][] eltsAllPartSet,
+    public static double[] CalcIntAllPartsMkrGrpLik(int[][][] eltsAllPartSet,
                                               int[][] sample,
                                               double alphaC,
                                               double betaC,
@@ -26,9 +26,11 @@ public class ClusterLikelihood {
 
                 s = CalculateAmplifiedCount(sample, eltsAllPartSet[partIndex][setIndex], subtypeIndexes);
                 c = sample.length * eltsAllPartSet[partIndex][setIndex].length;
-                logMarkerLik =+ Beta.logBeta(alphaC + s, betaC + c - s);
+                logMarkerLik += Beta.logBeta(alphaC + s, betaC + c - s);
+
 
             }
+
 
             partLikVec[partIndex] = Math.exp(logMarkerLik);
         }
@@ -59,7 +61,6 @@ public class ClusterLikelihood {
     public static double CalcLogSubtypeLikelihood(int[][][][] eltsAllPartSetList,
                                                   double[][] eltsAllPartSetPriorList,
                                                   int[][][] sample,
-                                                  ArrayList<ArrayList<Integer>> mkrList,
                                                   double alphaC,
                                                   double betaC,
                                                   ArrayList<Integer> subtypeIndexes){
@@ -67,7 +68,7 @@ public class ClusterLikelihood {
 
         for(int mkrGrpIndex = 0; mkrGrpIndex < sample.length; mkrGrpIndex++){
             double[] colPartLik =
-                    CalcLikIntAllParts(eltsAllPartSetList[mkrGrpIndex], sample[mkrGrpIndex], alphaC, betaC, subtypeIndexes);
+                    CalcIntAllPartsMkrGrpLik(eltsAllPartSetList[mkrGrpIndex], sample[mkrGrpIndex], alphaC, betaC, subtypeIndexes);
 
             double subtypeMkrGrpLik = 0.0;
             for(int partIndex = 0; partIndex < eltsAllPartSetList[mkrGrpIndex].length; partIndex++){
@@ -91,7 +92,6 @@ public class ClusterLikelihood {
     public static double CalcLogTypeLikelihood(int[][][][] eltsAllPartSetList,
                                                double[][] eltsAllPartSetPriorList,
                                                int[][][] sample,
-                                               ArrayList<ArrayList<Integer>> mkrList,
                                                double alphaC,
                                                double betaC,
                                                ArrayList<ArrayList<Integer>> subtypeSets){
@@ -99,7 +99,7 @@ public class ClusterLikelihood {
 
         for(int subtypeIndex = 0; subtypeIndex < subtypeSets.size(); subtypeIndex++){
             logTypeLikelihood += CalcLogSubtypeLikelihood(eltsAllPartSetList,
-                    eltsAllPartSetPriorList, sample, mkrList, alphaC, betaC, subtypeSets.get(subtypeIndex));
+                    eltsAllPartSetPriorList, sample, alphaC, betaC, subtypeSets.get(subtypeIndex));
         }
 
         return(logTypeLikelihood);

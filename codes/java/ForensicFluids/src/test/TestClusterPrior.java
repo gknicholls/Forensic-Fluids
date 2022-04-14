@@ -134,7 +134,7 @@ public class TestClusterPrior extends TestCase {
 
 
     public void testCalcMDP(){
-        Instance[] tests = new Instance[]{test1};
+        Instance[] tests = new Instance[]{test0, test1};
         for(Instance test: tests) {
 
             int[][][] partitions = test.getPartitions();
