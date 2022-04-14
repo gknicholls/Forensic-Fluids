@@ -48,10 +48,14 @@ public class ClusterPrior {
         double frac1 = Gamma.logGamma(alpha) - setCount*Gamma.logGamma(alpha/setCountMax);
         double frac2 = Gamma.logGamma(setCountMax + 1) - Gamma.logGamma(setCountMax - setCount + 1);
         double frac3 = 0.0;
+
         for(int setIndex = 0; setIndex < setCount; setIndex++){
             frac3 += Gamma.logGamma(alpha/setCountMax + setList[setIndex].length);
         }
+
+
         frac3 -= Gamma.logGamma(alpha + totalObsCount);
+
         double logMDP = frac1 + frac2 + frac3;
 
         return logMDP;
