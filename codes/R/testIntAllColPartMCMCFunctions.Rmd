@@ -1286,3 +1286,17 @@ for(partIndex in 1:length(allPartSets10List)){
   }
 }
 ```
+
+```{r save, eval = F, echo = F}
+ex.type.log.res.df = data.frame(expected = ex.type.log.lik.expt, 
+                                answer = ex.type.log.lik.ans)
+write.csv(ex.type.log.res.df,
+          file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.type.log.res.csv",
+          quote = F, row.names = F)
+
+save(ex.type.log.lik.expt,
+     ex.type.log.lik.ans,
+     subtype_lik_test1,
+     subtype_lik_test2,
+     file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.type.log.res.rda")
+```
