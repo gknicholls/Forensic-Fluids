@@ -3,6 +3,8 @@ package test;
 import junit.framework.TestCase;
 import model.ClusterLikelihood;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -259,6 +261,124 @@ public class TestClusterLikelihood extends TestCase {
                 colPriors, data, alphaC, betaC, test1.getSubtypeIndexes());
 
         assertEquals(logSubLik, -49.6924097777349, 1e-10);
+
+    }
+
+    public void testCalcLogTypeLikelihood(){
+        String filepath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.type.log.res.csv";
+        double[][] logTypeLik = getTable(filepath, 115975);
+
+        int[][][][] mkrGrpPartitions = new int[2][][][];
+        mkrGrpPartitions[0] = test0.getPartitions();
+        mkrGrpPartitions[1] = test1.getPartitions();
+
+        int[][][] data = new int[2][][];
+        data[0] = test0.getData();
+        data[1] = test1.getData();
+
+        double[][] colPriors = new double[2][];
+        colPriors[0] = test0.getColPrior();
+        colPriors[1] = test1.getColPrior();
+        double[] alphaC = new double[]{test0.getAlpha(), test1.getAlpha()};
+        double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
+
+
+        ArrayList<ArrayList<Integer>> subtypeParts = new ArrayList<ArrayList<Integer>>();
+        subtypeParts.add(test1.getSubtypeIndexes());
+        double logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                colPriors, data, alphaC, betaC, subtypeParts);
+        System.out.println(logSubLik - logTypeLik[0][0]);
+
+        String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
+
+        ArrayList<Integer>[][] allParts10 = getCluster(clustFile, 115975);
+
+        for(int partIndex = 0; partIndex < allParts10.length; partIndex++){
+            subtypeParts = new ArrayList<ArrayList<Integer>>();
+            for(int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++){
+                subtypeParts.add(allParts10[partIndex][setIndex]);
+            }
+
+            logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                    colPriors, data, alphaC, betaC, subtypeParts);
+
+            assertEquals(logSubLik, logTypeLik[partIndex][0], 1e-10);
+        }
+
+
+
+
+
+
+    }
+
+    private static double[][] getTable(String file, int lineCount){
+        try{
+
+            BufferedReader tableReader = new BufferedReader(new FileReader(file));
+            String line = tableReader.readLine();
+            String[] elts = line.split(",");
+            double[][] table = new double[lineCount][elts.length];
+
+            for(int lineIndex = 0; lineIndex < lineCount; lineIndex++){
+                elts = tableReader.readLine().split(",");
+                for(int eltsIndex = 0; eltsIndex < elts.length; eltsIndex++){
+                    table[lineIndex][eltsIndex] = Double.parseDouble(elts[eltsIndex]);
+                }
+            }
+
+            tableReader.close();
+
+            return table;
+
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private static ArrayList<Integer>[][] getCluster(String file, int lineCount){
+        try{
+
+            BufferedReader clustReader = new BufferedReader(new FileReader(file));
+            String line = "";
+            String[] clustStr;
+            String[] obsInClust;
+            ArrayList<Integer>[][] clusts = (ArrayList<Integer>[][]) new ArrayList[lineCount][];
+
+            for(int lineIndex = 0; lineIndex < lineCount; lineIndex++){
+                line = clustReader.readLine().trim();
+                line = line.substring(1, line.length() - 1);
+
+                if(line.contains("], [")){
+                    clustStr = line.split("\\], \\[");
+                }else{
+                    clustStr = new String[]{line};
+                }
+
+
+                clusts[lineIndex] = (ArrayList<Integer>[]) new ArrayList[clustStr.length];
+                for(int clustIndex = 0; clustIndex < clustStr.length; clustIndex++){
+                    obsInClust = clustStr[clustIndex].replaceAll("\\[|\\]", "").split(", ");
+
+                    clusts[lineIndex][clustIndex] = new ArrayList<Integer>();
+                    for(int obsIndex = 0; obsIndex < obsInClust.length; obsIndex++){
+                        clusts[lineIndex][clustIndex].add(Integer.parseInt(obsInClust[obsIndex]) - 1);
+
+                    }
+
+
+
+                }
+            }
+
+            clustReader.close();
+
+            return clusts;
+
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
 
     }
 

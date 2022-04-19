@@ -25,14 +25,17 @@ public class ClusterLikelihood {
             for(int setIndex = 0; setIndex < eltsAllPartSet[partIndex].length; setIndex++){
 
                 s = CalculateAmplifiedCount(sample, eltsAllPartSet[partIndex][setIndex], subtypeIndexes);
-                c = sample.length * eltsAllPartSet[partIndex][setIndex].length;
+                c = subtypeIndexes.size() * eltsAllPartSet[partIndex][setIndex].length;
                 logMarkerLik += Beta.logBeta(alphaC + s, betaC + c - s);
+                //System.out.println(alphaC + " "+ s +" "+betaC+" "+c);
+                //System.out.println(Beta.logBeta(alphaC + s, betaC + c - s));
 
 
             }
 
 
             partLikVec[partIndex] = Math.exp(logMarkerLik);
+            //System.out.println(partLikVec[partIndex]);
         }
 
         return partLikVec;
@@ -42,17 +45,19 @@ public class ClusterLikelihood {
 
     private static int CalculateAmplifiedCount(int[][] sample, int[] set, ArrayList<Integer> subtypeIndexes){
         int amplified = 0;
-        int col = 0;
+        int col;
 
         for(int colIndex = 0; colIndex < set.length; colIndex++){
 
             col = set[colIndex];
 
             for(int rowIndex = 0; rowIndex < subtypeIndexes.size(); rowIndex++){
+
                 amplified += sample[subtypeIndexes.get(rowIndex)][col];
             }
 
         }
+        //System.out.println(amplified+" "+set.length+" "+subtypeIndexes.size());
 
         return amplified;
 

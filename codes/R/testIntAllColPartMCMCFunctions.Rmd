@@ -9,7 +9,7 @@ output:
 # Preliminaries
 
 ```{r setwd}
-setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/")
+setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/R/")
 
 ```
 
