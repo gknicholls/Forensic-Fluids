@@ -284,10 +284,7 @@ public class TestClusterLikelihood extends TestCase {
 
 
         ArrayList<ArrayList<Integer>> subtypeParts = new ArrayList<ArrayList<Integer>>();
-        subtypeParts.add(test1.getSubtypeIndexes());
-        double logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-                colPriors, data, alphaC, betaC, subtypeParts);
-        System.out.println(logSubLik - logTypeLik[0][0]);
+        double logSubLik;
 
         String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
 

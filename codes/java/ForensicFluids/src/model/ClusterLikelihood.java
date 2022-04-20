@@ -83,6 +83,9 @@ public class ClusterLikelihood {
             double subtypeMkrGrpLik = 0.0;
             for(int partIndex = 0; partIndex < eltsAllPartSetList[mkrGrpIndex].length; partIndex++){
 
+                //System.out.println(eltsAllPartSetPriorList[mkrGrpIndex][partIndex]);
+                //System.out.println(colPartLik[partIndex]);
+
                 subtypeMkrGrpLik += eltsAllPartSetPriorList[mkrGrpIndex][partIndex]*colPartLik[partIndex];
 
 
@@ -108,6 +111,7 @@ public class ClusterLikelihood {
         double logTypeLikelihood = 0.0;
 
         for(int subtypeIndex = 0; subtypeIndex < subtypeSets.size(); subtypeIndex++){
+            //System.out.println(subtypeIndex);
             logTypeLikelihood += CalcLogSubtypeLikelihood(eltsAllPartSetList,
                     eltsAllPartSetPriorList, sample, alphaC, betaC, subtypeSets.get(subtypeIndex));
         }
