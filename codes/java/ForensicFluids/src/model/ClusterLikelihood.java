@@ -107,13 +107,16 @@ public class ClusterLikelihood {
                                                int[][][] sample,
                                                double[] alphaC,
                                                double[] betaC,
-                                               ArrayList<ArrayList<Integer>> subtypeSets){
+                                               ArrayList<Integer>[] subtypeSets){
         double logTypeLikelihood = 0.0;
 
-        for(int subtypeIndex = 0; subtypeIndex < subtypeSets.size(); subtypeIndex++){
+        for(int subtypeIndex = 0; subtypeIndex < subtypeSets.length; subtypeIndex++){
             //System.out.println(subtypeIndex);
-            logTypeLikelihood += CalcLogSubtypeLikelihood(eltsAllPartSetList,
-                    eltsAllPartSetPriorList, sample, alphaC, betaC, subtypeSets.get(subtypeIndex));
+            if(subtypeSets[subtypeIndex].size() > 0){
+                logTypeLikelihood += CalcLogSubtypeLikelihood(eltsAllPartSetList,
+                        eltsAllPartSetPriorList, sample, alphaC, betaC, subtypeSets[subtypeIndex]);
+            }
+
         }
 
         return(logTypeLikelihood);

@@ -2,6 +2,7 @@ package test;
 
 import junit.framework.TestCase;
 import model.ClusterLikelihood;
+import utils.MathUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -283,17 +284,24 @@ public class TestClusterLikelihood extends TestCase {
         double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
 
 
-        ArrayList<ArrayList<Integer>> subtypeParts = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer>[] subtypeParts;
         double logSubLik;
 
         String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
 
+        int setMaxCount = 10;
         ArrayList<Integer>[][] allParts10 = getCluster(clustFile, 115975);
 
         for(int partIndex = 0; partIndex < allParts10.length; partIndex++){
-            subtypeParts = new ArrayList<ArrayList<Integer>>();
+            //System.out.println("partIndex: "+ partIndex);
+            subtypeParts = (ArrayList<Integer>[]) new ArrayList[setMaxCount];
+            for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
+                subtypeParts[setIndex] = new ArrayList<Integer>();
+            }
+            int[] samples = MathUtils.sample(allParts10[partIndex].length, 0,setMaxCount -1);
             for(int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++){
-                subtypeParts.add(allParts10[partIndex][setIndex]);
+                //System.out.println(samples[setIndex]);
+                subtypeParts[samples[setIndex]] = allParts10[partIndex][setIndex];
             }
 
             logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,

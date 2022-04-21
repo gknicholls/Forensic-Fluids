@@ -2,6 +2,7 @@ package scripts;
 
 import model.ClusterLikelihood;
 import model.ClusterPrior;
+import utils.MathUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -77,19 +78,25 @@ public class CalculatePosteriorForAllPartitions {
         double[] alphaC = new double[]{0.5, 1.0, 1.5, 2.0, 2.5};
         double[] betaC = new double[]{2.25, 1.75, 1.25, 0.75, 0.25};
 
-        ArrayList<ArrayList<Integer>> subtypeParts = new ArrayList<ArrayList<Integer>>();
+        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[10];
         double[] logTypeLik = new double[115975];
 
         String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
 
         ArrayList<Integer>[][] allParts10 = getCluster(clustFile, 115975);
 
+        int setCountMax = 10;
         try {
-            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.obs10.log.type.lik.txt");
+            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.obs10.log.type.lik.v2.txt");
             for (int partIndex = 0; partIndex < allParts10.length; partIndex++) {
-                subtypeParts = new ArrayList<ArrayList<Integer>>();
+                subtypeParts = (ArrayList<Integer>[]) new ArrayList[setCountMax];
+                for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
+                    subtypeParts[setIndex] = new ArrayList<Integer>();
+                }
+                int[] samples = MathUtils.sample(allParts10[partIndex].length, 0,setCountMax - 1);
+                //System.out.println(samples.length+" "+allParts10[partIndex].length+" "+subtypeParts.length);
                 for (int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++) {
-                    subtypeParts.add(allParts10[partIndex][setIndex]);
+                    subtypeParts[samples[setIndex]] = allParts10[partIndex][setIndex];
                 }
 
                 logTypeLik[partIndex] = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
