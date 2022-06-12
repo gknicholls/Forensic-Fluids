@@ -28,7 +28,7 @@ public class CalculatePosteriorForAllPartitions {
             data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat.csv",
                     colRange[i][0], colRange[i][1], 0, 9);
         }
-        for(int i = 0; i < data.length; i++){
+        /*for(int i = 0; i < data.length; i++){
 
             for(int j = 0; j < data[i].length; j++){
                 for(int k = 0; k < data[i][j].length; k++){
@@ -39,7 +39,7 @@ public class CalculatePosteriorForAllPartitions {
             }
             System.out.println();
 
-        }
+        }*/
 
         String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
         int[][][] partitions = getClusterArray(allPartitionSets10File, 115975);
@@ -47,7 +47,7 @@ public class CalculatePosteriorForAllPartitions {
         int maxSetCount = 10;
         int totalObsCount = 10;
 
-        int[][][] partSet5 = getClusterArray(allPartitionSets10File, 52);
+        int[][][] partSet5 = getClusterArray(allPartitionSets5File, 52);
         double[] mdpProbSet5 = new double[52];
         for (int partIndex = 0; partIndex < partSet5.length; partIndex++) {
             mdpProbSet5[partIndex] = ClusterPrior.CalcMDPDensity(
@@ -57,7 +57,7 @@ public class CalculatePosteriorForAllPartitions {
                     totalObsCount);
         }
 
-        int[][][] partSet7 = getClusterArray(allPartitionSets10File, 877);
+        int[][][] partSet7 = getClusterArray(allPartitionSets7File, 877);
         double[] mdpProbSet7 = new double[877];
         for (int partIndex = 0; partIndex < partSet7.length; partIndex++) {
             mdpProbSet7[partIndex] = ClusterPrior.CalcMDPDensity(
@@ -75,6 +75,7 @@ public class CalculatePosteriorForAllPartitions {
         colPriors[2] = mdpProbSet5;
         colPriors[3] = mdpProbSet5;
         colPriors[4] = mdpProbSet5;
+
         double[] alphaC = new double[]{0.5, 1.0, 1.5, 2.0, 2.5};
         double[] betaC = new double[]{2.25, 1.75, 1.25, 0.75, 0.25};
 
