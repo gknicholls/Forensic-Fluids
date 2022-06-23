@@ -1,5 +1,6 @@
 package inference;
 
+import model.ClusterLikelihood;
 import model.ClusterPrior;
 
 import java.io.BufferedReader;
@@ -9,6 +10,8 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class MCMC {
+    final private static Random random = new Random();
+
     public static void main(String[] args){
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
@@ -17,46 +20,100 @@ public class MCMC {
         double[] alphaC = new double[]{0.5, 1.0, 1.5, 2.0, 2.5};
         double[] betaC = new double[]{2.25, 1.75, 1.25, 0.75, 0.25};
 
+        int[][][] data = new int[5][][];
+        int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
+        for(int i = 0; i < colRange.length; i++){
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat.csv",
+                    colRange[i][0], colRange[i][1], 0, 9);
+        }
+
         ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[10];
-        subtypeParts[0] = new ArrayList<>(Arrays.asList(0,5));
-        subtypeParts[1] = new ArrayList<>(Arrays.asList(1,6));
-        subtypeParts[2] = new ArrayList<>(Arrays.asList(2,7));
-        subtypeParts[3] = new ArrayList<>(Arrays.asList(3,8));
-        subtypeParts[4] = new ArrayList<>(Arrays.asList(4,9));
+        for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
+            subtypeParts[setIndex] = new ArrayList<>(Arrays.asList(setIndex));
+        }
+
+        MCMC estSubtype = new MCMC(subtypeParts, mkrGrpPartitions, colPriors,alphaC, betaC, 3.0,data,100);
+        estSubtype.run();
 
     }
 
-    private static double SingleRowMove(ArrayList<Integer>[] subtypesList){
-        Random random = new Random();
-        int setMaxCount = subtypesList.length;
 
-        ArrayList<Integer> currNonEmptySet = new ArrayList<>();
-        ArrayList<Integer> propNonEmptySet = new ArrayList<>();
-        for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
-            int currSetSize = subtypesList[setIndex].size();
-            if(currSetSize > 0){
-                currNonEmptySet.add(setIndex);
-                propNonEmptySet.add(setIndex);
+    private ArrayList<Integer>[] subtypeList;
+    private ArrayList<Integer>[] storedSubtypeList;
+    private int[][][][] mkrGrpPartitions;
+    private double[][] colPriors;
+    private double[] alphaC;
+    private double[] betaC;
+    private int[][][] data;
+    private double alpha;
+    private int totalObsCount;
+    private int chainLength;
+    public MCMC(ArrayList<Integer>[] subtypeList, int[][][][] mkrGrpPartitions,
+                double[][] colPriors, double[] alphaC, double[] betaC,
+                double alpha, int[][][] data, int chainLength){
+        this.subtypeList = subtypeList;
+        storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
+        this.mkrGrpPartitions = mkrGrpPartitions;
+        this.colPriors = colPriors;
+        this.alphaC = alphaC;
+        this.betaC = betaC;
+        this.alpha = alpha;
+        this.data = data;
+        totalObsCount = 0;
+        this.chainLength = chainLength;
+
+
+        for(int setIndex = 0; setIndex < this.subtypeList.length; setIndex++){
+            //System.out.println("setIndex: "+subtypeList[setIndex]);
+            totalObsCount+= this.subtypeList[setIndex].size();
+        }
+        store();
+
+    }
+
+    protected void run(){
+        double currLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                colPriors, data, alphaC, betaC, subtypeList);
+        double currLogPost = currLogLik + ClusterPrior.calcLogMDPDensity(
+                alpha, subtypeList.length, subtypeList, totalObsCount);
+        double logHR, propLogLik, propLogPost, logMHR;
+        for(int stepIndex = 0; stepIndex < chainLength; stepIndex++){
+            logHR = AssignSingleRow.SingleRowMove(subtypeList);
+            propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                    colPriors, data, alphaC, betaC, subtypeList);
+            propLogPost = propLogLik + ClusterPrior.calcLogMDPDensity(
+                    alpha, subtypeList.length, subtypeList, totalObsCount);
+            logMHR = propLogPost  - currLogPost + logHR;
+
+            if( Math.log(random.nextDouble()) < logMHR){
+                currLogPost = propLogPost;
+            }else{
+                restore();
             }
         }
-        int currNonEmptySetIndex = random.nextInt(currNonEmptySet.size());
-        int currSetIndex = currNonEmptySet.get(currNonEmptySetIndex);
-        int currSetSize = subtypesList[currSetIndex].size();
-        int currSetEltIndex = subtypesList[currSetIndex].get(random.nextInt(currSetSize));
-        int propSetIndex = random.nextInt(subtypesList.length - 1);
-        propSetIndex = propSetIndex < currSetIndex? propSetIndex : propSetIndex + 1;
-        int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
-        subtypesList[propSetIndex].add(obs);
-        if(subtypesList[currSetIndex].size() == 0){
-            propNonEmptySet.remove(currNonEmptySetIndex);
-        }
-        if(subtypesList[propSetIndex].size() == 1){
-            propNonEmptySet.add(propSetIndex);
-        }
-        double logHR = Math.log( currNonEmptySet.size() * currSetSize) /
-                (propNonEmptySet.size() * subtypesList[propSetIndex].size());
-        return logHR;
+
+
     }
+
+    private void store(){
+
+        for(int subtypeIndex = 0; subtypeIndex < storedSubtypeList.length; subtypeIndex++){
+            storedSubtypeList[subtypeIndex] = new ArrayList<Integer>();
+            for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                storedSubtypeList[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
+            }
+        }
+
+    }
+
+    private void restore(){
+        ArrayList<Integer>[] temp = subtypeList;
+        subtypeList = storedSubtypeList;
+        storedSubtypeList = temp;
+
+    }
+
+
 
     private static int[][][][] getMkerGroupPartitions(String allPartSets5File,
                                                String allPartSets7File){

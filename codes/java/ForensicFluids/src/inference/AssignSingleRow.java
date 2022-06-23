@@ -8,7 +8,65 @@ import java.util.Random;
 
 
 public class AssignSingleRow {
-    public static double proposal(ArrayList<Integer>[] subtypeList, int obsCount, int setMaxCount){
+
+    public static double SingleRowMove(ArrayList<Integer>[] subtypesList){
+        Random random = new Random();
+        int setMaxCount = subtypesList.length;
+
+        ArrayList<Integer> currNonEmptySet = new ArrayList<>();
+        ArrayList<Integer> propNonEmptySet = new ArrayList<>();
+        for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
+            int currSetSize = subtypesList[setIndex].size();
+            if(currSetSize > 0){
+                currNonEmptySet.add(setIndex);
+                propNonEmptySet.add(setIndex);
+            }
+        }
+
+        // Randomly select a non-empty cluster
+        int currNonEmptySetIndex = random.nextInt(currNonEmptySet.size());
+        int currSetIndex = currNonEmptySet.get(currNonEmptySetIndex);
+
+        // Randomly select a row in the selected non-empty cluster
+        int currSetSize = subtypesList[currSetIndex].size();
+        int currSetEltIndex = random.nextInt(currSetSize);
+        //System.out.println(currSetSize+" "+currSetEltIndex);
+
+        // Randomly select a cluster for the selected row to go into.
+        int propSetIndex = random.nextInt(subtypesList.length - 1);
+        // Avoids assigning into the same cluster where the row is from
+        propSetIndex = propSetIndex < currSetIndex? propSetIndex : propSetIndex + 1;
+
+        // Move the row
+        int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
+        subtypesList[propSetIndex].add(obs);
+
+        // The non-empty clusters after the proposal
+        if(subtypesList[currSetIndex].size() == 0){
+            propNonEmptySet.remove(currNonEmptySetIndex);
+        }
+        if(subtypesList[propSetIndex].size() == 1){
+            propNonEmptySet.add(propSetIndex);
+        }
+
+        // Hastings ratio: Pr1/Pr2
+        // Pr1 = Pr(move row i from proposed subtype k' to current subtype k)
+        // Pr2 = Pr(move row i from current subtype k to proposed subtype k')
+        // Let J be the max #subtypes allowed.
+        // Pr1 = Pr(select row i|subtype k')Pr(subtype k')Pr(choose one of non-k' subtype)
+        //     = (1/|k'|)(1/N'_ne)(1/(J-1)) where 1/N'_ne is the number of non-empty clusters after proposal
+        // Pr2 = Pr(select row i|subtype k)Pr(subtype k)Pr(choose one of non-k subtype)
+        //     = (1/|k|)(1/N_ne)(1/(J-1)) where 1/N_ne is the number of non-empty clusters before proposal
+        double logHR = Math.log( currNonEmptySet.size() * currSetSize) /
+                (propNonEmptySet.size() * subtypesList[propSetIndex].size());
+
+        return logHR;
+    }
+
+
+
+
+    /*public static double proposal(ArrayList<Integer>[] subtypeList, int obsCount, int setMaxCount){
         double hr = 0.0;
 
         int[] currCumSum = getCumSum(subtypeList);
@@ -72,5 +130,5 @@ public class AssignSingleRow {
             prevCount = cumSum[setIndex];
         }
         return cumSum;
-    }
+    }*/
 }

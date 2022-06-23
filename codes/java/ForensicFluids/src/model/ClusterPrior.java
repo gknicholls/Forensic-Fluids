@@ -37,6 +37,33 @@ public class ClusterPrior {
 
     }
 
+    public static double calcLogMDPDensity(double alpha,
+                                           int setCountMax,
+                                           ArrayList<Integer>[] setList,
+                                           int totalObsCount){
+
+
+        int setCount = 0;
+        for(int setIndex = 0; setIndex < setList.length; setIndex++){
+            if(setList[setIndex].size() > 0){
+                setCount++;
+            }
+        }
+        double frac1 = Gamma.logGamma(alpha) - setCount*Gamma.logGamma(alpha/setCountMax);
+        double frac2 = Gamma.logGamma(setCountMax + 1) - Gamma.logGamma(setCountMax - setCount + 1);
+        double frac3 = 0.0;
+        for(int setIndex = 0; setIndex < setCountMax; setIndex++){
+            if(setList[setIndex].size() > 0) {
+                frac3 += Gamma.logGamma(alpha / setCountMax + setList[setIndex].size());
+            }
+        }
+        frac3 -= Gamma.logGamma(alpha + totalObsCount);
+        double logMDP = frac1 + frac2 + frac3;
+
+        return logMDP;
+
+    }
+
 
     public static double CalcLogMDPDensity(double alpha,
                                            int setCountMax,

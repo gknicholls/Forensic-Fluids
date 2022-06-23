@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MathUtils {
+    final private static Random random = new Random();
     public static int[] sample(int count, int start, int end){
         int[] samples = new int[count];
         int index;
@@ -22,8 +23,10 @@ public class MathUtils {
     }
 
     public static int sample(int start, int end){
-        Random random = new Random();
+
         int value = ((int)random.nextInt(end+1)) + start;
         return value;
     }
+
+
 }
