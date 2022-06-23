@@ -45,26 +45,27 @@ public class CalculatePosteriorForAllPartitions {
         int[][][] partitions = getClusterArray(allPartitionSets10File, 115975);
         double alpha = 3;
         int maxSetCount = 10;
-        int totalObsCount = 10;
 
         int[][][] partSet5 = getClusterArray(allPartitionSets5File, 52);
         double[] mdpProbSet5 = new double[52];
         for (int partIndex = 0; partIndex < partSet5.length; partIndex++) {
             mdpProbSet5[partIndex] = ClusterPrior.CalcMDPDensity(
                     alpha,
-                    maxSetCount,
+                    5,
                     partSet5[partIndex],
-                    totalObsCount);
+                    5);
         }
+
+
 
         int[][][] partSet7 = getClusterArray(allPartitionSets7File, 877);
         double[] mdpProbSet7 = new double[877];
         for (int partIndex = 0; partIndex < partSet7.length; partIndex++) {
             mdpProbSet7[partIndex] = ClusterPrior.CalcMDPDensity(
                     alpha,
-                    maxSetCount,
+                    7,
                     partSet7[partIndex],
-                    totalObsCount);
+                    7);
         }
 
 
@@ -88,7 +89,7 @@ public class CalculatePosteriorForAllPartitions {
 
         int setCountMax = 10;
         try {
-            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.obs10.log.type.lik.v2.txt");
+            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs10.log.type.lik.v2.txt");
             for (int partIndex = 0; partIndex < allParts10.length; partIndex++) {
                 subtypeParts = (ArrayList<Integer>[]) new ArrayList[setCountMax];
                 for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
