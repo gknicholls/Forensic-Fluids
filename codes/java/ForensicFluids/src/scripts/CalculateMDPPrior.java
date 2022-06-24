@@ -8,12 +8,14 @@ import java.io.PrintWriter;
 
 public class CalculateMDPPrior {
     public static void main(String[] args){
-        String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
-        int[][][] partitions = getClusterArray(allPartitionSets10File, 115975);
-        double alpha = 3;
-        int maxSetCount = 10;
-        int totalObsCount = 10;
-        double[] mdpProb = new double[115975];
+        //String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
+        String allPartitionSets3File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets3.txt";
+        int totalPartsCount = 5;
+        int[][][] partitions = getClusterArray(allPartitionSets3File, totalPartsCount);
+        double alpha = 20;
+        int maxSetCount = 3;
+        int totalObsCount = 3;
+        double[] mdpProb = new double[totalPartsCount];
 
         for (int partIndex = 0; partIndex < partitions.length; partIndex++) {
             mdpProb[partIndex] = ClusterPrior.CalcMDPDensity(
@@ -29,7 +31,7 @@ public class CalculateMDPPrior {
         }
 
         try{
-            PrintWriter writer = new PrintWriter("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.mdp.txt");
+            PrintWriter writer = new PrintWriter("/Users/chwu/Documents/research/bfc/output/ex.3obs.mdp.txt");
             for(int i = 0; i < mdpProb.length; i++){
                 writer.println(mdpProb[i]);
             }

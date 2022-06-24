@@ -21,12 +21,14 @@ public class CalculatePosteriorForAllPartitions {
         mkrGrpPartitions[2] = allPartitionSets5;
         mkrGrpPartitions[3] = allPartitionSets5;
         mkrGrpPartitions[4] = allPartitionSets5;
+        int totalObsCount = 3;
+        int totalPartitionCount = 5;
 
         int[][][] data = new int[5][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat2.csv",
-                    colRange[i][0], colRange[i][1], 0, 9);
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.3obs.dat.csv",
+                    colRange[i][0], colRange[i][1], 0, totalObsCount - 1);
         }
         /*for(int i = 0; i < data.length; i++){
 
@@ -41,10 +43,12 @@ public class CalculatePosteriorForAllPartitions {
 
         }*/
 
-        String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
-        int[][][] partitions = getClusterArray(allPartitionSets10File, 115975);
+        //String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
+        String allPartitionSets3File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets3.txt";
+        int[][][] partitions = getClusterArray(allPartitionSets3File, totalPartitionCount);
         double alpha = 1.2;
-        int maxSetCount = 10;
+        int setCountMax = 3;
+
 
         int[][][] partSet5 = getClusterArray(allPartitionSets5File, 52);
         double[] mdpProbSet5 = new double[52];
@@ -82,16 +86,28 @@ public class CalculatePosteriorForAllPartitions {
         double[] alphaC = new double[]{0.97, 1.0, 0.98, 1.08, 1.05};
         double[] betaC = new double[]{1.06, 1.07, 1.02, 0.97, 0.95};
 
-        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[10];
-        double[] logTypeLik = new double[115975];
+        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[totalObsCount];
+        double[] logTypeLik = new double[partitions.length];
 
         String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
 
-        ArrayList<Integer>[][] allParts10 = getCluster(clustFile, 115975);
+        ArrayList<Integer>[][] allParts10 = MathUtils.getCluster(allPartitionSets3File, totalPartitionCount);
 
-        int setCountMax = 10;
+        for(int partIndex = 0; partIndex < allParts10.length; partIndex++){
+
+            for(int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++){
+                for(int eltIndex = 0; eltIndex < allParts10[partIndex][setIndex].size(); eltIndex++){
+                    System.out.print(allParts10[partIndex][setIndex].get(eltIndex)+" ");
+                }
+                System.out.println();
+            }
+            System.out.println();
+
+        }
+
+        //int setCountMax = 10;
         try {
-            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs10v2.log.type.lik.v2.txt");
+            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs3.log.type.lik.txt");
             for (int partIndex = 0; partIndex < allParts10.length; partIndex++) {
                 subtypeParts = (ArrayList<Integer>[]) new ArrayList[setCountMax];
                 for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
@@ -188,48 +204,5 @@ public class CalculatePosteriorForAllPartitions {
     }
 
 
-    private static ArrayList<Integer>[][] getCluster(String file, int lineCount){
-        try{
 
-            BufferedReader clustReader = new BufferedReader(new FileReader(file));
-            String line = "";
-            String[] clustStr;
-            String[] obsInClust;
-            ArrayList<Integer>[][] clusts = (ArrayList<Integer>[][]) new ArrayList[lineCount][];
-
-            for(int lineIndex = 0; lineIndex < lineCount; lineIndex++){
-                line = clustReader.readLine().trim();
-                line = line.substring(1, line.length() - 1);
-
-                if(line.contains("], [")){
-                    clustStr = line.split("\\], \\[");
-                }else{
-                    clustStr = new String[]{line};
-                }
-
-
-                clusts[lineIndex] = (ArrayList<Integer>[]) new ArrayList[clustStr.length];
-                for(int clustIndex = 0; clustIndex < clustStr.length; clustIndex++){
-                    obsInClust = clustStr[clustIndex].replaceAll("\\[|\\]", "").split(", ");
-
-                    clusts[lineIndex][clustIndex] = new ArrayList<Integer>();
-                    for(int obsIndex = 0; obsIndex < obsInClust.length; obsIndex++){
-                        clusts[lineIndex][clustIndex].add(Integer.parseInt(obsInClust[obsIndex]) - 1);
-
-                    }
-
-
-
-                }
-            }
-
-            clustReader.close();
-
-            return clusts;
-
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
-
-    }
 }

@@ -53,6 +53,8 @@ public class ClusterLikelihood {
 
             for(int rowIndex = 0; rowIndex < subtypeIndexes.size(); rowIndex++){
 
+                //System.out.println(rowIndex+" "+col+sample.length+" "+subtypeIndexes.get(rowIndex));
+
                 amplified += sample[subtypeIndexes.get(rowIndex)][col];
             }
 

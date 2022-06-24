@@ -24,32 +24,35 @@ public class MCMC {
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
         int[][][][] mkrGrpPartitions = getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
-        double[][] colPriors = getColPriors(1.2, allPartitionSets5File, allPartitionSets7File);
+        double alphaCol = 1.2;
+        double alphaRow = 20.0;
+        double[][] colPriors = getColPriors(alphaCol, allPartitionSets5File, allPartitionSets7File);
         double[] alphaC = new double[]{0.97, 1.0, 0.98, 1.08, 1.05};
         double[] betaC = new double[]{1.06, 1.07, 1.02, 0.97, 0.95};
         //double[] alphaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
         //double[] betaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
+        int totalObsCount = 3;
 
         int[][][] data = new int[MARKER_GROUP_COUNT][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat2.csv",
-                    colRange[i][0], colRange[i][1], 0, 9);
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.3obs.dat.csv",
+                    colRange[i][0], colRange[i][1], 0, totalObsCount-1);
         }
 
-        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[10];
+        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[totalObsCount];
         for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
             subtypeParts[setIndex] = new ArrayList<>(Arrays.asList(setIndex));
         }
 
         MCMC estSubtype = new MCMC(subtypeParts, mkrGrpPartitions, colPriors,
-                alphaC, betaC, 3.0, data,1000000);
+                alphaC, betaC, alphaRow, data,1000);
         try{
-            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/testBFC_10obsv2.log");
-            estSubtype.run(logWriter, 100);
+            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/testBFC_3obsv.log");
+            estSubtype.run(logWriter, 1);
             logWriter.close();
         }catch (Exception e){
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
 
 
@@ -97,27 +100,31 @@ public class MCMC {
         double currLogPost = currLogLik + currLogPrior;
         double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
 
-        output.println("STATE\tPosterior\tLog-likelihood\tLog-prior\tPartition");
-        log(output, currLogPost, currLogLik, currLogPrior, 0);
+        output.println("STATE\tPosterior\tLog-likelihood\tLog-prior\tPartition\tstoredPartition\tPropPartiton\tlogHR\tlogMHR\tdraw");
+        log(output, currLogPost, currLogLik, currLogPrior, 0, printCluster(subtypeList), printCluster(storedSubtypeList),0, 0, 0);
         for(int stepIndex = 0; stepIndex < chainLength; stepIndex++){
             store();
-            logHR = AssignSingleRow.SingleRowMove(subtypeList);
+            String storedClust = printCluster(storedSubtypeList);
+            //System.out.println(stepIndex+":"+printCluster(subtypeList)+" "+storedClust);
+            //logHR = AssignSingleRow.SingleRowMove(subtypeList);
+
+            logHR = RandomPartitionMove.randomPartition(subtypeList);
             propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subtypeList);
             propLogPrior = ClusterPrior.calcLogMDPDensity(
                     alpha, subtypeList.length, subtypeList, totalObsCount);
             propLogPost = propLogLik + propLogPrior;
             logMHR = propLogPost  - currLogPost + logHR;
+            String propClust = printCluster(subtypeList);
 
-            boolean accepted = false;
-            if( Math.log(random.nextDouble()) < logMHR){
-                accepted = true;
-                //System.out.println("accept "+ propLogLik+" "+propLogPrior);
+
+            double draw = Math.log(random.nextDouble());
+            if( logMHR >= 0.0 || draw < logMHR ){
+
                 currLogPost = propLogPost;
                 currLogPrior = propLogPrior;
                 currLogLik = propLogLik;
             }else{
-                accepted = false;
                 restore();
             }
             /*if(accepted){
@@ -126,7 +133,7 @@ public class MCMC {
 
             if(((stepIndex + 1)%logEvery) == 0){
                 //System.out.println("log "+ currLogLik+" "+ currLogPrior);
-                log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1);
+                log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, propClust, storedClust, logHR, logMHR, draw );
             }
 
 
@@ -135,13 +142,13 @@ public class MCMC {
 
     }
 
-    private void log(PrintStream output, double posterior, double likelihood, double prior, int state){
+    private void log(PrintStream output, double posterior, double likelihood, double prior, int state, String propClust, String storedClust, double logHR, double logMHR, double draw){
 
-        output.println(state + "\t" + posterior + "\t" + likelihood + "\t" + prior+ "\t" + printCluster());
+        output.println(state + "\t" + posterior + "\t" + likelihood + "\t" + prior+ "\t" + storedClust+ "\t"+ storedClust+ "\t"+propClust+"\t"+logHR+"\t"+logMHR+"\t"+draw );
 
     }
 
-    private String printCluster(){
+    private String printCluster(ArrayList<Integer>[] subtypeList){
 
         String setStr;
         ArrayList<String> setStrList = new ArrayList<String> ();
@@ -193,6 +200,8 @@ public class MCMC {
                 storedSubtypeList[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
             }
         }
+
+
 
     }
 

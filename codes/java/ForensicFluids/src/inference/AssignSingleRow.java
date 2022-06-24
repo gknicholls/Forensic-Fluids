@@ -13,6 +13,16 @@ public class AssignSingleRow {
         Random random = new Random();
         int setMaxCount = subtypesList.length;
 
+        /*for(int setIndex = 0; setIndex < subtypesList.length; setIndex++){
+            if(subtypesList[setIndex].size()==0){
+                System.out.print("(none)");
+            }
+            for(int eltIndex = 0; eltIndex < subtypesList[setIndex].size(); eltIndex++){
+                System.out.print(subtypesList[setIndex].get(eltIndex)+" ");
+            }
+            System.out.println();
+        }*/
+
         ArrayList<Integer> currNonEmptySet = new ArrayList<>();
         ArrayList<Integer> propNonEmptySet = new ArrayList<>();
         for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
@@ -57,8 +67,12 @@ public class AssignSingleRow {
         //     = (1/|k'|)(1/N'_ne)(1/(J-1)) where 1/N'_ne is the number of non-empty clusters after proposal
         // Pr2 = Pr(select row i|subtype k)Pr(subtype k)Pr(choose one of non-k subtype)
         //     = (1/|k|)(1/N_ne)(1/(J-1)) where 1/N_ne is the number of non-empty clusters before proposal
-        double logHR = Math.log( currNonEmptySet.size() * currSetSize) /
-                (propNonEmptySet.size() * subtypesList[propSetIndex].size());
+        double HR = ((double)currNonEmptySet.size() * (double)currSetSize) /
+                ((double)propNonEmptySet.size() * (double)subtypesList[propSetIndex].size());
+        double logHR = Math.log(HR);
+        System.out.println(HR +" "+logHR);
+
+
 
         return logHR;
     }
@@ -66,10 +80,13 @@ public class AssignSingleRow {
 
 
 
-    /*public static double proposal(ArrayList<Integer>[] subtypeList, int obsCount, int setMaxCount){
+    /*public static double SingleRowMove(ArrayList<Integer>[] subtypeList){
         double hr = 0.0;
 
+
         int[] currCumSum = getCumSum(subtypeList);
+        int obsCount = currCumSum[currCumSum.length-1];
+        int setMaxCount = obsCount;
 
         int currRowIndex = MathUtils.sample(0, obsCount - 1);
         int[] setInfo = getSetInfo(currRowIndex, currCumSum);
