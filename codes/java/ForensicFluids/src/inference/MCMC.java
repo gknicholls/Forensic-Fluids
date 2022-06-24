@@ -9,6 +9,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 public class MCMC {
@@ -23,16 +24,16 @@ public class MCMC {
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
         int[][][][] mkrGrpPartitions = getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
-        double[][] colPriors = getColPriors(3, allPartitionSets5File, allPartitionSets7File);
-        //double[] alphaC = new double[]{0.5, 1.0, 1.5, 2.0, 2.5};
-        //double[] betaC = new double[]{2.25, 1.75, 1.25, 0.75, 0.25};
-        double[] alphaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
-        double[] betaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
+        double[][] colPriors = getColPriors(1.2, allPartitionSets5File, allPartitionSets7File);
+        double[] alphaC = new double[]{0.97, 1.0, 0.98, 1.08, 1.05};
+        double[] betaC = new double[]{1.06, 1.07, 1.02, 0.97, 0.95};
+        //double[] alphaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
+        //double[] betaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
 
         int[][][] data = new int[MARKER_GROUP_COUNT][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat.csv",
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat2.csv",
                     colRange[i][0], colRange[i][1], 0, 9);
         }
 
@@ -42,10 +43,10 @@ public class MCMC {
         }
 
         MCMC estSubtype = new MCMC(subtypeParts, mkrGrpPartitions, colPriors,
-                alphaC, betaC, 3.0, data,100);
+                alphaC, betaC, 3.0, data,1000000);
         try{
-            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/testBFC_10obs.log");
-            estSubtype.run(logWriter, 1);
+            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/testBFC_10obsv2.log");
+            estSubtype.run(logWriter, 100);
             logWriter.close();
         }catch (Exception e){
             throw new RuntimeException();
@@ -111,7 +112,7 @@ public class MCMC {
             boolean accepted = false;
             if( Math.log(random.nextDouble()) < logMHR){
                 accepted = true;
-                System.out.println("accept "+ propLogLik+" "+propLogPrior);
+                //System.out.println("accept "+ propLogLik+" "+propLogPrior);
                 currLogPost = propLogPost;
                 currLogPrior = propLogPrior;
                 currLogLik = propLogLik;
@@ -119,12 +120,12 @@ public class MCMC {
                 accepted = false;
                 restore();
             }
-            if(accepted){
+            /*if(accepted){
                 System.out.println("accepted "+ currLogLik+" "+ currLogPrior);
-            }
+            }*/
 
             if(((stepIndex + 1)%logEvery) == 0){
-                System.out.println("log "+ currLogLik+" "+ currLogPrior);
+                //System.out.println("log "+ currLogLik+" "+ currLogPrior);
                 log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1);
             }
 
@@ -141,15 +142,18 @@ public class MCMC {
     }
 
     private String printCluster(){
-        String setsStr = "[";
+
         String setStr;
+        ArrayList<String> setStrList = new ArrayList<String> ();
         for(int subtypeIndex = 0; subtypeIndex < subtypeList.length; subtypeIndex++){
+
             if(subtypeList[subtypeIndex].size() > 0){
-                if(!setsStr.equals("[")){
+                /*if(!setsStr.equals("[")){
                     setsStr += ",";
-                }
+                }*/
 
                 setStr = "[";
+                Collections.sort(subtypeList[subtypeIndex]);
                 for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
                     setStr += subtypeList[subtypeIndex].get(eltIndex);
                     if(eltIndex < (subtypeList[subtypeIndex].size() - 1)){
@@ -158,11 +162,23 @@ public class MCMC {
 
                 }
                 setStr += "]";
-                setsStr += setStr;
+                setStrList.add(setStr);
+                //setsStr += setStr;
 
             }
 
         }
+
+        Collections.sort(setStrList);
+        String setsStr = "[";
+        for(int setIndex = 0; setIndex < setStrList.size(); setIndex++){
+            if(setIndex >0){
+                setsStr+=",";
+            }
+            setsStr+=setStrList.get(setIndex);
+
+        }
+
         setsStr += "]";
 
         return setsStr;

@@ -25,7 +25,7 @@ public class CalculatePosteriorForAllPartitions {
         int[][][] data = new int[5][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat.csv",
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat2.csv",
                     colRange[i][0], colRange[i][1], 0, 9);
         }
         /*for(int i = 0; i < data.length; i++){
@@ -43,7 +43,7 @@ public class CalculatePosteriorForAllPartitions {
 
         String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
         int[][][] partitions = getClusterArray(allPartitionSets10File, 115975);
-        double alpha = 3;
+        double alpha = 1.2;
         int maxSetCount = 10;
 
         int[][][] partSet5 = getClusterArray(allPartitionSets5File, 52);
@@ -77,8 +77,10 @@ public class CalculatePosteriorForAllPartitions {
         colPriors[3] = mdpProbSet5;
         colPriors[4] = mdpProbSet5;
 
-        double[] alphaC = new double[]{0.5, 1.0, 1.5, 2.0, 2.5};
-        double[] betaC = new double[]{2.25, 1.75, 1.25, 0.75, 0.25};
+        //double[] alphaC = new double[]{0.5, 1.0, 1.5, 2.0, 2.5};
+        //double[] betaC = new double[]{2.25, 1.75, 1.25, 0.75, 0.25};
+        double[] alphaC = new double[]{0.97, 1.0, 0.98, 1.08, 1.05};
+        double[] betaC = new double[]{1.06, 1.07, 1.02, 0.97, 0.95};
 
         ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[10];
         double[] logTypeLik = new double[115975];
@@ -89,7 +91,7 @@ public class CalculatePosteriorForAllPartitions {
 
         int setCountMax = 10;
         try {
-            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs10.log.type.lik.v2.txt");
+            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs10v2.log.type.lik.v2.txt");
             for (int partIndex = 0; partIndex < allParts10.length; partIndex++) {
                 subtypeParts = (ArrayList<Integer>[]) new ArrayList[setCountMax];
                 for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
