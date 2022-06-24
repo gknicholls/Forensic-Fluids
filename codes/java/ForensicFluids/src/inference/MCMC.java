@@ -106,9 +106,9 @@ public class MCMC {
             store();
             String storedClust = printCluster(storedSubtypeList);
             //System.out.println(stepIndex+":"+printCluster(subtypeList)+" "+storedClust);
-            //logHR = AssignSingleRow.SingleRowMove(subtypeList);
+            logHR = AssignSingleRow.SingleRowMove(subtypeList);
 
-            logHR = RandomPartitionMove.randomPartition(subtypeList);
+            //logHR = RandomPartitionMove.randomPartition(subtypeList);
             propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subtypeList);
             propLogPrior = ClusterPrior.calcLogMDPDensity(

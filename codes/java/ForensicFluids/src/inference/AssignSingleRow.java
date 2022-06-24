@@ -9,6 +9,7 @@ import java.util.Random;
 
 public class AssignSingleRow {
 
+
     public static double SingleRowMove(ArrayList<Integer>[] subtypesList){
         Random random = new Random();
         int setMaxCount = subtypesList.length;
@@ -24,6 +25,97 @@ public class AssignSingleRow {
         }*/
 
         ArrayList<Integer> currNonEmptySet = new ArrayList<>();
+        ArrayList<Integer> propNonEmptySet = new ArrayList<>();
+        ArrayList<Integer> currEmptySet = new ArrayList<>();
+        for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
+            int currSetSize = subtypesList[setIndex].size();
+            if(currSetSize > 0){
+                currNonEmptySet.add(setIndex);
+                propNonEmptySet.add(setIndex);
+            }else{
+                currEmptySet.add(setIndex);
+            }
+        }
+
+        // Randomly select a non-empty cluster
+        int currNonEmptySetIndex = random.nextInt(currNonEmptySet.size());
+        int currSetIndex = currNonEmptySet.get(currNonEmptySetIndex);
+
+        // Randomly select a row in the selected non-empty cluster
+        int currSetSize = subtypesList[currSetIndex].size();
+        int currSetEltIndex = random.nextInt(currSetSize);
+        //System.out.println(currSetSize+" "+currSetEltIndex);
+        // Move the row
+        int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
+        int propSetIndex;
+        boolean singleBefore, singleAfter;
+        if(currSetSize > 1){
+            singleBefore = false;
+
+            // Randomly select a cluster for the selected row to go into.
+            propSetIndex = random.nextInt(currNonEmptySet.size());
+            if(propSetIndex < currNonEmptySet.size() - 1){
+                singleAfter = false;
+                propSetIndex = propSetIndex < currNonEmptySetIndex? currNonEmptySet.get(propSetIndex):currNonEmptySet.get(propSetIndex + 1);
+            }else{
+                singleAfter = true;
+                propSetIndex = currEmptySet.get(0);
+            }
+
+            subtypesList[propSetIndex].add(obs);
+
+        }else{
+            singleBefore = true;
+            singleAfter = false;
+            propSetIndex = random.nextInt(currNonEmptySet.size() - 1);
+            propSetIndex = propSetIndex < currNonEmptySetIndex? propSetIndex : propSetIndex + 1;
+            propSetIndex = currNonEmptySet.get(propSetIndex);
+            subtypesList[propSetIndex].add(obs);
+        }
+
+
+
+        // The non-empty clusters after the proposal
+        if(subtypesList[currSetIndex].size() == 0){
+            propNonEmptySet.remove(currNonEmptySetIndex);
+        }
+        if(subtypesList[propSetIndex].size() == 1){
+            propNonEmptySet.add(propSetIndex);
+        }
+
+        double logFwd = -Math.log(currNonEmptySet.size()) - Math.log(currSetSize);
+        double logBwd = -Math.log(propNonEmptySet.size()) - Math.log(subtypesList[propSetIndex].size());
+        if(singleBefore){
+            logFwd  -= Math.log(currNonEmptySet.size() - 1);
+            logBwd  -= Math.log(propNonEmptySet.size());
+        }else if(singleAfter){
+            logFwd  -= Math.log(currNonEmptySet.size());
+            logBwd  -= Math.log(1.0/(propNonEmptySet.size() - 1));
+        }else{
+            logFwd  -= Math.log(currNonEmptySet.size());
+            logBwd  -= Math.log(propNonEmptySet.size());
+
+        }
+
+        return logBwd - logFwd;
+    }
+
+
+    /*public static double SingleRowMove(ArrayList<Integer>[] subtypesList){
+        Random random = new Random();
+        int setMaxCount = subtypesList.length;
+
+        /*for(int setIndex = 0; setIndex < subtypesList.length; setIndex++){
+            if(subtypesList[setIndex].size()==0){
+                System.out.print("(none)");
+            }
+            for(int eltIndex = 0; eltIndex < subtypesList[setIndex].size(); eltIndex++){
+                System.out.print(subtypesList[setIndex].get(eltIndex)+" ");
+            }
+            System.out.println();
+        }*/
+
+        /*ArrayList<Integer> currNonEmptySet = new ArrayList<>();
         ArrayList<Integer> propNonEmptySet = new ArrayList<>();
         for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
             int currSetSize = subtypesList[setIndex].size();
@@ -75,7 +167,7 @@ public class AssignSingleRow {
 
 
         return logHR;
-    }
+    }*/
 
 
 
