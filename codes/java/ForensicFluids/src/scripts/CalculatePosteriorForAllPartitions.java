@@ -21,13 +21,14 @@ public class CalculatePosteriorForAllPartitions {
         mkrGrpPartitions[2] = allPartitionSets5;
         mkrGrpPartitions[3] = allPartitionSets5;
         mkrGrpPartitions[4] = allPartitionSets5;
-        int totalObsCount = 3;
-        int totalPartitionCount = 5;
+        int totalObsCount = 5;
+        int totalPartitionCount = 52;
+        int setCountMax = 5;
 
         int[][][] data = new int[5][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.3obs.dat.csv",
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.5obs.dat.csv",
                     colRange[i][0], colRange[i][1], 0, totalObsCount - 1);
         }
         /*for(int i = 0; i < data.length; i++){
@@ -44,10 +45,11 @@ public class CalculatePosteriorForAllPartitions {
         }*/
 
         //String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
-        String allPartitionSets3File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets3.txt";
-        int[][][] partitions = getClusterArray(allPartitionSets3File, totalPartitionCount);
+        //String allPartitionSets3File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets3.txt";
+        //String allPartitionSets4File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets4.txt";
+        int[][][] partitions = getClusterArray(allPartitionSets5File, totalPartitionCount);
         double alpha = 1.2;
-        int setCountMax = 3;
+
 
 
         int[][][] partSet5 = getClusterArray(allPartitionSets5File, 52);
@@ -89,15 +91,15 @@ public class CalculatePosteriorForAllPartitions {
         ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[totalObsCount];
         double[] logTypeLik = new double[partitions.length];
 
-        String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
+        //String clustFile = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
 
-        ArrayList<Integer>[][] allParts10 = MathUtils.getCluster(allPartitionSets3File, totalPartitionCount);
+        ArrayList<Integer>[][] allParts = MathUtils.getCluster(allPartitionSets5File, totalPartitionCount);
 
-        for(int partIndex = 0; partIndex < allParts10.length; partIndex++){
+        for(int partIndex = 0; partIndex < allParts.length; partIndex++){
 
-            for(int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++){
-                for(int eltIndex = 0; eltIndex < allParts10[partIndex][setIndex].size(); eltIndex++){
-                    System.out.print(allParts10[partIndex][setIndex].get(eltIndex)+" ");
+            for(int setIndex = 0; setIndex < allParts[partIndex].length; setIndex++){
+                for(int eltIndex = 0; eltIndex < allParts[partIndex][setIndex].size(); eltIndex++){
+                    System.out.print(allParts[partIndex][setIndex].get(eltIndex)+" ");
                 }
                 System.out.println();
             }
@@ -107,16 +109,16 @@ public class CalculatePosteriorForAllPartitions {
 
         //int setCountMax = 10;
         try {
-            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs3.log.type.lik.txt");
-            for (int partIndex = 0; partIndex < allParts10.length; partIndex++) {
+            PrintWriter logTypeLikWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/ex.obs5.log.type.lik.txt");
+            for (int partIndex = 0; partIndex < allParts.length; partIndex++) {
                 subtypeParts = (ArrayList<Integer>[]) new ArrayList[setCountMax];
                 for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
                     subtypeParts[setIndex] = new ArrayList<Integer>();
                 }
-                int[] samples = MathUtils.sample(allParts10[partIndex].length, 0,setCountMax - 1);
-                //System.out.println(samples.length+" "+allParts10[partIndex].length+" "+subtypeParts.length);
-                for (int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++) {
-                    subtypeParts[samples[setIndex]] = allParts10[partIndex][setIndex];
+                int[] samples = MathUtils.sample(allParts[partIndex].length, 0,setCountMax - 1);
+                //System.out.println(samples.length+" "+allParts[partIndex].length+" "+subtypeParts.length);
+                for (int setIndex = 0; setIndex < allParts[partIndex].length; setIndex++) {
+                    subtypeParts[samples[setIndex]] = allParts[partIndex][setIndex];
                 }
 
                 logTypeLik[partIndex] = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
@@ -187,7 +189,7 @@ public class CalculatePosteriorForAllPartitions {
                     clusts[lineIndex][clustIndex] = new int[obsInClust.length];
                     for(int obsIndex = 0; obsIndex < obsInClust.length; obsIndex++){
 
-                        clusts[lineIndex][clustIndex][obsIndex] = Integer.parseInt(obsInClust[obsIndex]) - 1;
+                        clusts[lineIndex][clustIndex][obsIndex] = Integer.parseInt(obsInClust[obsIndex]);
 
                     }
                 }

@@ -46,32 +46,35 @@ public class AssignSingleRow {
         int currSetEltIndex = random.nextInt(currSetSize);
         //System.out.println(currSetSize+" "+currSetEltIndex);
         // Move the row
-        int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
+
+        int propClustOption;
         int propSetIndex;
         boolean singleBefore, singleAfter;
         if(currSetSize > 1){
             singleBefore = false;
 
             // Randomly select a cluster for the selected row to go into.
-            propSetIndex = random.nextInt(currNonEmptySet.size());
-            if(propSetIndex < currNonEmptySet.size() - 1){
+            propClustOption = random.nextInt(currNonEmptySet.size());
+            if(propClustOption > 0 ){
                 singleAfter = false;
-                propSetIndex = propSetIndex < currNonEmptySetIndex? currNonEmptySet.get(propSetIndex):currNonEmptySet.get(propSetIndex + 1);
+                propSetIndex = currNonEmptySet.get(propClustOption - 1);
             }else{
                 singleAfter = true;
                 propSetIndex = currEmptySet.get(0);
             }
 
-            subtypesList[propSetIndex].add(obs);
+            //subtypesList[propSetIndex].add(obs);
 
         }else{
             singleBefore = true;
             singleAfter = false;
-            propSetIndex = random.nextInt(currNonEmptySet.size() - 1);
-            propSetIndex = propSetIndex < currNonEmptySetIndex? propSetIndex : propSetIndex + 1;
-            propSetIndex = currNonEmptySet.get(propSetIndex);
-            subtypesList[propSetIndex].add(obs);
+            propClustOption = random.nextInt(currNonEmptySet.size() - 1);
+            propClustOption = propClustOption < currNonEmptySetIndex? propClustOption : propClustOption + 1;
+            propSetIndex = currNonEmptySet.get(propClustOption);
+            //subtypesList[propSetIndex].add(obs);
         }
+        int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
+        subtypesList[propSetIndex].add(obs);
 
 
 
@@ -86,11 +89,11 @@ public class AssignSingleRow {
         double logFwd = -Math.log(currNonEmptySet.size()) - Math.log(currSetSize);
         double logBwd = -Math.log(propNonEmptySet.size()) - Math.log(subtypesList[propSetIndex].size());
         if(singleBefore){
-            logFwd  -= Math.log(currNonEmptySet.size() - 1);
+            logFwd  -= Math.log(currNonEmptySet.size() - 1.0);
             logBwd  -= Math.log(propNonEmptySet.size());
         }else if(singleAfter){
             logFwd  -= Math.log(currNonEmptySet.size());
-            logBwd  -= Math.log(1.0/(propNonEmptySet.size() - 1));
+            logBwd  -= Math.log(propNonEmptySet.size() - 1.0);
         }else{
             logFwd  -= Math.log(currNonEmptySet.size());
             logBwd  -= Math.log(propNonEmptySet.size());

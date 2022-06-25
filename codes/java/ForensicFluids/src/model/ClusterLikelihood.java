@@ -23,6 +23,7 @@ public class ClusterLikelihood {
             logMarkerLik = 0.0;
 
             for(int setIndex = 0; setIndex < eltsAllPartSet[partIndex].length; setIndex++){
+                //System.out.println(partIndex + " "+ setIndex+" "+eltsAllPartSet[partIndex][setIndex]);
 
                 s = CalculateAmplifiedCount(sample, eltsAllPartSet[partIndex][setIndex], subtypeIndexes);
                 c = subtypeIndexes.size() * eltsAllPartSet[partIndex][setIndex].length;
@@ -53,7 +54,7 @@ public class ClusterLikelihood {
 
             for(int rowIndex = 0; rowIndex < subtypeIndexes.size(); rowIndex++){
 
-                //System.out.println(rowIndex+" "+col+sample.length+" "+subtypeIndexes.get(rowIndex));
+                //System.out.println(rowIndex+" "+col+" "+sample.length+" "+subtypeIndexes.get(rowIndex));
 
                 amplified += sample[subtypeIndexes.get(rowIndex)][col];
             }
