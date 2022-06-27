@@ -31,12 +31,12 @@ public class MCMC {
         double[] betaC = new double[]{1.06, 1.07, 1.02, 0.97, 0.95};
         //double[] alphaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
         //double[] betaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
-        int totalObsCount = 5;
+        int totalObsCount = 10;
 
         int[][][] data = new int[MARKER_GROUP_COUNT][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.5obs.dat.csv",
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat2.csv",
                     colRange[i][0], colRange[i][1], 0, totalObsCount - 1);
         }
 
@@ -51,9 +51,9 @@ public class MCMC {
 
 
         MCMC estSubtype = new MCMC(subtypeParts, mkrGrpPartitions, colPriors,
-                alphaC, betaC, alphaRow, data,100000);
+                alphaC, betaC, alphaRow, data,1000000);
         try{
-            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/testBFC_5obsv_v4.log");
+            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/testBFC_10obsv_v4.log");
             estSubtype.run(logWriter, 1);
             logWriter.close();
         }catch (Exception e){
@@ -111,11 +111,11 @@ public class MCMC {
             store();
             String storedClust = printCluster(storedSubtypeList);
             //System.out.println(stepIndex+":"+printCluster(subtypeList)+" "+storedClust);
-            if(  (stepIndex%10) == 0){
-                logHR = RandomPartitionMove.randomPartition(subtypeList);
-            }else{
+            //if(  (stepIndex%5) == 0){
+            //    logHR = RandomPartitionMove.randomPartition(subtypeList);
+            //}else{
                 logHR = AssignSingleRow.SingleRowMove(subtypeList);
-            }
+            //}
 
 
 

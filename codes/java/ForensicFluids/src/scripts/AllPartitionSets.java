@@ -7,13 +7,13 @@ import java.util.List;
 public class AllPartitionSets {
     public static void main(String[] args) {
         List<Integer> list = new ArrayList<>();
-        int obsCount = 4;
-        for(int i=0; i < obsCount; i++) {
+        int obsCount = 10;
+        for(int i = 0; i < obsCount; i++) {
             list.add(i);
         }
 
         try {
-            PrintWriter partWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets4.txt");
+            PrintWriter partWriter = new PrintWriter("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt");
             int cnt = 0;
             for (int i = 1; i <= list.size(); i++) {
                 List<List<List<Integer>>> ret = helper(list, i);

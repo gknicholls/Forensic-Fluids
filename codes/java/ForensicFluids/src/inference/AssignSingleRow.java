@@ -57,7 +57,9 @@ public class AssignSingleRow {
             propClustOption = random.nextInt(currNonEmptySet.size());
             if(propClustOption > 0 ){
                 singleAfter = false;
-                propSetIndex = currNonEmptySet.get(propClustOption - 1);
+                propClustOption = propClustOption - 1;
+                propClustOption = propClustOption < currNonEmptySetIndex? propClustOption : propClustOption + 1;
+                propSetIndex = currNonEmptySet.get(propClustOption);
             }else{
                 singleAfter = true;
                 propSetIndex = currEmptySet.get(0);
