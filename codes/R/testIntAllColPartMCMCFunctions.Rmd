@@ -17,13 +17,13 @@ setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/R/")
 ```{r load_lib}
 library(salso)
 source("forensicFunctions.R")
-load(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/allPartSets10.RData")
+load(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartSets10.RData")
 ```
 
 ```{r load_data}
-load("allParts5And7EltsMatsAndSets.rda")
+load("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allParts5And7EltsMatsAndSets.rda")
 
-singleTypeFilePath = "data.csv"
+singleTypeFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/data.csv"
 single.df = read.csv(singleTypeFilePath, header = TRUE) # whole single sample data
 slv.df = single.df[single.df$Sample == 3,] # saliva
 dim(slv.df)

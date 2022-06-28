@@ -24,28 +24,31 @@ public class MCMC {
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
         int[][][][] mkrGrpPartitions = getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
-        double alphaCol = 1.2;
+        //double alpha5 = 2.11;
+        //double alpha7 = 2.11;
+        //double alphaRow = 2.11;
+        double alpha5 = 1.2;
+        double alpha7 = 1.2;
         double alphaRow = 20.0;
-        double[][] colPriors = getColPriors(alphaCol, allPartitionSets5File, allPartitionSets7File);
-        double[] alphaC = new double[]{0.97, 1.0, 0.98, 1.08, 1.05};
-        double[] betaC = new double[]{1.06, 1.07, 1.02, 0.97, 0.95};
-        //double[] alphaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
-        //double[] betaC = new double[]{1.0, 1.0, 1.0, 1.0, 1.0};
-        int totalObsCount = 10;
+        double[][] colPriors = getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[] alphaC = new double[]{0.5, 0.5, 0.5, 0.5, 0.5};
+        double[] betaC = new double[]{2.0, 2.0, 0.25, 2.0, 2.0};
+        int totalObsCount = 7;
+        int maxClustCount = 6;
 
         int[][][] data = new int[MARKER_GROUP_COUNT][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.10obs.dat2.csv",
+            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.7obs.dat.csv",
                     colRange[i][0], colRange[i][1], 0, totalObsCount - 1);
         }
 
-        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[totalObsCount];
-        /*for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
-            subtypeParts[setIndex] = new ArrayList<>(Arrays.asList(setIndex));
-        }*/
+        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
         for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
             subtypeParts[setIndex] = new ArrayList<>();
+        }
+
+        for(int setIndex = 0; setIndex < totalObsCount; setIndex++){
             subtypeParts[0].add(setIndex);
         }
 
@@ -53,7 +56,7 @@ public class MCMC {
         MCMC estSubtype = new MCMC(subtypeParts, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000000);
         try{
-            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/testBFC_10obsv_v4.log");
+            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/testBFC_7obsv_prior_obsMoreJ6.log");
             estSubtype.run(logWriter, 1);
             logWriter.close();
         }catch (Exception e){
@@ -73,6 +76,7 @@ public class MCMC {
     private int[][][] data;
     private double alpha;
     private int totalObsCount;
+    private int maxSetCount;
     private int chainLength;
     public MCMC(ArrayList<Integer>[] subtypeList, int[][][][] mkrGrpPartitions,
                 double[][] colPriors, double[] alphaC, double[] betaC,
@@ -93,6 +97,7 @@ public class MCMC {
             //System.out.println("setIndex: "+subtypeList[setIndex]);
             totalObsCount+= this.subtypeList[setIndex].size();
         }
+        maxSetCount = this.subtypeList.length;
         store();
 
     }
@@ -119,10 +124,11 @@ public class MCMC {
 
 
 
-            propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-                    colPriors, data, alphaC, betaC, subtypeList);
+            //propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+            //        colPriors, data, alphaC, betaC, subtypeList);
+            propLogLik = 0.0;
             propLogPrior = ClusterPrior.calcLogMDPDensity(
-                    alpha, subtypeList.length, subtypeList, totalObsCount);
+                    alpha, subtypeList.length, subtypeList, maxSetCount);
             propLogPost = propLogLik + propLogPrior;
             logMHR = propLogPost  - currLogPost + logHR;
             String propClust = printCluster(subtypeList);
@@ -319,7 +325,8 @@ public class MCMC {
     }
 
 
-    public static double[][] getColPriors(double alpha,
+    public static double[][] getColPriors(double alpha5,
+                                          double alpha7,
                                           String allPartSets5File,
                                           String allPartSets7File){
 
@@ -327,7 +334,7 @@ public class MCMC {
         double[] mdpProbSet5 = new double[SET5_PARTITION_COUNT];
         for (int partIndex = 0; partIndex < partSet5.length; partIndex++) {
             mdpProbSet5[partIndex] = ClusterPrior.CalcMDPDensity(
-                    alpha,
+                    alpha5,
                     SET5_SIZE,
                     partSet5[partIndex],
                     SET5_SIZE);
@@ -337,7 +344,7 @@ public class MCMC {
         double[] mdpProbSet7 = new double[SET7_PARTITION_COUNT];
         for (int partIndex = 0; partIndex < partSet7.length; partIndex++) {
             mdpProbSet7[partIndex] = ClusterPrior.CalcMDPDensity(
-                    alpha,
+                    alpha7,
                     SET7_SIZE,
                     partSet7[partIndex],
                     SET7_SIZE);
