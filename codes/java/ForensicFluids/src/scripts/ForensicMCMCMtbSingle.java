@@ -6,7 +6,7 @@ import utils.DataUtils;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-public class ForensicMCMC {
+public class ForensicMCMCMtbSingle {
     public static void main(String[] args){
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
