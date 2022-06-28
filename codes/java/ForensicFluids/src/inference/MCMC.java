@@ -2,6 +2,7 @@ package inference;
 
 import model.ClusterLikelihood;
 import model.ClusterPrior;
+import utils.DataUtils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,51 +21,7 @@ public class MCMC {
     public static final int MARKER_GROUP_COUNT = 5;
     final private static Random random = new Random();
 
-    public static void main(String[] args){
-        String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
-        String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
-        int[][][][] mkrGrpPartitions = getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
-        //double alpha5 = 2.11;
-        //double alpha7 = 2.11;
-        //double alphaRow = 2.11;
-        double alpha5 = 1.2;
-        double alpha7 = 1.2;
-        double alphaRow = 20.0;
-        double[][] colPriors = getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
-        double[] alphaC = new double[]{0.5, 0.5, 0.5, 0.5, 0.5};
-        double[] betaC = new double[]{2.0, 2.0, 0.25, 2.0, 2.0};
-        int totalObsCount = 7;
-        int maxClustCount = 6;
 
-        int[][][] data = new int[MARKER_GROUP_COUNT][][];
-        int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
-        for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.7obs.dat.csv",
-                    colRange[i][0], colRange[i][1], 0, totalObsCount - 1);
-        }
-
-        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
-        for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
-            subtypeParts[setIndex] = new ArrayList<>();
-        }
-
-        for(int setIndex = 0; setIndex < totalObsCount; setIndex++){
-            subtypeParts[0].add(setIndex);
-        }
-
-
-        MCMC estSubtype = new MCMC(subtypeParts, mkrGrpPartitions, colPriors,
-                alphaC, betaC, alphaRow, data,1000000);
-        try{
-            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/testBFC_7obsv_prior_obsMoreJ6.log");
-            estSubtype.run(logWriter, 1);
-            logWriter.close();
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
-
-
-    }
 
 
     private ArrayList<Integer>[] subtypeList;
@@ -102,7 +59,7 @@ public class MCMC {
 
     }
 
-    protected void run(PrintStream output, int logEvery){
+    public void run(PrintStream output, int logEvery){
         double currLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, subtypeList);
         double currLogPrior = ClusterPrior.calcLogMDPDensity(
@@ -124,9 +81,9 @@ public class MCMC {
 
 
 
-            //propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-            //        colPriors, data, alphaC, betaC, subtypeList);
-            propLogLik = 0.0;
+            propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                    colPriors, data, alphaC, betaC, subtypeList);
+            //propLogLik = 0.0;
             propLogPrior = ClusterPrior.calcLogMDPDensity(
                     alpha, subtypeList.length, subtypeList, maxSetCount);
             propLogPost = propLogLik + propLogPrior;
@@ -233,7 +190,7 @@ public class MCMC {
 
 
 
-    private static int[][][][] getMkerGroupPartitions(String allPartSets5File,
+    public static int[][][][] getMkerGroupPartitions(String allPartSets5File,
                                                String allPartSets7File){
         int[][][][] mkrGrpParts = new int[MARKER_GROUP_COUNT][][][];
         int[][][] allPartitionSets5 = getClusterArray(allPartSets5File, SET5_PARTITION_COUNT);
@@ -296,33 +253,12 @@ public class MCMC {
         int[][][] data = new int[MARKER_GROUP_COUNT][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData(file,colRange[i][0], colRange[i][1], 0, 9);
+            data[i] = DataUtils.extractData(file,colRange[i][0], colRange[i][1], 0, 9);
         }
         return data;
     }
 
-    public static int[][] extractData(String file, int startCol, int endCol, int rowStart, int rowEnd){
-        try{
-            BufferedReader dataReader = new BufferedReader(new FileReader(file));
-            String line = dataReader.readLine();
-            String[] elts;
-            int[][] data = new int[rowEnd - rowStart + 1][endCol - startCol + 1];
-            int counter = 0;
-            while((line = dataReader.readLine()) != null){
-                elts = line.split(",");
-                for(int colIndex = 0; colIndex < data[counter].length; colIndex++){
-                    data[counter][colIndex] = Integer.parseInt(elts[startCol + colIndex]);
-                }
-                counter++;
-            }
-            dataReader.close();
-            return data;
 
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
-
-    }
 
 
     public static double[][] getColPriors(double alpha5,
