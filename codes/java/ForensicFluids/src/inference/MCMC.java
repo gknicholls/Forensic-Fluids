@@ -3,6 +3,7 @@ package inference;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
 import utils.DataUtils;
+import utils.Randomizer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -11,7 +12,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 
 public class MCMC {
     public static final int SET5_SIZE = 5;
@@ -19,7 +19,6 @@ public class MCMC {
     public static final int SET5_PARTITION_COUNT = 52;
     public static final int SET7_PARTITION_COUNT = 877;
     public static final int MARKER_GROUP_COUNT = 5;
-    final private static Random random = new Random();
 
 
 
@@ -91,7 +90,7 @@ public class MCMC {
             String propClust = printCluster(subtypeList);
 
 
-            double draw = Math.log(random.nextDouble());
+            double draw = Math.log(Randomizer.nextDouble());
             if( logMHR >= 0.0 || draw < logMHR ){
 
                 currLogPost = propLogPost;

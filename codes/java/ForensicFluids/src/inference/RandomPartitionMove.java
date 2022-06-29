@@ -1,15 +1,14 @@
 package inference;
 
 import utils.MathUtils;
+import utils.Randomizer;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class RandomPartitionMove {
     public static double randomPartition(ArrayList<Integer>[] subtypesList){
-        Random random = new Random();
         ArrayList<Integer>[][] allParts = MathUtils.getCluster("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt", 52);
-        int propPartIndex = random.nextInt(allParts.length);
+        int propPartIndex = Randomizer.nextInt(allParts.length);
 
         for(int setIndex = 0; setIndex < allParts[propPartIndex].length; setIndex++){
             subtypesList[setIndex] = new ArrayList<>();
