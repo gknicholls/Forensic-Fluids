@@ -35,7 +35,7 @@ processParts = function(z){
   return(clusterIndicator)
 }
 
-mtbMCMC.df=read.table(file = "/Users/chwu/Documents/research/bfc/output/mtb_single.log", 
+mtbMCMC.df=read.table(file = "/Users/chwu/Documents/research/bfc/output/mtb_single_clust1_0.5.log", 
                       header = TRUE, as.is = TRUE)
 nrow(mtbMCMC.df)
 ESS(mtbMCMC.df$Posterior)
@@ -62,7 +62,7 @@ pdf(file = "/Users/chwu/Documents/research/bfc/plots/mtb_posterior_sample_partit
 gridPlot(type = "MTB", 
          singleBinPerType.mat = data.matrix(mtb.df),
          printInfo = FALSE,
-         clusterAssign = clusterAssignIndexMat[801,])
+         clusterAssign = clusterAssignIndexMat[nrow(mtbMCMC.df),])
 mtext(side = 1, line = 1.5, text = "Cluster estimated at step 1000000")
 dev.off()
 
