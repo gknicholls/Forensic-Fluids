@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class MCMC {
+public class SingleTypeMCMC {
     public static final int SET5_SIZE = 5;
     public static final int SET7_SIZE = 7;
     public static final int SET5_PARTITION_COUNT = 52;
@@ -34,9 +34,9 @@ public class MCMC {
     private int totalObsCount;
     private int maxSetCount;
     private int chainLength;
-    public MCMC(ArrayList<Integer>[] subtypeList, int[][][][] mkrGrpPartitions,
-                double[][] colPriors, double[] alphaC, double[] betaC,
-                double alpha, int[][][] data, int chainLength){
+    public SingleTypeMCMC(ArrayList<Integer>[] subtypeList, int[][][][] mkrGrpPartitions,
+                          double[][] colPriors, double[] alphaC, double[] betaC,
+                          double alpha, int[][][] data, int chainLength){
         this.subtypeList = subtypeList;
         storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
         this.mkrGrpPartitions = mkrGrpPartitions;
