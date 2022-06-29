@@ -1,0 +1,199 @@
+---
+title: "Forensic fluid single type MCMC"
+output: html_notebook
+---
+
+```{r}
+gridPlot = function(type = NULL, 
+                    singleBinPerType.mat = NULL,
+                    printInfo = FALSE,
+                    clusterAssign = NULL){
+  
+  
+  singleBinPerType.mat = singleBinPerType.mat*clusterAssign
+  
+  orderByCluster = order(clusterAssign)
+  image(t(singleBinPerType.mat[orderByCluster,]),
+        col =c("white",  "#093E42", "#34B795", "#EC972D", "#836D70", "#6D2727",  "#EB4D28"), 
+        axes = FALSE,
+        main = type)
+  box(which = "plot",lty = "solid")
+  grid(nx = 27 , ny = nrow(singleBinPerType.mat) , lty = "solid", lwd = 0.5)
+  abline (v =4.5 /26); 
+  abline (v =11.5 / 26) ; 
+  abline (v =16.5 / 26) ; 
+  abline (v =21.5 /26)
+  
+}
+
+
+processParts = function(z){
+  tmp1 = gsub(z, pattern="[[", replace = "", fixed = T)
+  tmp1 = gsub(tmp1, pattern="]]", replace = "", fixed = T)
+  partSets = 
+    lapply(sapply(unlist(strsplit(tmp1, split="], [", fixed = T)), strsplit, split = ", "), 
+           as.numeric)
+  
+  clusterIndicator = c()
+  for(clusterIndex in 1:length(partSets)){
+    clusterIndicator[partSets[[clusterIndex]]+1] = clusterIndex
+  }
+  return(clusterIndicator)
+}
+
+calcCoOccurProb = function(clusterAssignIndexMat = NULL,
+                           clusterIndex = NULL){
+  
+  
+  cooccur = matrix(NA, nrow = ncol(clusterAssignIndexMat), 
+                   ncol = ncol(clusterAssignIndexMat))
+  for(i in 1:(ncol(clusterAssignIndexMat) - 1)){
+    for(j in (i + 1):ncol(clusterAssignIndexMat)){
+      
+      cooccur[i, j] = length(which(clusterAssignIndexMat[, clusterIndex[i] ] == 
+                                   clusterAssignIndexMat[, clusterIndex[j]]))/nrow(cvfClusterAssignIndexMat)
+      cooccur[j, i] = cooccur[i, j]
+    }
+    
+}
+
+  
+  return(cooccur)
+  
+}
+
+```
+
+```{r lib}
+library(LaplacesDemon)
+```
+
+
+```{r load_data}
+cvfMCMC.df = read.table(file = "/Users/chwu/Documents/research/bfc/output/cvf_single_clust1_0.5.log",
+                        header = TRUE, as.is = TRUE)
+cvfMCMC.df = cvfMCMC.df[-c(1:1001),]
+
+mtbMCMC.df = read.table(file = "/Users/chwu/Documents/research/bfc/output/mtb_single_clust1_0.5.log",
+                        header = TRUE, as.is = TRUE)
+mtbMCMC.df = mtbMCMC.df[-c(1:1001),]
+
+slvMCMC.df = read.table(file = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5.log",
+                        header = TRUE, as.is = TRUE)
+slvMCMC.df = slvMCMC.df[-c(1:1001),]
+
+bldMCMC.df = read.table(file = "/Users/chwu/Documents/research/bfc/output/bld_single_clust1_0.5.log",
+                        header = TRUE, as.is = TRUE)
+bldMCMC.df = bldMCMC.df[-c(1:1001),]
+
+smnMCMC.df = read.table(file = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5.log",
+                        header = TRUE, as.is = TRUE)
+smnMCMC.df = smnMCMC.df[-c(1:1001),]
+
+
+mtb.df = read.csv(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/mtb.single.csv",
+                    header = TRUE, as.is = TRUE)
+
+slv.df = read.csv(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv",
+                    header = TRUE, as.is = TRUE)
+
+bld.df = read.csv(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/bld.single.csv",
+                    header = TRUE, as.is = TRUE)
+
+smn.df = read.csv(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
+                    header = TRUE, as.is = TRUE)
+
+
+typeLabel = c("CVF", "MTB", "SLV", "BLD", "SMN")
+mcmcList = list(cvfMCMC.df, mtbMCMC.df, slvMCMC.df, bldMCMC.df, smnMCMC.df) 
+names(mcmcList) = c("CVF", "MTB", "SLV", "BLD", "SMN")
+dataList = list(cvf.df, mtb.df, slv.df, bld.df, smn.df)
+names(dataList) = c("CVF", "MTB", "SLV", "BLD", "SMN")
+
+clusterAssignIndexList = list()
+for(type in typeLabel){
+  typePartitions = gsub(mcmcList[[type]]$Partition, pattern = ",", replace = ", ")
+  clusterAssignIndexList[[type]] = t(sapply(typePartitions, processParts))
+  rownames(clusterAssignIndexList[[type]]) = NULL
+  colnames(clusterAssignIndexList[[type]]) = NULL
+}
+
+
+```
+
+```{r posterior_trace}
+
+
+for(type in typeLabel){
+ pdf(file = paste("/Users/chwu/Documents/research/bfc/plots/mcmcOneType/", type, "_posterior_trace.pdf", sep=""),
+     height = 5, width = 8)
+  par(mar = c(5, 4, 2, 1)+0.2)
+  plot(x= mcmcList[[type]]$STATE, y = mcmcList[[type]]$Posterior, 
+       main = paste(type, " (", nrow(dataList[[type]]), " observations)", sep=""),
+       xlab = bquote("Posterior samples (10"^5~"steps; ESS = "*.(round(ESS(mcmcList[[type]]$Posterior)))*")"), 
+       ylab = "# Posterior", type = "l", las = 1, xaxt = "n")
+  axis(side = 1, at = c(0:5)*200000, labels = (0:5)*2)
+ dev.off()
+}
+
+
+```
+
+```{r cluster_count_trace}
+for(type in typeLabel){
+  pdf(file = paste("/Users/chwu/Documents/research/bfc/plots/mcmcOneType/", type, "_posterior_cluster_count.pdf", sep=""),
+    height = 5, width = 8)
+  clusterCount = apply(clusterAssignIndexList[[type]][-1, ], 1, max)
+  plot(clusterCount, 
+     type="l", las = 1,
+     main = bquote(.(type)~"("*.(nrow(cvf.df))~"observations)"),
+     xlab = bquote("Posterior samples (10"^5*"steps; ESS ="~.(round(ESS(clusterCount)))*")"), 
+     ylab = "# Subtypes", xaxt = "n", yaxt = "n")
+  axis(side = 1, at = c(1:5)*2000, labels = (1:5)*2)
+  axis(side = 2, at = 1:5, labels = 1:5, las = 1)
+ dev.off()
+
+}
+```
+
+```{r posterior_sample_part}
+for(type in typeLabel){
+  #pdf(file = paste("/Users/chwu/Documents/research/bfc/plots/mcmcOneType/", type,"_posterior_sample_partition.pdf", sep=""),
+  #    height = 5, width = 8)
+  par(mar = c(1, 1, 2.5, 1) + 0.2)
+  gridPlot(type = bquote(.(type)*": Cluster Estimated at Step 10"^6), 
+         singleBinPerType.mat = data.matrix(dataList[[type]]),
+         printInfo = FALSE,
+         clusterAssign = clusterAssignIndexList[[type]][which.max(mcmcList[[type]]$Posterior),])
+
+  #dev.off()
+}
+```
+
+```{r coexist_prob}
+set.seed(789)
+for(type in typeLabel){
+
+  type.hclust = hclust(dist(dataList[[type]]))
+  type.hclust5 = order(cutree(type.hclust, k = 5))
+  typeCoOccurProb = calcCoOccurProb(clusterAssignIndexMat = clusterAssignIndexList[[type]],
+                                    clusterIndex = type.hclust5)
+  diag(typeCoOccurProb) = 1
+  type.hclust5 = kmeans(1-typeCoOccurProb, centers = 5, nstart = 100)
+  #type.hclust5 = order(cutree(type.hclust, k = 5))
+  
+  pdf(file = paste("/Users/chwu/Documents/research/bfc/plots/mcmcOneType/", type, "_posterior_co-exist.pdf", sep = ""),
+      height = 5, width = 7)
+  par(mar = c(5, 4, 2, 2) + 0.2)
+  mat = t(typeCoOccurProb[order(type.hclust5$cluster),order(type.hclust5$cluster)])
+  image(log(mat/(1 - mat)), xaxt = "n", yaxt = "n", 
+        main = paste(type,": Same cluster co-existing probabilities", sep=""))
+
+  mtext(side = 1, line = 2.5, text = "Observations")
+  mtext(side = 2.5, line = 2, text = "Observations")
+  axis(side = 1, at = 1/31*((1:8)*4-1), label = c(1:8)*4)
+  axis(side = 2, at = 1/31*((1:8)*4-1), label = c(1:8)*4, las = 2)
+  dev.off()
+}
+```
+

@@ -1,5 +1,6 @@
 library(salso)
 source("forensicFunctions.R")
+setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/")
 
 singleTypeFilePath = "data/data.csv"
 single.df = read.csv(singleTypeFilePath, header = TRUE) # whole single sample data
