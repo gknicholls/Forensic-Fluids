@@ -26,9 +26,6 @@ public class SubTypeList {
         return totalObsCount;
     }
 
-    public int getTypeCount(){
-        return subtypeList.length;
-    }
 
     public int getSubTypeMaxCount(){
         return subtypeList.length;

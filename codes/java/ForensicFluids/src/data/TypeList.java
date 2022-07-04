@@ -34,6 +34,11 @@ public class TypeList {
         return setSizes;
     }
 
+    public int getSubtypeCount(int typeIndex){
+        int setSize = typeList[typeIndex].getSubTypeCount();
+        return setSize;
+    }
+
     public SubTypeList getSubTypeList(int subtypeIndex){
         return typeList[subtypeIndex];
     }

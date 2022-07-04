@@ -14,6 +14,7 @@ public class TypeListWithUnknown extends TypeList{
         unknownObsCount = totalCount - unknownStartIndex - 1;
         unknownClusterMap = new int[unknownObsCount][2];
         this.unknownStartIndex = unknownStartIndex;
+        createMap();
 
     }
 
@@ -54,7 +55,7 @@ public class TypeListWithUnknown extends TypeList{
         if(obs >= unknownStartIndex){
             unknownClusterMap[TYPE_POS][obs - unknownStartIndex] = typeIndex;
             unknownClusterMap[SUBTYPE_POS][obs - unknownStartIndex] = subtypeIndex;
-            unknownClusterMap[ELT_POS][obs - unknownStartIndex] = typeList[typeIndex].getSubTypeSetSize(subtypeIndex);
+            unknownClusterMap[ELT_POS][obs - unknownStartIndex] = typeList[typeIndex].getSubTypeSetSize(subtypeIndex) - 1;
         }
 
 
