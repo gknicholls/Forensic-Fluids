@@ -1,5 +1,6 @@
 package model;
 
+import data.SubTypeList;
 import org.apache.commons.math3.special.Gamma;
 
 import java.util.ArrayList;
@@ -55,6 +56,37 @@ public class ClusterPrior {
         for(int setIndex = 0; setIndex < setCountMax; setIndex++){
             if(setList[setIndex].size() > 0) {
                 frac3 += Gamma.logGamma(alpha / setCountMax + setList[setIndex].size());
+            }
+        }
+        frac3 -= Gamma.logGamma(alpha + totalObsCount);
+        double logMDP = frac1 + frac2 + frac3;
+
+        return logMDP;
+
+    }
+
+
+    public static double calcLogMDPDensity(double alpha,
+                                           int setCountMax,
+                                           SubTypeList setList,
+                                           int totalObsCount){
+
+
+        int setCount = 0;
+        for(int setIndex = 0; setIndex < setList.getSubTypeMaxCount(); setIndex++){
+            //if(setList[setIndex].size() > 0){
+            if(setList.getSubTypeSetSize(setIndex) > 0){
+                setCount++;
+            }
+        }
+        double frac1 = Gamma.logGamma(alpha) - setCount*Gamma.logGamma(alpha/setCountMax);
+        double frac2 = Gamma.logGamma(setCountMax + 1) - Gamma.logGamma(setCountMax - setCount + 1);
+        double frac3 = 0.0;
+        for(int setIndex = 0; setIndex < setCountMax; setIndex++){
+            //if(setList[setIndex].size() > 0) {
+            if(setList.getSubTypeSetSize(setIndex) > 0){
+                //frac3 += Gamma.logGamma(alpha / setCountMax + setList[setIndex].size());
+                frac3 += Gamma.logGamma(alpha / setCountMax + setList.getSubTypeSetSize(setIndex));
             }
         }
         frac3 -= Gamma.logGamma(alpha + totalObsCount);

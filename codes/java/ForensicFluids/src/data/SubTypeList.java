@@ -1,0 +1,142 @@
+package data;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+public class SubTypeList {
+    private ArrayList<Integer>[] subtypeList;
+    private ArrayList<Integer>[] storedSubtypeList;
+    private boolean[] subtypeUpdated;
+    private int totalObsCount;
+    public SubTypeList(ArrayList<Integer>[] subtypeList){
+        this.subtypeList = subtypeList;
+        storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
+        subtypeUpdated = new boolean[subtypeList.length];
+        calcTotalObs();
+    }
+
+    private void calcTotalObs(){
+        for(int setIndex = 0; setIndex < this.subtypeList.length; setIndex++){
+            //System.out.println("setIndex: "+subtypeList[setIndex]);
+            totalObsCount+= this.subtypeList[setIndex].size();
+        }
+    }
+
+    public int getTotalObsCount(){
+        return totalObsCount;
+    }
+
+    public int getTypeCount(){
+        return subtypeList.length;
+    }
+
+    public int getSubTypeMaxCount(){
+        return subtypeList.length;
+    }
+
+    public int getSubTypeCount(int subtypeIndex){
+        return subtypeList[subtypeIndex].size();
+    }
+
+    public int[] getSubTypeSetSizes(){
+        int[] setSizes = new int[subtypeList.length];
+        for(int subtypeIndex = 0; subtypeIndex < setSizes.length; subtypeIndex++){
+            setSizes[subtypeIndex] = subtypeList[subtypeIndex].size();
+        }
+        return setSizes;
+    }
+
+    public int getSubTypeSetSize(int subTypeIndex){
+
+        return subtypeList[subTypeIndex].size();
+    }
+
+    public int getObs(int subtypeIndex, int eltIndex){
+        return subtypeList[subtypeIndex].get(eltIndex);
+    }
+
+    public void addObs(int subtypeIndex, int obs){
+        subtypeList[subtypeIndex].add(obs);
+        subtypeUpdated[subtypeIndex] = true;
+
+    }
+
+    public int removeObs(int subtypeIndex, int eltIndex){
+        subtypeUpdated[subtypeIndex] = true;
+        return subtypeList[subtypeIndex].remove(eltIndex);
+
+    }
+
+    public void store(){
+
+        for(int subtypeIndex = 0; subtypeIndex < storedSubtypeList.length; subtypeIndex++){
+            storedSubtypeList[subtypeIndex] = new ArrayList<Integer>();
+            for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                storedSubtypeList[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
+            }
+        }
+
+
+
+    }
+
+    public void restore(){
+
+        ArrayList<Integer>[] temp = subtypeList;
+        subtypeList = storedSubtypeList;
+        storedSubtypeList = temp;
+
+    }
+
+    public String printCurrCluster(){
+        return printCluster(subtypeList);
+    }
+
+    public String printStoredCluster(){
+        return printCluster(storedSubtypeList);
+    }
+
+    private String printCluster(ArrayList<Integer>[] subtypeList){
+
+        String setStr;
+        ArrayList<String> setStrList = new ArrayList<String> ();
+        for(int subtypeIndex = 0; subtypeIndex < subtypeList.length; subtypeIndex++){
+
+            if(subtypeList[subtypeIndex].size() > 0){
+                /*if(!setsStr.equals("[")){
+                    setsStr += ",";
+                }*/
+
+                setStr = "[";
+                Collections.sort(subtypeList[subtypeIndex]);
+                for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                    setStr += subtypeList[subtypeIndex].get(eltIndex);
+                    if(eltIndex < (subtypeList[subtypeIndex].size() - 1)){
+                        setStr+=",";
+                    }
+
+                }
+                setStr += "]";
+                setStrList.add(setStr);
+                //setsStr += setStr;
+
+            }
+
+        }
+
+        Collections.sort(setStrList);
+        String setsStr = "[";
+        for(int setIndex = 0; setIndex < setStrList.size(); setIndex++){
+            if(setIndex >0){
+                setsStr+=",";
+            }
+            setsStr+=setStrList.get(setIndex);
+
+        }
+
+        setsStr += "]";
+
+        return setsStr;
+
+    }
+}

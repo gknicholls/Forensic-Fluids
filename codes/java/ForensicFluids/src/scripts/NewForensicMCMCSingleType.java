@@ -1,6 +1,7 @@
 package scripts;
 
 import data.SubTypeList;
+import inference.NewSingleTypeMCMC;
 import inference.SingleTypeMCMC;
 import utils.DataUtils;
 import utils.Randomizer;
@@ -8,7 +9,7 @@ import utils.Randomizer;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-public class ForensicMCMCSingleType {
+public class NewForensicMCMCSingleType {
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
     public static void main(String[] args){
@@ -17,13 +18,14 @@ public class ForensicMCMCSingleType {
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
         double[] alphaC = new double[]{0.5, 0.5, 0.5, 0.5, 0.5};
         double[] betaC = new double[]{2.0, 2.0, 0.25, 2.0, 2.0};
-        ForensicMCMCSingleType subtypeClf = new ForensicMCMCSingleType();
+        NewForensicMCMCSingleType subtypeClf = new NewForensicMCMCSingleType();
         try {
             //subtypeClf.runCvfSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runMtbSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runSlvSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runBldSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
-            subtypeClf.runSmnSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            //subtypeClf.runSmnSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            subtypeClf.runSmnSingleTypeClusteringV2(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
         }catch(Exception e){
             throw new RuntimeException(e);
@@ -257,12 +259,14 @@ public class ForensicMCMCSingleType {
             subtypeParts[setIndex] = new ArrayList<>();
         }
 
+        SubTypeList subTypeList =new SubTypeList(subtypeParts);
+
         for(int setIndex = 0; setIndex < totalObsCount; setIndex++){
             subtypeParts[0].add(setIndex);
         }
 
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+        NewSingleTypeMCMC estSubtype = new NewSingleTypeMCMC(subTypeList, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000);
         PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v2.log");
         estSubtype.run(logWriter, 100);
