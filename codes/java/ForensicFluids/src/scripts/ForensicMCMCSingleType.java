@@ -2,6 +2,7 @@ package scripts;
 
 import data.SubTypeList;
 import inference.SingleTypeMCMC;
+import inference.OldSingleTypeMCMC;
 import utils.DataUtils;
 import utils.Randomizer;
 
@@ -23,7 +24,8 @@ public class ForensicMCMCSingleType {
             //subtypeClf.runMtbSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runSlvSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runBldSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
-            subtypeClf.runSmnSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            //subtypeClf.runSmnSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            subtypeClf.runSmnSingleTypeClusteringV2(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
         }catch(Exception e){
             throw new RuntimeException(e);
@@ -33,17 +35,17 @@ public class ForensicMCMCSingleType {
     private void runCvfSingleTypeClustering(String allPartitionSets5File,
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
-        int[][][][] mkrGrpPartitions = SingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.1845;
 
-        double[][] colPriors = SingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
         int totalObsCount = 73;
         int maxClustCount = 5;
 
-        int[][][] data = new int[SingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
 
         for(int i = 0; i < COL_RANGE.length; i++){
             data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/cvf.single.csv",
@@ -60,7 +62,7 @@ public class ForensicMCMCSingleType {
         }
 
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+        OldSingleTypeMCMC estSubtype = new OldSingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000000);
         PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/cvf_single_clust1_0.5.log");
         estSubtype.run(logWriter, 100);
@@ -72,19 +74,19 @@ public class ForensicMCMCSingleType {
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
 
-        int[][][][] mkrGrpPartitions = SingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.225;
         //double alpha5 = 2.11;
         //double alpha7 = 2.11;
         //double alphaRow = 2.11;
-        double[][] colPriors = SingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
         int totalObsCount = 32;
         int maxClustCount = 5;
 
-        int[][][] data = new int[SingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
 
         for(int i = 0; i < COL_RANGE.length; i++){
             data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/mtb.single.csv",
@@ -101,7 +103,7 @@ public class ForensicMCMCSingleType {
         }
 
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+        OldSingleTypeMCMC estSubtype = new OldSingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000000);
         PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/mtb_single_clust1_0.5.log");
         estSubtype.run(logWriter, 100);
@@ -113,17 +115,17 @@ public class ForensicMCMCSingleType {
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
 
-        int[][][][] mkrGrpPartitions = SingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.18;
 
-        double[][] colPriors = SingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
         int totalObsCount = 81;
         int maxClustCount = 5;
 
-        int[][][] data = new int[SingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
         for(int i = 0; i < COL_RANGE.length; i++){
             data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv",
                     COL_RANGE[i][0], COL_RANGE[i][1], 0, totalObsCount - 1);
@@ -139,7 +141,7 @@ public class ForensicMCMCSingleType {
         }
 
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+        OldSingleTypeMCMC estSubtype = new OldSingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000000);
         try{
             PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5.log");
@@ -155,18 +157,18 @@ public class ForensicMCMCSingleType {
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
 
-        int[][][][] mkrGrpPartitions = SingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.1894025;
 
 
-        double[][] colPriors = SingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
         int totalObsCount = 65;
         int maxClustCount = 5;
 
-        int[][][] data = new int[SingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
         for(int i = 0; i < COL_RANGE.length; i++){
             data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/bld.single.csv",
                     COL_RANGE[i][0], COL_RANGE[i][1], 0, totalObsCount - 1);
@@ -182,7 +184,7 @@ public class ForensicMCMCSingleType {
         }
 
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+        OldSingleTypeMCMC estSubtype = new OldSingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000000);
 
         PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/bld_single_clust1_0.5.log");
@@ -196,17 +198,17 @@ public class ForensicMCMCSingleType {
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
 
-        int[][][][] mkrGrpPartitions = SingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.178;
 
-        double[][] colPriors = SingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
         int totalObsCount = 86;
         int maxClustCount = 5;
 
-        int[][][] data = new int[SingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
 
         for(int i = 0; i < COL_RANGE.length; i++){
             data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
@@ -223,7 +225,7 @@ public class ForensicMCMCSingleType {
         }
 
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+        OldSingleTypeMCMC estSubtype = new OldSingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000);
         PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2.log");
         estSubtype.run(logWriter, 100);
@@ -235,17 +237,17 @@ public class ForensicMCMCSingleType {
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
 
-        int[][][][] mkrGrpPartitions = SingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.178;
 
-        double[][] colPriors = SingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
         int totalObsCount = 86;
         int maxClustCount = 5;
 
-        int[][][] data = new int[SingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
 
         for(int i = 0; i < COL_RANGE.length; i++){
             data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
@@ -261,8 +263,10 @@ public class ForensicMCMCSingleType {
             subtypeParts[0].add(setIndex);
         }
 
+        SubTypeList subTypeList =new SubTypeList(subtypeParts);
 
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
+
+        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subTypeList, mkrGrpPartitions, colPriors,
                 alphaC, betaC, alphaRow, data,1000);
         PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v2.log");
         estSubtype.run(logWriter, 100);

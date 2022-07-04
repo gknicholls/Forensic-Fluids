@@ -1,6 +1,5 @@
 package inference;
 
-import data.SubTypeList;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
 import utils.DataUtils;
@@ -12,7 +11,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class NewSingleTypeMCMC {
+public class OldSingleTypeMCMC {
     public static final int SET5_SIZE = 5;
     public static final int SET7_SIZE = 7;
     public static final int SET5_PARTITION_COUNT = 52;
@@ -22,52 +21,61 @@ public class NewSingleTypeMCMC {
 
 
 
-    private SubTypeList subtypeList;
+    private ArrayList<Integer>[] subtypeList;
+    private ArrayList<Integer>[] storedSubtypeList;
     private int[][][][] mkrGrpPartitions;
     private double[][] colPriors;
     private double[] alphaC;
     private double[] betaC;
     private int[][][] data;
     private double alpha;
-
+    private int totalObsCount;
     private int maxSetCount;
     private int chainLength;
-    public NewSingleTypeMCMC(SubTypeList subtypeList, int[][][][] mkrGrpPartitions,
+    public OldSingleTypeMCMC(ArrayList<Integer>[] subtypeList, int[][][][] mkrGrpPartitions,
                              double[][] colPriors, double[] alphaC, double[] betaC,
                              double alpha, int[][][] data, int chainLength){
         this.subtypeList = subtypeList;
+        storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
         this.mkrGrpPartitions = mkrGrpPartitions;
         this.colPriors = colPriors;
         this.alphaC = alphaC;
         this.betaC = betaC;
         this.alpha = alpha;
         this.data = data;
+        totalObsCount = 0;
         this.chainLength = chainLength;
-        maxSetCount = this.subtypeList.getSubTypeMaxCount();
-        this.subtypeList.store();
+
+
+        for(int setIndex = 0; setIndex < this.subtypeList.length; setIndex++){
+            //System.out.println("setIndex: "+subtypeList[setIndex]);
+            totalObsCount+= this.subtypeList[setIndex].size();
+        }
+        maxSetCount = this.subtypeList.length;
+        store();
 
     }
+
+
 
     public void run(PrintStream output, int logEvery){
         double currLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, subtypeList);
         double currLogPrior = ClusterPrior.calcLogMDPDensity(
-                alpha, subtypeList.getSubTypeMaxCount(), subtypeList, subtypeList.getTotalObsCount());
+                alpha, subtypeList.length, subtypeList, totalObsCount);
         double currLogPost = currLogLik + currLogPrior;
         double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
 
         output.println("STATE\tPosterior\tLog-likelihood\tLog-prior\tPartition\tstoredPartition\tPropPartiton\tlogHR\tlogMHR\tdraw");
-        log(output, currLogPost, currLogLik, currLogPrior, 0, subtypeList.printCurrCluster(), subtypeList.printStoredCluster(),0, 0, 0);
+        log(output, currLogPost, currLogLik, currLogPrior, 0, printCluster(subtypeList), printCluster(storedSubtypeList),0, 0, 0);
         for(int stepIndex = 0; stepIndex < chainLength; stepIndex++){
-            //System.out.println(stepIndex);
-            //store();
-            subtypeList.store();
-            String storedClust = subtypeList.printStoredCluster();
-            //System.out.println(stepIndex+": "+storedClust);
+            store();
+            String storedClust = printCluster(storedSubtypeList);
+            //System.out.println(stepIndex+":"+printCluster(subtypeList)+" "+storedClust);
             //if(  (stepIndex%5) == 0){
             //    logHR = RandomPartitionMove.randomPartition(subtypeList);
             //}else{
-                logHR = NewAssignSingleRow.SingleRowMove(subtypeList);
+                logHR = OldAssignSingleRow.SingleRowMove(subtypeList);
             //}
 
 
@@ -76,10 +84,10 @@ public class NewSingleTypeMCMC {
                     colPriors, data, alphaC, betaC, subtypeList);
             //propLogLik = 0.0;
             propLogPrior = ClusterPrior.calcLogMDPDensity(
-                    alpha, subtypeList.getSubTypeMaxCount(), subtypeList, maxSetCount);
+                    alpha, subtypeList.length, subtypeList, totalObsCount);
             propLogPost = propLogLik + propLogPrior;
             logMHR = propLogPost  - currLogPost + logHR;
-            String propClust = subtypeList.printCurrCluster();
+            String propClust = printCluster(subtypeList);
 
 
             double draw = Math.log(Randomizer.nextDouble());
@@ -89,14 +97,14 @@ public class NewSingleTypeMCMC {
                 currLogPrior = propLogPrior;
                 currLogLik = propLogLik;
             }else{
-                subtypeList.restore();
+                restore();
             }
             /*if(accepted){
                 System.out.println("accepted "+ currLogLik+" "+ currLogPrior);
             }*/
 
             if(((stepIndex + 1)%logEvery) == 0){
-                System.out.println("log "+ currLogLik+" "+ currLogPrior);
+                //System.out.println("log "+ currLogLik+" "+ currLogPrior);
                 log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, propClust, storedClust, logHR, logMHR, draw );
             }
 
@@ -115,7 +123,69 @@ public class NewSingleTypeMCMC {
 
     }
 
+    private String printCluster(ArrayList<Integer>[] subtypeList){
 
+        String setStr;
+        ArrayList<String> setStrList = new ArrayList<String> ();
+        for(int subtypeIndex = 0; subtypeIndex < subtypeList.length; subtypeIndex++){
+
+            if(subtypeList[subtypeIndex].size() > 0){
+                /*if(!setsStr.equals("[")){
+                    setsStr += ",";
+                }*/
+
+                setStr = "[";
+                Collections.sort(subtypeList[subtypeIndex]);
+                for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                    setStr += subtypeList[subtypeIndex].get(eltIndex);
+                    if(eltIndex < (subtypeList[subtypeIndex].size() - 1)){
+                        setStr+=",";
+                    }
+
+                }
+                setStr += "]";
+                setStrList.add(setStr);
+                //setsStr += setStr;
+
+            }
+
+        }
+
+        Collections.sort(setStrList);
+        String setsStr = "[";
+        for(int setIndex = 0; setIndex < setStrList.size(); setIndex++){
+            if(setIndex >0){
+                setsStr+=",";
+            }
+            setsStr+=setStrList.get(setIndex);
+
+        }
+
+        setsStr += "]";
+
+        return setsStr;
+
+    }
+
+    private void store(){
+
+        for(int subtypeIndex = 0; subtypeIndex < storedSubtypeList.length; subtypeIndex++){
+            storedSubtypeList[subtypeIndex] = new ArrayList<Integer>();
+            for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                storedSubtypeList[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
+            }
+        }
+
+
+
+    }
+
+    private void restore(){
+        ArrayList<Integer>[] temp = subtypeList;
+        subtypeList = storedSubtypeList;
+        storedSubtypeList = temp;
+
+    }
 
 
 

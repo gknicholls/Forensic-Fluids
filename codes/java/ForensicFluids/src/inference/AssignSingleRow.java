@@ -1,19 +1,17 @@
 package inference;
 
-import utils.MathUtils;
+import data.SubTypeList;
 import utils.Randomizer;
 
 import java.util.ArrayList;
 
 
-
-
 public class AssignSingleRow {
 
 
-    public static double SingleRowMove(ArrayList<Integer>[] subtypesList){
+    public static double SingleRowMove(SubTypeList subtypesList){
 
-        int setMaxCount = subtypesList.length;
+        int setMaxCount = subtypesList.getSubTypeMaxCount();
         if(setMaxCount < 2){
             return Double.NEGATIVE_INFINITY;
         }
@@ -31,9 +29,9 @@ public class AssignSingleRow {
         ArrayList<Integer> currNonEmptySet = new ArrayList<>();
         ArrayList<Integer> propNonEmptySet = new ArrayList<>();
         ArrayList<Integer> currEmptySet = new ArrayList<>();
+        int[] currSetSizes = subtypesList.getSubTypeSetSizes();
         for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
-            int currSetSize = subtypesList[setIndex].size();
-            if(currSetSize > 0){
+            if(currSetSizes[setIndex] > 0){
                 currNonEmptySet.add(setIndex);
                 propNonEmptySet.add(setIndex);
             }else{
@@ -46,7 +44,7 @@ public class AssignSingleRow {
         int currSetIndex = currNonEmptySet.get(currNonEmptySetIndex);
 
         // Randomly select a row in the selected non-empty cluster
-        int currSetSize = subtypesList[currSetIndex].size();
+        int currSetSize = currSetSizes[currSetIndex];
         int currSetEltIndex = Randomizer.nextInt(currSetSize);
         //System.out.println(currSetSize+" "+currSetEltIndex);
         // Move the row
@@ -55,7 +53,7 @@ public class AssignSingleRow {
         int propSetIndex;
         boolean singleBefore, singleAfter;
         boolean reachedMax = false;
-        if(currNonEmptySet.size() == subtypesList.length){
+        if(currNonEmptySet.size() == subtypesList.getSubTypeMaxCount()){
             reachedMax = true;
         }
         if(currSetSize > 1 && !reachedMax ){
@@ -96,23 +94,27 @@ public class AssignSingleRow {
                 singleAfter = false;
             }
         }
-        int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
-        subtypesList[propSetIndex].add(obs);
+        //int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
+        int obs = subtypesList.removeObs(currSetIndex, currSetEltIndex);
+        subtypesList.addObs(propSetIndex, obs);
 
 
 
         // The non-empty clusters after the proposal
-        if(subtypesList[currSetIndex].size() == 0){
+        //if(subtypesList[currSetIndex].size() == 0){
+        if(subtypesList.getSubTypeSetSize(currSetIndex) == 0){
             propNonEmptySet.remove(currNonEmptySetIndex);
         }
-        if(subtypesList[propSetIndex].size() == 1){
+        //if(subtypesList[propSetIndex].size() == 1){
+        if(subtypesList.getSubTypeSetSize(propSetIndex) == 1){
             propNonEmptySet.add(propSetIndex);
         }
 
         double logFwd = -Math.log(currNonEmptySet.size()) - Math.log(currSetSize);
         //q(theta*|theta) theta* is the proposed state
         // 1/(#existing non-empty clusters) * 1/(# elements in the cluster)
-        double logBwd = -Math.log(propNonEmptySet.size()) - Math.log(subtypesList[propSetIndex].size());
+        //double logBwd = -Math.log(propNonEmptySet.size()) - Math.log(subtypesList[propSetIndex].size());
+        double logBwd = -Math.log(propNonEmptySet.size()) - Math.log(subtypesList.getSubTypeSetSize(propSetIndex));
         //q(theta|theta*)
         // 1/(# non-empty clusters after proposal) * 1/(# elements in the proposed cluster)
         if(singleBefore) { // picked row is singleton
