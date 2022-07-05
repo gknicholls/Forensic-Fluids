@@ -12,6 +12,9 @@ public class TypeList {
         calcTotalCount();
 
         typeUpdated = new boolean[typeList.length];
+        for(int typeIndex = 0; typeIndex < typeUpdated.length; typeIndex++){
+            typeUpdated[typeIndex] = true;
+        }
     }
 
     public int getTypeCount(){
@@ -43,8 +46,8 @@ public class TypeList {
         return setSize;
     }
 
-    public SubTypeList getSubTypeList(int subtypeIndex){
-        return typeList[subtypeIndex];
+    public SubTypeList getSubTypeList(int typeIndex){
+        return typeList[typeIndex];
     }
 
     public int getObs(int typeIndex, int subtypeIndex, int eltIndex){
@@ -63,9 +66,14 @@ public class TypeList {
 
     }
 
+    public boolean hasUpdated(int typeIndex){
+        return typeUpdated[typeIndex];
+    }
+
     public void store(){
         for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
             typeList[typeIndex].store();
+            typeUpdated[typeIndex] = false;
         }
 
 
@@ -77,6 +85,7 @@ public class TypeList {
 
         for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
             typeList[typeIndex].restore();
+
         }
 
     }
