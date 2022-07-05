@@ -35,6 +35,15 @@ public class SubTypeList {
         return subtypeList[subtypeIndex].size();
     }
 
+    public int getNonEmptySetCount(){
+        int[] setSizes = getSubTypeSetSizes();
+        int notEmptySetCount = 0;
+        for(int setIndex = 0; setIndex < setSizes.length; setIndex++){
+            notEmptySetCount++;
+        }
+        return notEmptySetCount;
+    }
+
     public int[] getSubTypeSetSizes(){
         int[] setSizes = new int[subtypeList.length];
         for(int subtypeIndex = 0; subtypeIndex < setSizes.length; subtypeIndex++){

@@ -22,6 +22,10 @@ public class TypeList {
         return typeList[typeIndex].getSubTypeMaxCount();
     }
 
+    public int getNonSubTypesCount(int typeIndex){
+        return typeList[typeIndex].getNonEmptySetCount();
+    }
+
     public void calcTotalCount(){
         totalCount = 0;
         for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
@@ -34,8 +38,8 @@ public class TypeList {
         return setSizes;
     }
 
-    public int getSubtypeCount(int typeIndex){
-        int setSize = typeList[typeIndex].getSubTypeCount();
+    public int getSubTypeSetSize(int typeIndex, int subTypeIndex){
+        int setSize = typeList[typeIndex].getSubTypeCount(subTypeIndex);
         return setSize;
     }
 
