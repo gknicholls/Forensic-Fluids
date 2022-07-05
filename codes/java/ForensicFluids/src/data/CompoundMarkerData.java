@@ -20,6 +20,20 @@ public class CompoundMarkerData {
 
     }
 
+    public CompoundMarkerData(String[] files, int[] rowInfo, int[][] colInfo){
+        data = new int[files.length][][][];
+        for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
+            for(int markerIndex = 0; markerIndex < colInfo[typeIndex].length; markerIndex++){
+                data[typeIndex][markerIndex] = extractData(files[typeIndex],
+                        colInfo[markerIndex][0],
+                        colInfo[markerIndex][1],
+                        rowInfo[0],
+                        rowInfo[1]);
+            }
+        }
+
+    }
+
     public static int[][] extractData(String file, int startCol, int endCol, int rowStart, int rowEnd){
         try{
             BufferedReader dataReader = new BufferedReader(new FileReader(file));
