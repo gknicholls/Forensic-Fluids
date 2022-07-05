@@ -1,6 +1,6 @@
 package scripts;
 
-import data.SubTypeList;
+import cluster.SubTypeList;
 import inference.SingleTypeMCMC;
 import inference.OldSingleTypeMCMC;
 import utils.DataUtils;

@@ -1,7 +1,6 @@
 package inference;
 
-import data.SubTypeList;
-import data.TypeList;
+import cluster.TypeList;
 import utils.Randomizer;
 
 public class AssignSingleRowWrapper extends AssignSingleRow{

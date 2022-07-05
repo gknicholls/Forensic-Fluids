@@ -1,7 +1,6 @@
 package inference;
 
-import data.TypeList;
-import data.TypeListWithUnknown;
+import cluster.TypeListWithUnknown;
 import utils.Randomizer;
 
 import java.util.ArrayList;

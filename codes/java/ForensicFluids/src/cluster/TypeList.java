@@ -1,6 +1,4 @@
-package data;
-
-import java.util.ArrayList;
+package cluster;
 
 public class TypeList {
 

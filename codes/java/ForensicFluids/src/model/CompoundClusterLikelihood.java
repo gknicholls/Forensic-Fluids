@@ -1,8 +1,7 @@
 package model;
 
 import data.CompoundMarkerData;
-import data.SubTypeList;
-import data.TypeList;
+import cluster.TypeList;
 
 public class CompoundClusterLikelihood {
     private int[][][][] eltsAllPartSetList;

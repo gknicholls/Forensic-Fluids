@@ -1,6 +1,6 @@
 package model;
 
-import data.SubTypeList;
+import cluster.SubTypeList;
 import org.apache.commons.math3.special.Gamma;
 
 import java.util.ArrayList;

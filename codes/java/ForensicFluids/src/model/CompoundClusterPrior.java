@@ -1,5 +1,5 @@
 package model;
-import data.TypeList;
+import cluster.TypeList;
 
 
 public class CompoundClusterPrior {
@@ -29,7 +29,7 @@ public class CompoundClusterPrior {
             logMDP += logSingleTypePriors[typeIndex];
 
         }
-        
+
         return logMDP;
 
     }

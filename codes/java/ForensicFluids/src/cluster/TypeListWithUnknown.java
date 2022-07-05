@@ -1,4 +1,4 @@
-package data;
+package cluster;
 
 public class TypeListWithUnknown extends TypeList{
     public static final int TYPE_POS = 0;
