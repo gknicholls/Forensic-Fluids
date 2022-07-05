@@ -27,6 +27,7 @@ public class CompoundClusterLikelihood {
         this.betaC = betaC;
         this.typeClusters = typeClusters;
         logMultiTypeLikelihoods = new double[typeClusters.getTypeCount()];
+        storedLogMultiTypeLikelihoods = new double[logMultiTypeLikelihoods.length];
     }
 
     public double CalcLogTypeLikelihood(){

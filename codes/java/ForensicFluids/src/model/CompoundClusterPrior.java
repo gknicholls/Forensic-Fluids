@@ -1,25 +1,48 @@
 package model;
-
-import data.SubTypeList;
 import data.TypeList;
-import org.apache.commons.math3.special.Gamma;
+
 
 public class CompoundClusterPrior {
 
-    public static double calcLogMDPDensity(double alpha,
-                                           int setCountMax,
-                                           TypeList setLists,
-                                           int totalObsCount){
+    private double[] logSingleTypePriors;
+    private double[] storedLogSingleTypePriors;
+    private double alpha;
+    private int setCountMax;
+    private int[] singleTypeTotalObsCounts;
+    private TypeList setLists;
+
+    public CompoundClusterPrior(double alpha, int setCountMax, int[] singleTypeTotalObsCounts, TypeList setLists){
+        this.alpha = alpha;
+        this.setCountMax = setCountMax;
+        this.singleTypeTotalObsCounts = singleTypeTotalObsCounts;
+        this.setLists = setLists;
+        logSingleTypePriors = new double[setLists.getTypeCount()];
+        storedLogSingleTypePriors = new double[logSingleTypePriors.length];
+    }
+    public  double calcLogMDPDensity(){
 
         double logMDP = 0.0;
-        double[] singleTypePriors = new double[setLists.getTypeCount()];
+
         for(int typeIndex = 0; typeIndex < setLists.getTypeCount(); typeIndex++){
-            singleTypePriors[typeIndex] = ClusterPrior.calcLogMDPDensity(alpha, setCountMax,
-                    setLists.getSubTypeList(typeIndex),totalObsCount);
-            logMDP += singleTypePriors[typeIndex];
+            logSingleTypePriors[typeIndex] = ClusterPrior.calcLogMDPDensity(alpha, setCountMax,
+                    setLists.getSubTypeList(typeIndex), singleTypeTotalObsCounts[typeIndex]);
+            logMDP += logSingleTypePriors[typeIndex];
 
         }
+        
         return logMDP;
 
+    }
+
+    public void store(){
+        System.arraycopy(logSingleTypePriors, 0,
+                storedLogSingleTypePriors, 0,
+                logSingleTypePriors.length);
+    }
+
+    public void restore(){
+        double[] tmp = logSingleTypePriors;
+        logSingleTypePriors = storedLogSingleTypePriors;
+        storedLogSingleTypePriors = tmp;
     }
 }
