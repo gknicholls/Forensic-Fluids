@@ -8,17 +8,17 @@ import java.io.PrintWriter;
 
 public class CalculateMDPPrior {
     public static void main(String[] args){
-        //String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
+        String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
         //String allPartitionSets3File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets3.txt";
         //String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         //String allPartitionSets4File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets4.txt";
-        String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
-        //int totalPartsCount = 115975;
-        int totalPartsCount = 877;
-        int[][][] partitions = getClusterArray(allPartitionSets7File, totalPartsCount);
+        //String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
+        int totalPartsCount = 115975;
+        //int totalPartsCount = 877;
+        int[][][] partitions = getClusterArray(allPartitionSets10File, totalPartsCount);
         double alpha = 20;
-        int maxSetCount = 6;
-        int totalObsCount = 7;
+        int maxSetCount = 5;
+        int totalObsCount = 10;
         double[] mdpProb = new double[totalPartsCount];
 
         for (int partIndex = 0; partIndex < partitions.length; partIndex++) {
@@ -35,7 +35,7 @@ public class CalculateMDPPrior {
         }
 
         try{
-            PrintWriter writer = new PrintWriter("/Users/chwu/Documents/research/bfc/output/ex.10obs.mdp_obsMoreJ6.txt");
+            PrintWriter writer = new PrintWriter("/Users/chwu/Documents/research/bfc/output/ex.10obs.mdp_obsMoreJ5.txt");
             for(int i = 0; i < mdpProb.length; i++){
                 writer.println(mdpProb[i]);
             }
