@@ -5,9 +5,14 @@ import utils.Randomizer;
 
 public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalMove{
 
-    public static double proposal(TypeList typesList){
-        int updateTypeIndex = Randomizer.nextInt(typesList.getTypeCount());
-        return SingleRowMove(typesList.getSubTypeList(updateTypeIndex));
+    private TypeList typeList;
+    public AssignSingleRowWrapper(TypeList typeList){
+        this.typeList = typeList;
+    }
+
+    public double proposal(){
+        int updateTypeIndex = Randomizer.nextInt(typeList.getTypeCount());
+        return SingleRowMove(typeList.getSubTypeList(updateTypeIndex));
 
     }
 }

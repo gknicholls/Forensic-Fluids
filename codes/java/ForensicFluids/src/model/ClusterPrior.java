@@ -6,7 +6,46 @@ import org.apache.commons.math3.special.Gamma;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClusterPrior {
+public class ClusterPrior implements Likelihood{
+
+    private double alpha;
+    private int setCountMax;
+    private SubTypeList setList;
+    private int totalObsCount;
+    private double logPrior;
+    private double storedLogPrior;
+    public ClusterPrior(double alpha,
+                        int setCountMax,
+                        SubTypeList setList,
+                        int totalObsCount){
+        this.alpha = alpha;
+        this.setCountMax = setCountMax;
+        this.setList = setList;
+        this.totalObsCount = totalObsCount;
+
+    }
+
+    public double getLogLikelihood(){
+        logPrior = calcLogMDPDensity(alpha, setCountMax, setList, totalObsCount);
+        return logPrior;
+    }
+
+    public void store(){
+        storedLogPrior = logPrior;
+    }
+
+    public void restore(){
+        logPrior = storedLogPrior;
+    }
+
+    public String log(){
+        return ""+ logPrior;
+    }
+
+    public String logStored(){
+        return ""+ storedLogPrior;
+    }
+
     public static double CalcLogMDPDensity(double alpha,
                                          int setCountMax,
                                          List<ArrayList<Integer>> setList,
@@ -131,6 +170,8 @@ public class ClusterPrior {
         return mdpProb;
 
     }
+
+
 
 
 }

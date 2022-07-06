@@ -5,7 +5,53 @@ import org.apache.commons.math3.special.Beta;
 
 import java.util.ArrayList;
 
-public class ClusterLikelihood {
+public class ClusterLikelihood implements Likelihood {
+
+    private double logLikelihood;
+    private double storedLogLikelihood;
+    private int[][][][] eltsAllPartSetList;
+    private double[][] eltsAllPartSetPriorList;
+    private int[][][] sample;
+    private double[] alphaC;
+    private double[] betaC;
+    private SubTypeList subtypeSets;
+    public ClusterLikelihood(int[][][][] eltsAllPartSetList,
+                             double[][] eltsAllPartSetPriorList,
+                             int[][][] sample,
+                             double[] alphaC,
+                             double[] betaC,
+                             SubTypeList subtypeSets){
+        this.eltsAllPartSetList = eltsAllPartSetList;
+        this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
+        this.sample = sample;
+        this.alphaC = alphaC;
+        this.betaC = betaC;
+        this.subtypeSets = subtypeSets;
+
+
+    }
+
+    public double getLogLikelihood(){
+       logLikelihood = CalcLogTypeLikelihood(eltsAllPartSetList, eltsAllPartSetPriorList, sample,
+               alphaC, betaC, subtypeSets);
+        return logLikelihood;
+    }
+
+    public void store(){
+        storedLogLikelihood = logLikelihood;
+    }
+
+    public void restore(){
+        logLikelihood = storedLogLikelihood;
+    }
+
+    public String log(){
+        return ""+ logLikelihood;
+    }
+
+    public String logStored(){
+        return ""+ storedLogLikelihood;
+    }
     public static double[] CalcIntAllPartsMkrGrpLik(int[][][] eltsAllPartSet,
                                               int[][] sample,
                                               double alphaC,

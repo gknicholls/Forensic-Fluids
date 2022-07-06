@@ -6,7 +6,22 @@ import utils.Randomizer;
 import java.util.ArrayList;
 
 
-public class AssignSingleRow {
+public class AssignSingleRow implements ProposalMove{
+
+    private SubTypeList subtypesList;
+    public AssignSingleRow(){
+
+    }
+    public AssignSingleRow(SubTypeList subtypesList){
+        this.subtypesList = subtypesList;
+    }
+
+    public double proposal(){
+        return SingleRowMove(subtypesList);
+    }
+
+
+
 
 
     public static double SingleRowMove(SubTypeList subtypesList){
