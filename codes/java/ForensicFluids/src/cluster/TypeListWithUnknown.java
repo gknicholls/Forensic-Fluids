@@ -38,6 +38,10 @@ public class TypeListWithUnknown extends TypeList{
         return unknownObsCount;
     }
 
+    public int getUnknownStartIndex(){
+        return unknownStartIndex;
+    }
+
     public int getUnknownObsTypeIndex(int obsIndex){
         return unknownClusterMap[TYPE_POS][obsIndex];
     }

@@ -1,12 +1,17 @@
 package data;
 
+import cluster.TypeListWithUnknown;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 
-public class CompoundMarkerData {
+public class CompoundMarkerDataWithUnknown {
 
     private int[][][][] data;
-    public CompoundMarkerData(String[] files, int[][] rowInfo, int[][][] colInfo){
+    private int getUnknownStartIndex;
+    public CompoundMarkerDataWithUnknown(String[] files, int[][] rowInfo, int[][][] colInfo,
+                                         TypeListWithUnknown typeList){
+
         data = new int[files.length][][][];
         for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
             data[typeIndex] = new int[colInfo[typeIndex].length][][];
@@ -19,9 +24,11 @@ public class CompoundMarkerData {
             }
         }
 
+        getUnknownStartIndex = typeList.getUnknownStartIndex();
+
     }
 
-    public CompoundMarkerData(String[] files, int[] rowInfo, int[][] colInfo){
+    public CompoundMarkerDataWithUnknown(String[] files, int[] rowInfo, int[][] colInfo){
         data = new int[files.length][][][];
         for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
             for(int markerIndex = 0; markerIndex < colInfo[typeIndex].length; markerIndex++){
@@ -62,4 +69,24 @@ public class CompoundMarkerData {
         return data[typeIndex];
     }
 
+    public class MarkerData extends SingleMarkerData{
+
+        MarkerData(int[][][] singleTypeData){
+            super(singleTypeData);
+
+        }
+
+        public int getData(int mkrGrpIndex, int obsIndex, int mkrIndex){
+
+            if(obsIndex < getUnknownStartIndex){
+                return super.getData(mkrGrpIndex, obsIndex, mkrIndex);
+            }else{
+                return data[data.length - 1][mkrGrpIndex][obsIndex - getUnknownStartIndex][mkrIndex];
+            }
+
+        }
+
+
+
+    }
 }
