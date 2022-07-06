@@ -12,62 +12,77 @@ public class MCMC {
     private ProposalMove proposalMove;
     private State state;
     private int chainLength;
+    private int logEvery;
+    private String outputFilePath;
 
 
     public MCMC(Likelihood prior,
                 Likelihood likelihood,
                 ProposalMove proposalMove,
                 State state,
-                int chainLength){
+                int chainLength,
+                int logEvery,
+                String outputFilePath){
         this.prior = prior;
         this.likelihood = likelihood;
         this.proposalMove = proposalMove;
         this.state = state;
         this.chainLength = chainLength;
+        this.logEvery = logEvery;
+
+        this.outputFilePath = outputFilePath;
 
     }
 
-    public void run(PrintStream output, int logEvery){
-        double currLogLik = likelihood.getLogLikelihood();
-        double currLogPrior = prior.getLogLikelihood();
-        double currLogPost = currLogLik + currLogPrior;
-        double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
+    public void run(){
+        try {
 
-        output.println("STATE\tPosterior\tLog-likelihood\tLog-prior\tPartition\tstoredPartition\tPropPartiton\tlogHR\tlogMHR\tdraw");
-        log(output, currLogPost, currLogLik, currLogPrior, 0, state.log(), state.logStored(),0, 0, 0);
-        for(int stepIndex = 0; stepIndex < chainLength; stepIndex++){
-            //System.out.println(stepIndex);
-            //store();
-            state.store();
-            String storedClust = state.logStored();
-            logHR = proposalMove.proposal();
+            PrintStream output = new PrintStream(outputFilePath);
 
-            propLogLik = likelihood.getLogLikelihood();
-            propLogPrior = prior.getLogLikelihood();
-            propLogPost = propLogLik + propLogPrior;
-            logMHR = propLogPost  - currLogPost + logHR;
-            String propClust = state.log();
+            double currLogLik = likelihood.getLogLikelihood();
+            double currLogPrior = prior.getLogLikelihood();
+            double currLogPost = currLogLik + currLogPrior;
+            double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
+
+            output.println("STATE\tPosterior\tLog-likelihood\tLog-prior\tPartition\tstoredPartition\tPropPartiton\tlogHR\tlogMHR\tdraw");
+            log(output, currLogPost, currLogLik, currLogPrior, 0, state.log(), state.logStored(), 0, 0, 0);
+            for (int stepIndex = 0; stepIndex < chainLength; stepIndex++) {
+                //System.out.println(stepIndex);
+                //store();
+                state.store();
+                String storedClust = state.logStored();
+                logHR = proposalMove.proposal();
+
+                propLogLik = likelihood.getLogLikelihood();
+                propLogPrior = prior.getLogLikelihood();
+                propLogPost = propLogLik + propLogPrior;
+                logMHR = propLogPost - currLogPost + logHR;
+                String propClust = state.log();
 
 
-            double draw = Math.log(Randomizer.nextDouble());
-            if( logMHR >= 0.0 || draw < logMHR ){
+                double draw = Math.log(Randomizer.nextDouble());
+                if (logMHR >= 0.0 || draw < logMHR) {
 
-                currLogPost = propLogPost;
-                currLogPrior = propLogPrior;
-                currLogLik = propLogLik;
-            }else{
-                state.restore();
-            }
+                    currLogPost = propLogPost;
+                    currLogPrior = propLogPrior;
+                    currLogLik = propLogLik;
+                } else {
+                    state.restore();
+                }
             /*if(accepted){
                 System.out.println("accepted "+ currLogLik+" "+ currLogPrior);
             }*/
 
-            if(((stepIndex + 1)%logEvery) == 0){
-                System.out.println("log "+ currLogLik+" "+ currLogPrior);
-                log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, propClust, storedClust, logHR, logMHR, draw );
+                if (((stepIndex + 1) % logEvery) == 0) {
+                    System.out.println("log " + currLogLik + " " + currLogPrior);
+                    log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, propClust, storedClust, logHR, logMHR, draw);
+                }
+
+
             }
-
-
+            output.close();
+        }catch(Exception e){
+            throw new RuntimeException(e);
         }
 
 

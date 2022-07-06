@@ -22,10 +22,10 @@ public class ForensicMCMCSingleType {
         try {
             //subtypeClf.runCvfSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runMtbSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
-            //subtypeClf.runSlvSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            subtypeClf.runSlvSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runBldSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //subtypeClf.runSmnSingleTypeClustering(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
-            subtypeClf.runSmnSingleTypeClusteringV2(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            //subtypeClf.runSmnSingleTypeClusteringV2(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
         }catch(Exception e){
             throw new RuntimeException(e);
@@ -142,9 +142,11 @@ public class ForensicMCMCSingleType {
 
 
         OldSingleTypeMCMC estSubtype = new OldSingleTypeMCMC(subtypeParts, mkrGrpPartitions, colPriors,
-                alphaC, betaC, alphaRow, data,1000000);
+                alphaC, betaC, alphaRow, data,1000);
         try{
-            PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5.log");
+            //String file = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5.log";
+            String file = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v1.log";
+            PrintStream logWriter = new PrintStream(file);
             estSubtype.run(logWriter, 100);
             logWriter.close();
         }catch (Exception e){
