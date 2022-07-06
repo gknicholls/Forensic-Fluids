@@ -86,7 +86,7 @@ public class MCMC {
 
 
                 if (((stepIndex + 1) % logEvery) == 0) {
-                    System.out.println("log " + currLogLik + " " + currLogPrior);
+                    //System.out.println("log " + currLogLik + " " + currLogPrior);
                     log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, state.log(), storedClust, logHR, logMHR, draw);
                 }
 
