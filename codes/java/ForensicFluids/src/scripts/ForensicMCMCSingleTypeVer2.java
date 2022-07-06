@@ -1,12 +1,12 @@
 package scripts;
 
+import cluster.State;
 import cluster.SubTypeList;
 import cluster.TypeList;
-import inference.AssignSingleRow;
-import inference.OldSingleTypeMCMC;
-import inference.SingleTypeMCMC;
+import inference.*;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
+import model.Likelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
@@ -69,15 +69,11 @@ public class ForensicMCMCSingleTypeVer2 {
 
         SubTypeList subTypeList = new SubTypeList(subtypeParts);
         AssignSingleRow singleRowMove = new AssignSingleRow(subTypeList);
-        ClusterPrior mdp = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
+        ClusterPrior mdpPrior = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
         ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
-        
 
-
-
-        SingleTypeMCMC estSubtype = new SingleTypeMCMC(subTypeList, mkrGrpPartitions, colPriors,
-                alphaC, betaC, alphaRow, data,1000);
-        PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v2.log");
+        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000);
+        PrintStream logWriter = new PrintStream("/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v3.log");
         estSubtype.run(logWriter, 100);
         logWriter.close();
     }

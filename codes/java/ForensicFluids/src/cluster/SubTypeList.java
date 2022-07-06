@@ -3,7 +3,7 @@ package cluster;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SubTypeList implements Loggable{
+public class SubTypeList implements State{
     private ArrayList<Integer>[] subtypeList;
     private ArrayList<Integer>[] storedSubtypeList;
     private boolean[] subtypeUpdated;
@@ -13,6 +13,7 @@ public class SubTypeList implements Loggable{
         storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
         subtypeUpdated = new boolean[subtypeList.length];
         calcTotalObs();
+        store();
     }
 
     private void calcTotalObs(){

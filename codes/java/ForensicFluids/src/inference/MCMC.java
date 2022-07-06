@@ -17,11 +17,13 @@ public class MCMC {
     public MCMC(Likelihood prior,
                 Likelihood likelihood,
                 ProposalMove proposalMove,
-                State state){
+                State state,
+                int chainLength){
         this.prior = prior;
         this.likelihood = likelihood;
         this.proposalMove = proposalMove;
         this.state = state;
+        this.chainLength = chainLength;
 
     }
 
