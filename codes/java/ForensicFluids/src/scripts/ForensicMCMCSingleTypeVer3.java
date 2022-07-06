@@ -30,8 +30,8 @@ public class ForensicMCMCSingleTypeVer3 {
 
             Randomizer.setSeed(123);
             subtypeClf.runSlvSingleTypeClusteringV3(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
-            //Randomizer.setSeed(123);
-            //subtypeClf.runSmnSingleTypeClusteringV3(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            Randomizer.setSeed(123);
+            subtypeClf.runSmnSingleTypeClusteringV4(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
         }catch(Exception e){
             throw new RuntimeException(e);
@@ -87,7 +87,7 @@ public class ForensicMCMCSingleTypeVer3 {
     }
 
 
-    private void runSmnSingleTypeClusteringV3(String allPartitionSets5File,
+    private void runSmnSingleTypeClusteringV4(String allPartitionSets5File,
                                             String allPartitionSets7File,
                                             double[] alphaC, double[] betaC) throws Exception{
 
@@ -117,13 +117,20 @@ public class ForensicMCMCSingleTypeVer3 {
             subtypeParts[0].add(setIndex);
         }
 
-        SubTypeList subTypeList = new SubTypeList(subtypeParts);
-        AssignSingleRow singleRowMove = new AssignSingleRow(subTypeList);
-        ClusterPrior mdpPrior = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
-        ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
+        String dataFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv";
+        int[][] rowInfo = new int[][]{new int[]{0, totalObsCount - 1}};
+        int[][][] colInfo = new int[][][]{COL_RANGE};
+        CompoundMarkerData dataSets =  new CompoundMarkerData(new String[]{dataFilePath}, rowInfo,  colInfo);
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v3.log";
-        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 10, 1, outputFilePath);
+        SubTypeList subTypeList = new SubTypeList(subtypeParts);
+        SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList};
+        TypeList typeList = new TypeList(subTypeLists);
+        AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
+        CompoundClusterPrior mdpPrior = new CompoundClusterPrior(alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
+        CompoundClusterLikelihood lik = new CompoundClusterLikelihood(mkrGrpPartitions, colPriors, dataSets, alphaC, betaC, typeList);
+
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v4.log";
+        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000, 100, outputFilePath);
         estSubtype.run();
     }
 
