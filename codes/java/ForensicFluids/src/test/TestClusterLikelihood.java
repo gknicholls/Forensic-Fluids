@@ -2,6 +2,7 @@ package test;
 
 import junit.framework.TestCase;
 import model.ClusterLikelihood;
+import model.OldClusterLikelihood;
 import utils.MathUtils;
 
 import java.io.BufferedReader;
@@ -228,7 +229,8 @@ public class TestClusterLikelihood extends TestCase {
             double[] expectedResult = test.getExpectedResult();
             ArrayList<Integer> subtypeIndexes = test.getSubtypeIndexes();
 
-            mkrGrpLik = ClusterLikelihood.CalcIntAllPartsMkrGrpLik(
+
+            mkrGrpLik = OldClusterLikelihood.CalcIntAllPartsMkrGrpLik(
                         partitions,
                         data,
                         alpha,
@@ -258,7 +260,7 @@ public class TestClusterLikelihood extends TestCase {
         double[] alphaC = new double[]{test0.getAlpha(), test1.getAlpha()};
         double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
 
-        double logSubLik = ClusterLikelihood.CalcLogSubtypeLikelihood(mkrGrpPartitions,
+        double logSubLik = OldClusterLikelihood.CalcLogSubtypeLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, test1.getSubtypeIndexes());
 
         assertEquals(logSubLik, -49.6924097777349, 1e-10);
@@ -304,7 +306,7 @@ public class TestClusterLikelihood extends TestCase {
                 subtypeParts[samples[setIndex]] = allParts10[partIndex][setIndex];
             }
 
-            logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+            logSubLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subtypeParts);
 
             assertEquals(logSubLik, logTypeLik[partIndex][0], 1e-10);

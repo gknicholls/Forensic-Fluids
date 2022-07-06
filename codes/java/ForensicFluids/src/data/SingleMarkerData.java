@@ -2,7 +2,7 @@ package data;
 
 public class SingleMarkerData {
     protected int[][][] singleTypeData;
-    SingleMarkerData(int[][][] singleTypeData){
+    public SingleMarkerData(int[][][] singleTypeData){
         this.singleTypeData = singleTypeData;
     }
 

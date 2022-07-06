@@ -2,6 +2,7 @@ package scripts;
 
 import model.ClusterLikelihood;
 import model.ClusterPrior;
+import model.OldClusterLikelihood;
 import utils.MathUtils;
 
 import java.io.BufferedReader;
@@ -121,7 +122,7 @@ public class CalculatePosteriorForAllPartitions {
                     subtypeParts[samples[setIndex]] = allParts[partIndex][setIndex];
                 }
 
-                logTypeLik[partIndex] = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                logTypeLik[partIndex] = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                         colPriors, data, alphaC, betaC, subtypeParts);
 
                 logTypeLikWriter.println(logTypeLik[partIndex]);

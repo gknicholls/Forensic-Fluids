@@ -2,6 +2,7 @@ package inference;
 
 import model.ClusterLikelihood;
 import model.ClusterPrior;
+import model.OldClusterLikelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
@@ -59,7 +60,7 @@ public class OldSingleTypeMCMC {
 
 
     public void run(PrintStream output, int logEvery){
-        double currLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+        double currLogLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, subtypeList);
         double currLogPrior = ClusterPrior.calcLogMDPDensity(
                 alpha, subtypeList.length, subtypeList, totalObsCount);
@@ -80,7 +81,7 @@ public class OldSingleTypeMCMC {
 
 
 
-            propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+            propLogLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subtypeList);
             //propLogLik = 0.0;
             propLogPrior = ClusterPrior.calcLogMDPDensity(

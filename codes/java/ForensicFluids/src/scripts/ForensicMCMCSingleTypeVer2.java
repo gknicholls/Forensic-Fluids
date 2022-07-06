@@ -3,6 +3,7 @@ package scripts;
 import cluster.State;
 import cluster.SubTypeList;
 import cluster.TypeList;
+import data.SingleMarkerData;
 import inference.*;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
@@ -27,8 +28,8 @@ public class ForensicMCMCSingleTypeVer2 {
 
             Randomizer.setSeed(123);
             subtypeClf.runSlvSingleTypeClusteringV2(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
-            //Randomizer.setSeed(123);
-            //subtypeClf.runSmnSingleTypeClusteringV3(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            Randomizer.setSeed(123);
+            subtypeClf.runSmnSingleTypeClusteringV3(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
         }catch(Exception e){
             throw new RuntimeException(e);
@@ -48,11 +49,12 @@ public class ForensicMCMCSingleTypeVer2 {
         int totalObsCount = 81;
         int maxClustCount = 5;
 
-        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] singleTypeData = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
         for(int i = 0; i < COL_RANGE.length; i++){
-            data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv",
+            singleTypeData[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv",
                     COL_RANGE[i][0], COL_RANGE[i][1], 0, totalObsCount - 1);
         }
+        SingleMarkerData data = new SingleMarkerData(singleTypeData);
 
         ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
         for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
@@ -91,12 +93,13 @@ public class ForensicMCMCSingleTypeVer2 {
         int totalObsCount = 86;
         int maxClustCount = 5;
 
-        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] singleTypeData = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
 
         for(int i = 0; i < COL_RANGE.length; i++){
-            data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
+            singleTypeData[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
                     COL_RANGE[i][0], COL_RANGE[i][1], 0, totalObsCount - 1);
         }
+        SingleMarkerData data = new SingleMarkerData(singleTypeData);
 
         ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
         for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){

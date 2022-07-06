@@ -5,33 +5,40 @@ import java.io.FileReader;
 
 public class CompoundMarkerData {
 
-    private int[][][][] data;
+    private SingleMarkerData[] dataSets;
     public CompoundMarkerData(String[] files, int[][] rowInfo, int[][][] colInfo){
-        data = new int[files.length][][][];
+        dataSets = new SingleMarkerData[files.length];
+        int[][][] data;
         for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
-            data[typeIndex] = new int[colInfo[typeIndex].length][][];
+            data = new int[colInfo[typeIndex].length][][];
             for(int markerIndex = 0; markerIndex < colInfo[typeIndex].length; markerIndex++){
-                data[typeIndex][markerIndex] = extractData(files[typeIndex],
+                data[markerIndex] = extractData(files[typeIndex],
                         colInfo[typeIndex][markerIndex][0],
                         colInfo[typeIndex][markerIndex][1],
                         rowInfo[typeIndex][0],
                         rowInfo[typeIndex][1]);
             }
+            dataSets[typeIndex] = new SingleMarkerData(data);
         }
+
 
     }
 
     public CompoundMarkerData(String[] files, int[] rowInfo, int[][] colInfo){
-        data = new int[files.length][][][];
+        dataSets = new SingleMarkerData[files.length];
+        int[][][] data;
         for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
+            data = new int[colInfo[typeIndex].length][][];
             for(int markerIndex = 0; markerIndex < colInfo[typeIndex].length; markerIndex++){
-                data[typeIndex][markerIndex] = extractData(files[typeIndex],
+                data[markerIndex] = extractData(files[typeIndex],
                         colInfo[markerIndex][0],
                         colInfo[markerIndex][1],
                         rowInfo[0],
                         rowInfo[1]);
             }
+            dataSets[typeIndex] = new SingleMarkerData(data);
         }
+
 
     }
 
@@ -58,8 +65,8 @@ public class CompoundMarkerData {
 
     }
 
-    public int[][][] getData(int typeIndex){
-        return data[typeIndex];
+    public SingleMarkerData getData(int typeIndex){
+        return dataSets[typeIndex];
     }
 
 }
