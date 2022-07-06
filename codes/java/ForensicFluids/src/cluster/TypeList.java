@@ -73,11 +73,34 @@ public class TypeList {
             typeList[typeIndex].store();
             typeUpdated[typeIndex] = false;
         }
-
-
-
-
     }
+
+    public String log(){
+        String logStr = "";
+        for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
+            if(typeIndex > 0){
+                logStr += " ";
+            }
+
+            logStr += typeList[typeIndex].log();
+
+        }
+        return logStr;
+    }
+
+    public String logStored(){
+        String logStr = "";
+        for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
+            if(typeIndex > 0){
+                logStr += " ";
+            }
+
+            logStr += typeList[typeIndex].logStored();
+
+        }
+        return logStr;
+    }
+
 
     public void restore(){
 

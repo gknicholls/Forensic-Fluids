@@ -3,7 +3,7 @@ package cluster;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SubTypeList {
+public class SubTypeList implements Loggable{
     private ArrayList<Integer>[] subtypeList;
     private ArrayList<Integer>[] storedSubtypeList;
     private boolean[] subtypeUpdated;
@@ -99,6 +99,14 @@ public class SubTypeList {
     }
 
     public String printStoredCluster(){
+        return printCluster(storedSubtypeList);
+    }
+
+    public String log(){
+        return printCluster(subtypeList);
+    }
+
+    public String logStored(){
         return printCluster(storedSubtypeList);
     }
 

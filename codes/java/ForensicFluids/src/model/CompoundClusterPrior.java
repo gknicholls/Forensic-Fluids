@@ -2,10 +2,12 @@ package model;
 import cluster.TypeList;
 
 
-public class CompoundClusterPrior {
+public class CompoundClusterPrior implements Likelihood{
 
     private double[] logSingleTypePriors;
     private double[] storedLogSingleTypePriors;
+    private double logMultiTypePrior;
+    private double storedLogMultiTypePrior;
     private double alpha;
     private int setCountMax;
     private int[] singleTypeTotalObsCounts;
@@ -19,28 +21,42 @@ public class CompoundClusterPrior {
         logSingleTypePriors = new double[setLists.getTypeCount()];
         storedLogSingleTypePriors = new double[logSingleTypePriors.length];
     }
-    public  double calcLogMDPDensity(){
+    public double calcLogMDPDensity(){
 
-        double logMDP = 0.0;
+        logMultiTypePrior = 0.0;
 
         for(int typeIndex = 0; typeIndex < setLists.getTypeCount(); typeIndex++){
             logSingleTypePriors[typeIndex] = ClusterPrior.calcLogMDPDensity(alpha, setCountMax,
                     setLists.getSubTypeList(typeIndex), singleTypeTotalObsCounts[typeIndex]);
-            logMDP += logSingleTypePriors[typeIndex];
+            logMultiTypePrior += logSingleTypePriors[typeIndex];
 
         }
 
-        return logMDP;
+        return logMultiTypePrior;
 
     }
 
+    public String log(){
+        return ""+ logMultiTypePrior;
+    }
+
+    public String logStored(){
+        return "" + storedLogMultiTypePrior;
+    }
+
+    public double getLogLikelihood(){
+        return calcLogMDPDensity();
+    }
+
     public void store(){
+        storedLogMultiTypePrior = logMultiTypePrior;
         System.arraycopy(logSingleTypePriors, 0,
                 storedLogSingleTypePriors, 0,
                 logSingleTypePriors.length);
     }
 
     public void restore(){
+        logMultiTypePrior = storedLogMultiTypePrior;
         double[] tmp = logSingleTypePriors;
         logSingleTypePriors = storedLogSingleTypePriors;
         storedLogSingleTypePriors = tmp;
