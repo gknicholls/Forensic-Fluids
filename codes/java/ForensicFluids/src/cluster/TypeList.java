@@ -1,6 +1,6 @@
 package cluster;
 
-public class TypeList {
+public class TypeList implements State{
 
     protected SubTypeList[] typeList;
     protected boolean[] typeUpdated;
@@ -68,12 +68,7 @@ public class TypeList {
         return typeUpdated[typeIndex];
     }
 
-    public void store(){
-        for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
-            typeList[typeIndex].store();
-            typeUpdated[typeIndex] = false;
-        }
-    }
+
 
     public String log(){
         String logStr = "";
@@ -99,6 +94,13 @@ public class TypeList {
 
         }
         return logStr;
+    }
+
+    public void store(){
+        for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
+            typeList[typeIndex].store();
+            typeUpdated[typeIndex] = false;
+        }
     }
 
 

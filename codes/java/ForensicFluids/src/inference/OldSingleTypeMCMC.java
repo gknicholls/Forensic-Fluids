@@ -90,8 +90,12 @@ public class OldSingleTypeMCMC {
             String propClust = printCluster(subtypeList);
 
 
+
             double draw = Math.log(Randomizer.nextDouble());
+            //boolean accept = false;
             if( logMHR >= 0.0 || draw < logMHR ){
+                //accept = true;
+                //System.out.println("accepted: "+ accept+"," + currLogLik+" "+ currLogPrior+ " "+propLogLik+" "+ propLogPrior);
 
                 currLogPost = propLogPost;
                 currLogPrior = propLogPrior;

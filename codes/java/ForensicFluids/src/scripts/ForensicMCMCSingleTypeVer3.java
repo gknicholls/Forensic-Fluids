@@ -1,19 +1,22 @@
 package scripts;
 
-import cluster.State;
 import cluster.SubTypeList;
 import cluster.TypeList;
-import inference.*;
+import data.CompoundMarkerData;
+import inference.AssignSingleRow;
+import inference.AssignSingleRowWrapper;
+import inference.MCMC;
+import inference.OldSingleTypeMCMC;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
-import model.Likelihood;
+import model.CompoundClusterLikelihood;
+import model.CompoundClusterPrior;
 import utils.DataUtils;
 import utils.Randomizer;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 
-public class ForensicMCMCSingleTypeVer2 {
+public class ForensicMCMCSingleTypeVer3 {
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
     public static void main(String[] args){
@@ -22,11 +25,11 @@ public class ForensicMCMCSingleTypeVer2 {
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
         double[] alphaC = new double[]{0.5, 0.5, 0.5, 0.5, 0.5};
         double[] betaC = new double[]{2.0, 2.0, 0.25, 2.0, 2.0};
-        ForensicMCMCSingleTypeVer2 subtypeClf = new ForensicMCMCSingleTypeVer2();
+        ForensicMCMCSingleTypeVer3 subtypeClf = new ForensicMCMCSingleTypeVer3();
         try {
 
             Randomizer.setSeed(123);
-            subtypeClf.runSlvSingleTypeClusteringV2(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
+            subtypeClf.runSlvSingleTypeClusteringV3(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             //Randomizer.setSeed(123);
             //subtypeClf.runSmnSingleTypeClusteringV3(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
@@ -35,7 +38,7 @@ public class ForensicMCMCSingleTypeVer2 {
         }
     }
 
-    private void runSlvSingleTypeClusteringV2(String allPartitionSets5File,
+    private void runSlvSingleTypeClusteringV3(String allPartitionSets5File,
                                               String allPartitionSets7File,
                                               double[] alphaC, double[] betaC) throws Exception{
         int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
@@ -64,12 +67,19 @@ public class ForensicMCMCSingleTypeVer2 {
         }
 
         SubTypeList subTypeList = new SubTypeList(subtypeParts);
-        AssignSingleRow singleRowMove = new AssignSingleRow(subTypeList);
-        ClusterPrior mdpPrior = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
-        ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
+        SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList};
+        TypeList typeList = new TypeList(subTypeLists);
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v2.log";
-        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000, 100, outputFilePath);
+        String dataFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv";
+        int[][] rowInfo = new int[][]{new int[]{0, totalObsCount - 1}};
+        int[][][] colInfo = new int[][][]{COL_RANGE};
+        CompoundMarkerData dataSets =  new CompoundMarkerData(new String[]{dataFilePath}, rowInfo,  colInfo);
+        AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
+        CompoundClusterPrior mdpPrior = new CompoundClusterPrior(alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
+        CompoundClusterLikelihood lik = new CompoundClusterLikelihood(mkrGrpPartitions, colPriors, dataSets, alphaC, betaC, typeList);
+
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v3.log";
+        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, typeList, 1000, 100, outputFilePath);
         estSubtype.run();
 
 
@@ -113,7 +123,7 @@ public class ForensicMCMCSingleTypeVer2 {
         ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
 
         String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v3.log";
-        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000, 100, outputFilePath);
+        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 10, 1, outputFilePath);
         estSubtype.run();
     }
 

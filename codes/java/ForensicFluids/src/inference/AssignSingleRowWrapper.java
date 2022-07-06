@@ -11,7 +11,10 @@ public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalM
     }
 
     public double proposal(){
-        int updateTypeIndex = Randomizer.nextInt(typeList.getTypeCount());
+        int updateTypeIndex = 0;
+        if(typeList.getTypeCount() > 1){
+            updateTypeIndex = Randomizer.nextInt(typeList.getTypeCount());
+        }
         return SingleRowMove(typeList.getSubTypeList(updateTypeIndex));
 
     }

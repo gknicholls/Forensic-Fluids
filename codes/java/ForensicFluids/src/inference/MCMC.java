@@ -50,7 +50,12 @@ public class MCMC {
                 //System.out.println(stepIndex);
                 //store();
                 state.store();
+                likelihood.store();
+                prior.store();
+
+
                 String storedClust = state.logStored();
+
                 logHR = proposalMove.proposal();
 
                 propLogLik = likelihood.getLogLikelihood();
@@ -61,21 +66,28 @@ public class MCMC {
 
 
                 double draw = Math.log(Randomizer.nextDouble());
+                //boolean accept = false;
                 if (logMHR >= 0.0 || draw < logMHR) {
+                    //System.out.println("accepted: "+ accept+"," + currLogLik+" "+ currLogPrior+ " "+propLogLik+" "+ propLogPrior);
+                    //accept = true;
 
                     currLogPost = propLogPost;
                     currLogPrior = propLogPrior;
                     currLogLik = propLogLik;
                 } else {
                     state.restore();
+                    likelihood.restore();
+                    prior.restore();
                 }
+
             /*if(accepted){
                 System.out.println("accepted "+ currLogLik+" "+ currLogPrior);
             }*/
 
+
                 if (((stepIndex + 1) % logEvery) == 0) {
                     System.out.println("log " + currLogLik + " " + currLogPrior);
-                    log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, propClust, storedClust, logHR, logMHR, draw);
+                    log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, state.log(), storedClust, logHR, logMHR, draw);
                 }
 
 

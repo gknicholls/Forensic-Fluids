@@ -9,6 +9,7 @@ public class CompoundMarkerData {
     public CompoundMarkerData(String[] files, int[][] rowInfo, int[][][] colInfo){
         data = new int[files.length][][][];
         for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
+            data[typeIndex] = new int[colInfo[typeIndex].length][][];
             for(int markerIndex = 0; markerIndex < colInfo[typeIndex].length; markerIndex++){
                 data[typeIndex][markerIndex] = extractData(files[typeIndex],
                         colInfo[typeIndex][markerIndex][0],

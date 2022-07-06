@@ -35,14 +35,14 @@ public class CompoundClusterLikelihood implements Likelihood{
 
         logMultiTypeLikelihood = 0;
         for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
-            if(typeClusters.hasUpdated(typeIndex)){
+            //if(typeClusters.hasUpdated(typeIndex)){
                 logMultiTypeLikelihoods[typeIndex] = ClusterLikelihood.CalcLogTypeLikelihood(eltsAllPartSetList,
                         eltsAllPartSetPriorList,
                         multiTypeSamples.getData(typeIndex),
                         alphaC,
                         betaC,
                         typeClusters.getSubTypeList(typeIndex));
-            }
+            //}
             logMultiTypeLikelihood += logMultiTypeLikelihoods[typeIndex];
 
 
