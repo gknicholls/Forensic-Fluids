@@ -9,11 +9,13 @@ import java.io.PrintStream;
 public class MCMC {
     private Likelihood prior;
     private Likelihood likelihood;
-    private ProposalMove proposalMove;
+    private ProposalMove[] proposalMoves;
     private State state;
     private int chainLength;
     private int logEvery;
     private String outputFilePath;
+    private double[] weights;
+    private double[] cumSumWeights;
 
 
     public MCMC(Likelihood prior,
@@ -25,12 +27,40 @@ public class MCMC {
                 String outputFilePath){
         this.prior = prior;
         this.likelihood = likelihood;
-        this.proposalMove = proposalMove;
+        this.proposalMoves = new ProposalMove[]{proposalMove};
+        this.state = state;
+        this.chainLength = chainLength;
+        this.logEvery = logEvery;
+
+
+
+        this.outputFilePath = outputFilePath;
+
+    }
+
+    public MCMC(Likelihood prior,
+                Likelihood likelihood,
+                ProposalMove[] proposalMoves,
+                double[] weights,
+                State state,
+                int chainLength,
+                int logEvery,
+                String outputFilePath){
+        this.prior = prior;
+        this.likelihood = likelihood;
+        this.proposalMoves = proposalMoves;
+        this.weights = weights;
         this.state = state;
         this.chainLength = chainLength;
         this.logEvery = logEvery;
 
         this.outputFilePath = outputFilePath;
+
+        double prevWeight = 0;
+        for(int i = 0; i < cumSumWeights.length; i++){
+            cumSumWeights[i] = prevWeight + weights[i];
+            prevWeight = cumSumWeights[i];
+        }
 
     }
 
@@ -56,7 +86,13 @@ public class MCMC {
 
                 String storedClust = state.logStored();
 
-                logHR = proposalMove.proposal();
+                int currProposalIndex;
+                if(weights == null){
+                    currProposalIndex = stepIndex%proposalMoves.length;
+                }else{
+                    currProposalIndex = getMoveIndex(stepIndex);
+                }
+                logHR = proposalMoves[currProposalIndex].proposal();
 
                 propLogLik = likelihood.getLogLikelihood();
                 propLogPrior = prior.getLogLikelihood();
@@ -99,6 +135,21 @@ public class MCMC {
 
 
     }
+
+    private int getMoveIndex(int stepIndex){
+        int currMoveIndex = cumSumWeights.length - 1;
+        double r = cumSumWeights[currMoveIndex]%stepIndex;
+        for(int moveIndex = 0; moveIndex < cumSumWeights.length; moveIndex++){
+            if(r > cumSumWeights[moveIndex]){
+                currMoveIndex = moveIndex - 1;
+                break;
+            }
+
+        }
+        return currMoveIndex;
+    }
+
+
 
     private void log(PrintStream output, double posterior, double likelihood,
                      double prior, int state, String propClust, String storedClust,
