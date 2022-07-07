@@ -2,9 +2,8 @@ package scripts;
 
 import cluster.SubTypeList;
 import cluster.TypeList;
-import inference.AssignSingleRowWrapper;
-import inference.MCMC;
-import inference.OldSingleTypeMCMC;
+import cluster.TypeListWithUnknown;
+import inference.*;
 import model.CompoundClusterPrior;
 import model.DummyLikelihood;
 import utils.Randomizer;
@@ -24,7 +23,6 @@ public class TestMultiTypeDataMDPPriorMCMC {
         try {
 
             //Randomizer.setSeed(123);
-            //subtypeClf.runEx7Obs(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             Randomizer.setSeed(123);
             subtypeClf.runMultiTypeObs(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
 
@@ -60,6 +58,8 @@ public class TestMultiTypeDataMDPPriorMCMC {
             subtypeParts1[0].add(obsIndex);
         }
 
+        subtypeParts1[0].add(10);
+
         ArrayList<Integer>[] subtypeParts2 = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
         for(int setIndex = 0; setIndex < subtypeParts2.length; setIndex++){
             subtypeParts2[setIndex] = new ArrayList<>();
@@ -77,15 +77,17 @@ public class TestMultiTypeDataMDPPriorMCMC {
         SubTypeList subTypeList2 = new SubTypeList(subtypeParts2);
 
         SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList1, subTypeList2};
-        TypeList typeList = new TypeList(subTypeLists);
+        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, 10);
 
         AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
+        AssignBetweenTypes btwnTypeMove = new AssignBetweenTypes(typeList);
+        ProposalMove[] proposals = new ProposalMove[]{singleRowMove, btwnTypeMove};
         CompoundClusterPrior mdpPrior = new CompoundClusterPrior(alphaRow, maxClustCount,
                 new int[]{totalObsCount1, totalObsCount2}, typeList);
         DummyLikelihood lik = new DummyLikelihood();
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/ex.multiTypeObs.log";
-        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, typeList, 1000000, 1, outputFilePath);
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/ex.multiTypeObsWithUnknown_1.log";
+        MCMC estSubtype = new MCMC(mdpPrior, lik, proposals, null, typeList, 1000000, 100, outputFilePath);
         estSubtype.run();
         //}
 

@@ -110,8 +110,10 @@ public class AssignSingleRow implements ProposalMove{
             }
         }
         //int obs = subtypesList[currSetIndex].remove(currSetEltIndex);
+
         int obs = subtypesList.removeObs(currSetIndex, currSetEltIndex);
         subtypesList.addObs(propSetIndex, obs);
+        //System.out.println("AssignSingle: "+currSetIndex+" " +currSetEltIndex+" "+obs);
 
 
 

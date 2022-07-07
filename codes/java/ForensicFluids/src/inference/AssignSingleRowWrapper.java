@@ -1,6 +1,7 @@
 package inference;
 
 import cluster.TypeList;
+import cluster.TypeListWithUnknown;
 import utils.Randomizer;
 
 public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalMove{
@@ -15,7 +16,31 @@ public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalM
         if(typeList.getTypeCount() > 1){
             updateTypeIndex = Randomizer.nextInt(typeList.getTypeCount());
         }
-        return SingleRowMove(typeList.getSubTypeList(updateTypeIndex));
+        //System.out.println("updateTypeIndex: "+updateTypeIndex);
 
+
+        double temp=  SingleRowMove(typeList.getSubTypeList(updateTypeIndex));
+        /*int[] setSizes = typeList.getSubTypeSetSizes(updateTypeIndex);
+        for(int i = 0; i < setSizes.length; i++){
+            if(setSizes[i] > 0){
+                for(int j = 0; j < setSizes[i]; j++){
+                    System.out.print(typeList.getObs(updateTypeIndex, i, j)+" ");
+                }
+                System.out.println();
+
+            }
+
+        }*/
+        if(typeList instanceof TypeListWithUnknown){
+            ((TypeListWithUnknown)typeList).updateMap();
+        }
+
+
+        /*setSizes = typeList.getSubTypeSetSizes(0);
+        if(setSizes[0] >0){
+            System.out.println("000X: "+typeList.getObs(0, 0,0));
+        }*/
+
+        return temp;
     }
 }

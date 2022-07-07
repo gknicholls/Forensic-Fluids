@@ -5,7 +5,7 @@ import utils.Randomizer;
 
 import java.util.ArrayList;
 
-public class AssignBetweenTypes {
+public class AssignBetweenTypes implements ProposalMove{
 
     private ArrayList<Integer> propTypeNonEmptySets;
     private ArrayList<Integer> propTypeEmptySets;
@@ -17,13 +17,17 @@ public class AssignBetweenTypes {
     }
 
 
-    public double betweenTypesMove(){
+    public double proposal(){
         // Randomly select an unknown fluid sample
         int unknownObsIndex = Randomizer.nextInt(typeList.getUnknownObsCount());
         // Retrieve the classification information on this sample.
         int currTypeIndex = typeList.getUnknownObsTypeIndex(unknownObsIndex);
         int currSubTypeIndex = typeList.getUnknownObsSubTypeIndex(unknownObsIndex);
         int currEltIndex = typeList.getUnknownObsEltIndex(unknownObsIndex);
+
+        //System.out.println("pos: "+currTypeIndex+" "+currSubTypeIndex+" "+currEltIndex);
+        //System.out.println("unknown obs: "+ typeList.getObs(currTypeIndex, currSubTypeIndex, currEltIndex)+" "+
+        //        currTypeIndex +" "+ currSubTypeIndex+" "+ currEltIndex);
 
         int currTypeSubtypeCount = typeList.getNonSubTypesCount(currTypeIndex);
 
@@ -63,7 +67,11 @@ public class AssignBetweenTypes {
 
         }
 
-        int obs = typeList.removeObs(propTypeIndex, propSubtypeIndex, currEltIndex);
+
+        //System.out.println("unknown obs: "+ typeList.getObs(currTypeIndex, currSubTypeIndex, currEltIndex)+" "+
+        //        currTypeIndex +" "+ currSubTypeIndex+" "+ currEltIndex);
+        int obs = typeList.removeObs(currTypeIndex, currSubTypeIndex, currEltIndex);
+        //System.out.println("unknown obs: "+obs);
         typeList.addObs(propTypeIndex, propSubtypeIndex, obs);
 
         /*

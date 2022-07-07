@@ -56,11 +56,15 @@ public class MCMC {
 
         this.outputFilePath = outputFilePath;
 
-        double prevWeight = 0;
-        for(int i = 0; i < cumSumWeights.length; i++){
-            cumSumWeights[i] = prevWeight + weights[i];
-            prevWeight = cumSumWeights[i];
+        if(weights != null){
+            cumSumWeights = new double[weights.length];
+            double prevWeight = 0;
+            for(int i = 0; i < cumSumWeights.length; i++){
+                cumSumWeights[i] = prevWeight + weights[i];
+                prevWeight = cumSumWeights[i];
+            }
         }
+
 
     }
 
@@ -92,6 +96,7 @@ public class MCMC {
                 }else{
                     currProposalIndex = getMoveIndex(stepIndex);
                 }
+                //System.out.println("mcmc: "+stepIndex+" "+proposalMoves.length+" "+currProposalIndex);
                 logHR = proposalMoves[currProposalIndex].proposal();
 
                 propLogLik = likelihood.getLogLikelihood();
@@ -105,12 +110,15 @@ public class MCMC {
                 //boolean accept = false;
                 if (logMHR >= 0.0 || draw < logMHR) {
                     //System.out.println("accepted: "+ accept+"," + currLogLik+" "+ currLogPrior+ " "+propLogLik+" "+ propLogPrior);
+                    //System.out.println("accept");
+
                     //accept = true;
 
                     currLogPost = propLogPost;
                     currLogPrior = propLogPrior;
                     currLogLik = propLogLik;
                 } else {
+                    //System.out.println("reject");
                     state.restore();
                     likelihood.restore();
                     prior.restore();

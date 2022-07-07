@@ -64,6 +64,11 @@ public class SubTypeList implements State{
 
     public void addObs(int subtypeIndex, int obs){
         subtypeList[subtypeIndex].add(obs);
+        /*System.out.print("update SubtypeList: ");
+        for(int i = 0; i < subtypeList[subtypeIndex].size(); i++){
+            System.out.print(subtypeList[subtypeIndex].get(i)+" ");
+        }
+        System.out.println();*/
         subtypeUpdated[subtypeIndex] = true;
 
     }
@@ -76,12 +81,19 @@ public class SubTypeList implements State{
 
     public void store(){
 
+        //System.out.println("SubtypeList store: ");
         for(int subtypeIndex = 0; subtypeIndex < storedSubtypeList.length; subtypeIndex++){
             storedSubtypeList[subtypeIndex] = new ArrayList<Integer>();
+
             for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
                 storedSubtypeList[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
+                //System.out.print(subtypeList[subtypeIndex].get(eltIndex)+" ");
+
             }
+
+
         }
+        //System.out.println();
 
 
 
@@ -115,6 +127,7 @@ public class SubTypeList implements State{
 
         String setStr;
         ArrayList<String> setStrList = new ArrayList<String> ();
+        ArrayList<Integer> copy = new ArrayList<>();
         for(int subtypeIndex = 0; subtypeIndex < subtypeList.length; subtypeIndex++){
 
             if(subtypeList[subtypeIndex].size() > 0){
@@ -123,10 +136,15 @@ public class SubTypeList implements State{
                 }*/
 
                 setStr = "[";
-                Collections.sort(subtypeList[subtypeIndex]);
-                for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
-                    setStr += subtypeList[subtypeIndex].get(eltIndex);
-                    if(eltIndex < (subtypeList[subtypeIndex].size() - 1)){
+                copy = new ArrayList<>();
+                for(int i = 0; i < subtypeList[subtypeIndex].size(); i++){
+                    copy.add(subtypeList[subtypeIndex].get(i));
+                }
+                //Collections.copy(copy, subtypeList[subtypeIndex]);
+                Collections.sort(copy);
+                for(int eltIndex = 0; eltIndex < copy.size(); eltIndex++){
+                    setStr += copy.get(eltIndex);
+                    if(eltIndex < (copy.size() - 1)){
                         setStr+=",";
                     }
 
