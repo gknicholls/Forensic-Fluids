@@ -1,8 +1,9 @@
 package scripts;
 
+import cluster.SubTypeList;
+import data.SingleMarkerData;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
-import model.OldClusterLikelihood;
 import utils.MathUtils;
 
 import java.io.BufferedReader;
@@ -26,12 +27,13 @@ public class CalculatePosteriorForAllPartitions {
         int totalPartitionCount = 52;
         int setCountMax = 5;
 
-        int[][][] data = new int[5][][];
+        int[][][] dataMat = new int[5][][];
         int[][] colRange = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
         for(int i = 0; i < colRange.length; i++){
-            data[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.5obs.dat.csv",
+            dataMat[i] = extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.5obs.dat.csv",
                     colRange[i][0], colRange[i][1], 0, totalObsCount - 1);
         }
+        SingleMarkerData data = new SingleMarkerData(dataMat);
         /*for(int i = 0; i < data.length; i++){
 
             for(int j = 0; j < data[i].length; j++){
@@ -121,9 +123,10 @@ public class CalculatePosteriorForAllPartitions {
                 for (int setIndex = 0; setIndex < allParts[partIndex].length; setIndex++) {
                     subtypeParts[samples[setIndex]] = allParts[partIndex][setIndex];
                 }
+                SubTypeList subTypeList = new SubTypeList(subtypeParts);
 
-                logTypeLik[partIndex] = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-                        colPriors, data, alphaC, betaC, subtypeParts);
+                logTypeLik[partIndex] = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                        colPriors, data, alphaC, betaC, subTypeList);
 
                 logTypeLikWriter.println(logTypeLik[partIndex]);
 

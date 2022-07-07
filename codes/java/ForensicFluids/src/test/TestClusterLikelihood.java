@@ -1,8 +1,10 @@
 package test;
 
+import cluster.SubTypeList;
+import data.SingleMarkerData;
 import junit.framework.TestCase;
 import model.ClusterLikelihood;
-import model.OldClusterLikelihood;
+//import model.OldClusterLikelihood;
 import utils.MathUtils;
 
 import java.io.BufferedReader;
@@ -222,20 +224,19 @@ public class TestClusterLikelihood extends TestCase {
         for(Instance test: tests) {
 
             int[][][] partitions = test.getPartitions();
-            int[][] data = test.getData();
+            //int[][] data = test.getData();
             double alpha = test.getAlpha();
             double beta = test.getBeta();
             double[] mkrGrpLik;
             double[] expectedResult = test.getExpectedResult();
-            ArrayList<Integer> subtypeIndexes = test.getSubtypeIndexes();
+
+            ArrayList<Integer>[] subtypeList = (ArrayList<Integer>[]) new ArrayList[]{test.getSubtypeIndexes()};
+            SingleMarkerData data = new SingleMarkerData(new int[][][]{test.getData()});
+            SubTypeList subTypeList = new SubTypeList(subtypeList );
 
 
-            mkrGrpLik = OldClusterLikelihood.CalcIntAllPartsMkrGrpLik(
-                        partitions,
-                        data,
-                        alpha,
-                        beta,
-                        subtypeIndexes);
+            mkrGrpLik = ClusterLikelihood.CalcIntAllPartsMkrGrpLik(
+                    partitions, data, 0, alpha, beta, subTypeList,0);
 
             for (int partIndex = 0; partIndex < partitions.length; partIndex++) {
 
@@ -250,9 +251,10 @@ public class TestClusterLikelihood extends TestCase {
         mkrGrpPartitions[0] = test0.getPartitions();
         mkrGrpPartitions[1] = test1.getPartitions();
 
-        int[][][] data = new int[2][][];
-        data[0] = test0.getData();
-        data[1] = test1.getData();
+        int[][][] dataMat = new int[2][][];
+        dataMat[0] = test0.getData();
+        dataMat[1] = test1.getData();
+        SingleMarkerData data = new SingleMarkerData(dataMat);
 
         double[][] colPriors = new double[2][];
         colPriors[0] = test0.getColPrior();
@@ -260,8 +262,12 @@ public class TestClusterLikelihood extends TestCase {
         double[] alphaC = new double[]{test0.getAlpha(), test1.getAlpha()};
         double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
 
-        double logSubLik = OldClusterLikelihood.CalcLogSubtypeLikelihood(mkrGrpPartitions,
-                colPriors, data, alphaC, betaC, test1.getSubtypeIndexes());
+        ArrayList<Integer>[] subtypeSets = (ArrayList<Integer>[]) new ArrayList[]{test1.getSubtypeIndexes()};
+
+        SubTypeList subTypeList = new SubTypeList(subtypeSets);
+
+        double logSubLik = ClusterLikelihood.CalcLogSubtypeLikelihood(mkrGrpPartitions,
+                colPriors, data, alphaC, betaC, subTypeList, 0);
 
         assertEquals(logSubLik, -49.6924097777349, 1e-10);
 
@@ -275,9 +281,10 @@ public class TestClusterLikelihood extends TestCase {
         mkrGrpPartitions[0] = test0.getPartitions();
         mkrGrpPartitions[1] = test1.getPartitions();
 
-        int[][][] data = new int[2][][];
-        data[0] = test0.getData();
-        data[1] = test1.getData();
+        int[][][] dataMat = new int[2][][];
+        dataMat[0] = test0.getData();
+        dataMat[1] = test1.getData();
+        SingleMarkerData data = new SingleMarkerData(dataMat);
 
         double[][] colPriors = new double[2][];
         colPriors[0] = test0.getColPrior();
@@ -306,8 +313,10 @@ public class TestClusterLikelihood extends TestCase {
                 subtypeParts[samples[setIndex]] = allParts10[partIndex][setIndex];
             }
 
-            logSubLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-                    colPriors, data, alphaC, betaC, subtypeParts);
+            SubTypeList subTypeList = new SubTypeList(subtypeParts);
+
+            logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                    colPriors, data, alphaC, betaC, subTypeList);
 
             assertEquals(logSubLik, logTypeLik[partIndex][0], 1e-10);
         }
@@ -370,7 +379,7 @@ public class TestClusterLikelihood extends TestCase {
 
                     clusts[lineIndex][clustIndex] = new ArrayList<Integer>();
                     for(int obsIndex = 0; obsIndex < obsInClust.length; obsIndex++){
-                        clusts[lineIndex][clustIndex].add(Integer.parseInt(obsInClust[obsIndex]) - 1);
+                        clusts[lineIndex][clustIndex].add(Integer.parseInt(obsInClust[obsIndex]));
 
                     }
 

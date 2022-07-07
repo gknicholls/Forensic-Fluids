@@ -1,9 +1,9 @@
 package inference;
 
 import cluster.SubTypeList;
+import data.SingleMarkerData;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
-import model.OldClusterLikelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
@@ -26,14 +26,14 @@ public class SingleTypeMCMC {
     private double[][] colPriors;
     private double[] alphaC;
     private double[] betaC;
-    private int[][][] data;
+    private SingleMarkerData data;
     private double alpha;
 
     private int maxSetCount;
     private int chainLength;
     public SingleTypeMCMC(SubTypeList subtypeList, int[][][][] mkrGrpPartitions,
                           double[][] colPriors, double[] alphaC, double[] betaC,
-                          double alpha, int[][][] data, int chainLength){
+                          double alpha, SingleMarkerData data, int chainLength){
         this.subtypeList = subtypeList;
         this.mkrGrpPartitions = mkrGrpPartitions;
         this.colPriors = colPriors;
@@ -48,7 +48,8 @@ public class SingleTypeMCMC {
     }
 
     public void run(PrintStream output, int logEvery){
-        double currLogLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+
+        double currLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, subtypeList);
         double currLogPrior = ClusterPrior.calcLogMDPDensity(
                 alpha, subtypeList.getSubTypeMaxCount(), subtypeList, subtypeList.getTotalObsCount());
@@ -71,7 +72,7 @@ public class SingleTypeMCMC {
 
 
 
-            propLogLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+            propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subtypeList);
             //propLogLik = 0.0;
             propLogPrior = ClusterPrior.calcLogMDPDensity(

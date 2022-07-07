@@ -8,8 +8,11 @@ import java.io.FileReader;
 public class CompoundMarkerDataWithUnknown {
 
     private int[][][][] data;
+    private int[][][] unknownFluid;
     private int getUnknownStartIndex;
-    public CompoundMarkerDataWithUnknown(String[] files, int[][] rowInfo, int[][][] colInfo,
+    public CompoundMarkerDataWithUnknown(String[] files,
+                                         String unknownFluidFile,
+                                         int[][] rowInfo, int[][][] colInfo,
                                          TypeListWithUnknown typeList){
 
         data = new int[files.length][][][];

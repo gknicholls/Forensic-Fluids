@@ -1,8 +1,9 @@
 package inference;
 
+import cluster.SubTypeList;
+import data.SingleMarkerData;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
-import model.OldClusterLikelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
@@ -28,14 +29,14 @@ public class OldSingleTypeMCMC {
     private double[][] colPriors;
     private double[] alphaC;
     private double[] betaC;
-    private int[][][] data;
+    private SingleMarkerData data;
     private double alpha;
     private int totalObsCount;
     private int maxSetCount;
     private int chainLength;
     public OldSingleTypeMCMC(ArrayList<Integer>[] subtypeList, int[][][][] mkrGrpPartitions,
                              double[][] colPriors, double[] alphaC, double[] betaC,
-                             double alpha, int[][][] data, int chainLength){
+                             double alpha, SingleMarkerData data, int chainLength){
         this.subtypeList = subtypeList;
         storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
         this.mkrGrpPartitions = mkrGrpPartitions;
@@ -60,8 +61,8 @@ public class OldSingleTypeMCMC {
 
 
     public void run(PrintStream output, int logEvery){
-        double currLogLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-                colPriors, data, alphaC, betaC, subtypeList);
+        double currLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                colPriors, data, alphaC, betaC, new SubTypeList(subtypeList));
         double currLogPrior = ClusterPrior.calcLogMDPDensity(
                 alpha, subtypeList.length, subtypeList, totalObsCount);
         double currLogPost = currLogLik + currLogPrior;
@@ -81,8 +82,8 @@ public class OldSingleTypeMCMC {
 
 
 
-            propLogLik = OldClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
-                    colPriors, data, alphaC, betaC, subtypeList);
+            propLogLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+                    colPriors, data, alphaC, betaC, new SubTypeList(subtypeList));
             //propLogLik = 0.0;
             propLogPrior = ClusterPrior.calcLogMDPDensity(
                     alpha, subtypeList.length, subtypeList, totalObsCount);

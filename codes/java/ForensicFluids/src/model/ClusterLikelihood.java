@@ -77,6 +77,7 @@ public class ClusterLikelihood implements Likelihood {
             for(int setIndex = 0; setIndex < eltsAllPartSet[partIndex].length; setIndex++){
                 //System.out.println(partIndex + " "+ setIndex+" "+eltsAllPartSet[partIndex][setIndex]);
 
+
                 s = CalculateAmplifiedCount(sample, mkrGrpIndex, eltsAllPartSet[partIndex][setIndex], subtypeSets, subtypeIndex);
                 c = subtypeSets.getSubTypeSetSize(subtypeIndex) * eltsAllPartSet[partIndex][setIndex].length;
                 logMarkerLik += Beta.logBeta(alphaC + s, betaC + c - s);
@@ -114,6 +115,8 @@ public class ClusterLikelihood implements Likelihood {
                 //System.out.println(rowIndex+" "+col+" "+sample.length+" "+subtypeIndexes.get(rowIndex));
 
                 //amplified += sample[subtypeSets.getObs(subtypeIndex, rowIndex)][col];
+                //System.out.println(subtypeIndex+" "+rowIndex);
+
                 amplified += sample.getData(mkrGrpIndex, subtypeSets.getObs(subtypeIndex, rowIndex), col);
             }
 
@@ -137,6 +140,7 @@ public class ClusterLikelihood implements Likelihood {
         double logSubtypeLikelihood = 0.0;
 
         for(int mkrGrpIndex = 0; mkrGrpIndex < sample.getMarkerGroupCount(); mkrGrpIndex++){
+
             double[] colPartLik =
                     CalcIntAllPartsMkrGrpLik(
                             eltsAllPartSetList[mkrGrpIndex],
@@ -182,6 +186,7 @@ public class ClusterLikelihood implements Likelihood {
             //System.out.println(subtypeIndex);
             //if(subtypeSets[subtypeIndex].size() > 0){
             if(subtypeSets.getSubTypeSetSize(subtypeIndex) > 0){
+
                 logTypeLikelihood += CalcLogSubtypeLikelihood(eltsAllPartSetList,
                         eltsAllPartSetPriorList, sample, alphaC, betaC, subtypeSets, subtypeIndex);
             }

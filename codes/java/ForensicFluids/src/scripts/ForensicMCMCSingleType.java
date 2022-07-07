@@ -1,6 +1,7 @@
 package scripts;
 
 import cluster.SubTypeList;
+import data.SingleMarkerData;
 import inference.SingleTypeMCMC;
 import inference.OldSingleTypeMCMC;
 import utils.DataUtils;
@@ -249,14 +250,15 @@ public class ForensicMCMCSingleType {
         int totalObsCount = 86;
         int maxClustCount = 5;
 
-        int[][][] data = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
+        int[][][] dataMat = new int[OldSingleTypeMCMC.MARKER_GROUP_COUNT][][];
 
         for(int i = 0; i < COL_RANGE.length; i++){
-            data[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
+            dataMat[i] = DataUtils.extractData("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/smn.single.csv",
                     COL_RANGE[i][0], COL_RANGE[i][1], 0, totalObsCount - 1);
         }
+        SingleMarkerData data = new SingleMarkerData(dataMat);
 
-        ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
+                ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxClustCount];
         for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
             subtypeParts[setIndex] = new ArrayList<>();
         }
@@ -266,6 +268,7 @@ public class ForensicMCMCSingleType {
         }
 
         SubTypeList subTypeList =new SubTypeList(subtypeParts);
+
 
 
         SingleTypeMCMC estSubtype = new SingleTypeMCMC(subTypeList, mkrGrpPartitions, colPriors,
