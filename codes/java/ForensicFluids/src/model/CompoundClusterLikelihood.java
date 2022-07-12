@@ -1,15 +1,17 @@
 package model;
 
 import data.CompoundMarkerData;
+import state.Parameter;
 import state.TypeList;
 
 public class CompoundClusterLikelihood implements Likelihood{
-    private int[][][][] eltsAllPartSetList;
-    private double[][] eltsAllPartSetPriorList;
-    private CompoundMarkerData multiTypeSamples;
-    private double[] alphaC;
-    private  double[] betaC;
+    //private int[][][][] eltsAllPartSetList;
+    //private double[][] eltsAllPartSetPriorList;
+    //private CompoundMarkerData multiTypeSamples;
+    //private double[] alphaC;
+    //private  double[] betaC;
     private TypeList typeClusters;
+    private ClusterLikelihood[] liks;
     private double[] logMultiTypeLikelihoods;
     private double[] storedLogMultiTypeLikelihoods;
     private double logMultiTypeLikelihood;
@@ -18,17 +20,48 @@ public class CompoundClusterLikelihood implements Likelihood{
     public CompoundClusterLikelihood(int[][][][] eltsAllPartSetList,
                                      double[][] eltsAllPartSetPriorList,
                                      CompoundMarkerData multiTypeSamples,
-                                     double[] alphaC,
-                                     double[] betaC,
+                                     double[][] alphaC,
+                                     double[][] betaC,
                                      TypeList typeClusters){
-        this.eltsAllPartSetList = eltsAllPartSetList;
-        this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
-        this.multiTypeSamples = multiTypeSamples;
-        this.alphaC = alphaC;
-        this.betaC = betaC;
+
+        //this.multiTypeSamples = multiTypeSamples;
         this.typeClusters = typeClusters;
         logMultiTypeLikelihoods = new double[typeClusters.getTypeCount()];
         storedLogMultiTypeLikelihoods = new double[logMultiTypeLikelihoods.length];
+
+        liks = new ClusterLikelihood[typeClusters.getTypeCount()];
+        for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
+            liks[typeIndex] = new ClusterLikelihood(
+                    eltsAllPartSetList, eltsAllPartSetPriorList,
+                    multiTypeSamples.getData(typeIndex),
+                    new Parameter("shape.a", alphaC[typeIndex], 0),
+                    new Parameter("shape.b", betaC[typeIndex], 0),
+                    typeClusters.getSubTypeList(typeIndex));
+        }
+    }
+
+    public CompoundClusterLikelihood(int[][][][] eltsAllPartSetList,
+                                     double[][] eltsAllPartSetPriorList,
+                                     CompoundMarkerData multiTypeSamples,
+                                     Parameter[] alphaC,
+                                     Parameter[] betaC,
+                                     TypeList typeClusters){
+
+
+
+        //this.multiTypeSamples = multiTypeSamples;
+        this.typeClusters = typeClusters;
+        logMultiTypeLikelihoods = new double[typeClusters.getTypeCount()];
+        storedLogMultiTypeLikelihoods = new double[logMultiTypeLikelihoods.length];
+
+        liks = new ClusterLikelihood[typeClusters.getTypeCount()];
+        for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
+            liks[typeIndex] = new ClusterLikelihood(
+                    eltsAllPartSetList, eltsAllPartSetPriorList,
+                    multiTypeSamples.getData(typeIndex),
+                    alphaC[typeIndex], betaC[typeIndex],
+                    typeClusters.getSubTypeList(typeIndex));
+        }
     }
 
     public double getLogLikelihood(){
@@ -36,13 +69,10 @@ public class CompoundClusterLikelihood implements Likelihood{
         logMultiTypeLikelihood = 0;
         for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
             //if(typeClusters.hasUpdated(typeIndex)){
-                logMultiTypeLikelihoods[typeIndex] = ClusterLikelihood.CalcLogTypeLikelihood(eltsAllPartSetList,
-                        eltsAllPartSetPriorList,
-                        multiTypeSamples.getData(typeIndex),
-                        alphaC,
-                        betaC,
-                        typeClusters.getSubTypeList(typeIndex));
+                logMultiTypeLikelihoods[typeIndex] =  liks[typeIndex].getLogLikelihood();
             //}
+
+            //System.out.println(logMultiTypeLikelihoods[typeIndex]);
             logMultiTypeLikelihood += logMultiTypeLikelihoods[typeIndex];
 
 
@@ -64,6 +94,9 @@ public class CompoundClusterLikelihood implements Likelihood{
         storedLogMultiTypeLikelihood = logMultiTypeLikelihood;
         System.arraycopy(logMultiTypeLikelihoods, 0,
                 storedLogMultiTypeLikelihoods, 0, logMultiTypeLikelihoods.length);
+        for(ClusterLikelihood likelihood:liks){
+            likelihood.store();
+        }
     }
 
     public void restore(){
@@ -71,5 +104,9 @@ public class CompoundClusterLikelihood implements Likelihood{
         double[] tmp = logMultiTypeLikelihoods;
         logMultiTypeLikelihoods = storedLogMultiTypeLikelihoods;
         storedLogMultiTypeLikelihoods = tmp;
+
+        for(ClusterLikelihood likelihood:liks){
+            likelihood.restore();
+        }
     }
 }

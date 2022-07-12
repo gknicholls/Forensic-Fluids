@@ -8,12 +8,29 @@ public class SubTypeList implements State{
     private ArrayList<Integer>[] storedSubtypeList;
     private boolean[] subtypeUpdated;
     private int totalObsCount;
+    private boolean isUpdated;
     public SubTypeList(ArrayList<Integer>[] subtypeList){
         this.subtypeList = subtypeList;
         storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
         subtypeUpdated = new boolean[subtypeList.length];
+
+        for(int i = 0; i < subtypeUpdated.length; i++){
+            subtypeUpdated[i] = true;
+        }
+
         calcTotalObs();
-        store();
+
+        for(int subtypeIndex = 0; subtypeIndex < storedSubtypeList.length; subtypeIndex++){
+            storedSubtypeList[subtypeIndex] = new ArrayList<Integer>();
+
+            for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                storedSubtypeList[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
+                //System.out.print(subtypeList[subtypeIndex].get(eltIndex)+" ");
+
+            }
+
+        }
+        isUpdated = true;
     }
 
     private void calcTotalObs(){
@@ -70,16 +87,30 @@ public class SubTypeList implements State{
         }
         System.out.println();*/
         subtypeUpdated[subtypeIndex] = true;
+        isUpdated = true;
 
     }
 
     public int removeObs(int subtypeIndex, int eltIndex){
         subtypeUpdated[subtypeIndex] = true;
+        isUpdated = true;
         return subtypeList[subtypeIndex].remove(eltIndex);
 
     }
 
+    public boolean isUpdated(int index){
+        return subtypeUpdated[index];
+    }
+
+    public boolean isUpdated(){
+        return isUpdated;
+    }
+
     public void store(){
+        isUpdated = false;
+        for(int subtypeIndex = 0; subtypeIndex < subtypeUpdated.length; subtypeIndex++){
+            subtypeUpdated[subtypeIndex] = false;
+        }
 
         //System.out.println("SubtypeList store: ");
         for(int subtypeIndex = 0; subtypeIndex < storedSubtypeList.length; subtypeIndex++){
@@ -90,7 +121,6 @@ public class SubTypeList implements State{
                 //System.out.print(subtypeList[subtypeIndex].get(eltIndex)+" ");
 
             }
-
 
         }
         //System.out.println();

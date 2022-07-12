@@ -79,7 +79,7 @@ public class MCMC {
             double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
 
             output.println("STATE\tPosterior\tLog-likelihood\tLog-prior\tPartition\tstoredPartition\tPropPartiton\tlogHR\tlogMHR\tdraw");
-            log(output, currLogPost, currLogLik, currLogPrior, 0, state.log(), state.logStored(), 0, 0, 0);
+            log(output, currLogPost, currLogLik, currLogPrior, 0, state.log(), state.logStored(), "NA", 0, 0, 0);
             for (int stepIndex = 0; stepIndex < chainLength; stepIndex++) {
                 //System.out.println(stepIndex);
                 //store();
@@ -131,7 +131,7 @@ public class MCMC {
 
                 if (((stepIndex + 1) % logEvery) == 0) {
                     //System.out.println("log " + currLogLik + " " + currLogPrior);
-                    log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, state.log(), storedClust, logHR, logMHR, draw);
+                    log(output, currLogPost, currLogLik, currLogPrior, stepIndex + 1, state.log(), storedClust, propClust, logHR, logMHR, draw);
                 }
 
 
@@ -160,11 +160,11 @@ public class MCMC {
 
 
     private void log(PrintStream output, double posterior, double likelihood,
-                     double prior, int state, String propClust, String storedClust,
+                     double prior, int state, String currClust, String storedClust, String propClust,
                      double logHR, double logMHR, double draw){
 
         output.println(state + "\t" + posterior + "\t" + likelihood + "\t" + prior+ "\t"
-                + storedClust+ "\t"+ storedClust+ "\t"+propClust+"\t"+logHR+"\t"+logMHR+"\t"+ draw );
+                + currClust+ "\t"+ storedClust +"\t"+ propClust+"\t"+logHR+"\t"+logMHR+"\t"+ draw );
 
     }
 

@@ -1,13 +1,15 @@
 package scripts;
 
-import state.SubTypeList;
+import state.*;
 import data.SingleMarkerData;
 import inference.*;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
+import model.Likelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class ForensicMCMCSingleTypeVer2 {
@@ -66,7 +68,7 @@ public class ForensicMCMCSingleTypeVer2 {
         ClusterPrior mdpPrior = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
         ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v2.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v2.2.log";
         MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000, 100, outputFilePath);
         estSubtype.run();
 
@@ -76,8 +78,8 @@ public class ForensicMCMCSingleTypeVer2 {
 
 
     private void runSmnSingleTypeClusteringV3(String allPartitionSets5File,
-                                            String allPartitionSets7File,
-                                            double[] alphaC, double[] betaC) throws Exception{
+                                              String allPartitionSets7File,
+                                              double[] alphaC, double[] betaC) throws Exception{
 
         int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
@@ -111,7 +113,7 @@ public class ForensicMCMCSingleTypeVer2 {
         ClusterPrior mdpPrior = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
         ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v3.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v3.2.log";
         MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000, 100, outputFilePath);
         estSubtype.run();
     }
