@@ -1,6 +1,6 @@
 package scripts;
 
-import cluster.SubTypeList;
+import state.SubTypeList;
 import data.SingleMarkerData;
 import inference.SingleTypeMCMC;
 import inference.OldSingleTypeMCMC;

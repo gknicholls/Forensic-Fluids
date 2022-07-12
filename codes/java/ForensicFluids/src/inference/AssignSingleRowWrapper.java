@@ -1,7 +1,7 @@
 package inference;
 
-import cluster.TypeList;
-import cluster.TypeListWithUnknown;
+import state.TypeList;
+import state.TypeListWithUnknown;
 import utils.Randomizer;
 
 public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalMove{

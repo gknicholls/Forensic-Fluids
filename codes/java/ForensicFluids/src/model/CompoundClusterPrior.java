@@ -1,5 +1,5 @@
 package model;
-import cluster.TypeList;
+import state.TypeList;
 
 
 public class CompoundClusterPrior implements Likelihood{

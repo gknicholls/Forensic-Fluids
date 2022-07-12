@@ -1,8 +1,7 @@
 package scripts;
 
-import cluster.SubTypeList;
-import cluster.TypeList;
-import cluster.TypeListWithUnknown;
+import state.SubTypeList;
+import state.TypeListWithUnknown;
 import inference.*;
 import model.CompoundClusterPrior;
 import model.DummyLikelihood;

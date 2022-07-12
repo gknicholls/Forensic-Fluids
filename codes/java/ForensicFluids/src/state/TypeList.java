@@ -1,4 +1,4 @@
-package cluster;
+package state;
 
 public class TypeList implements State{
 

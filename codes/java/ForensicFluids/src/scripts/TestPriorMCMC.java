@@ -1,15 +1,12 @@
 package scripts;
 
-import cluster.SubTypeList;
-import cluster.TypeList;
-import data.CompoundMarkerData;
+import state.SubTypeList;
+import state.TypeList;
 import inference.AssignSingleRowWrapper;
 import inference.MCMC;
 import inference.OldSingleTypeMCMC;
-import model.CompoundClusterLikelihood;
 import model.CompoundClusterPrior;
 import model.DummyLikelihood;
-import utils.DataUtils;
 import utils.Randomizer;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package cluster;
+package state;
 
 public interface State extends Loggable {
     public void store();

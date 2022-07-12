@@ -1,6 +1,6 @@
 package inference;
 
-import cluster.SubTypeList;
+import state.SubTypeList;
 import utils.Randomizer;
 
 import java.util.ArrayList;

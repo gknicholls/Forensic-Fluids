@@ -1,11 +1,8 @@
 package model;
 
-import cluster.SubTypeList;
-import data.CompoundMarkerData;
+import state.SubTypeList;
 import data.SingleMarkerData;
 import org.apache.commons.math3.special.Beta;
-
-import java.util.ArrayList;
 
 public class ClusterLikelihood implements Likelihood {
 

@@ -1,17 +1,13 @@
 package scripts;
 
-import cluster.State;
-import cluster.SubTypeList;
-import cluster.TypeList;
+import state.SubTypeList;
 import data.SingleMarkerData;
 import inference.*;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
-import model.Likelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class ForensicMCMCSingleTypeVer2 {

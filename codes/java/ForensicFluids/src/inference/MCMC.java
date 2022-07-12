@@ -1,6 +1,6 @@
 package inference;
 
-import cluster.State;
+import state.State;
 import model.Likelihood;
 import utils.Randomizer;
 

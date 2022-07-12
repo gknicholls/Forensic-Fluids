@@ -1,10 +1,7 @@
 package data;
 
-import cluster.TypeListWithUnknown;
+import state.TypeListWithUnknown;
 import utils.DataUtils;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class CompoundMarkerDataWithUnknown extends CompoundMarkerData{
 

@@ -1,14 +1,11 @@
 package scripts;
 
-import cluster.SubTypeList;
-import cluster.TypeList;
+import state.SubTypeList;
+import state.TypeList;
 import data.CompoundMarkerData;
-import inference.AssignSingleRow;
 import inference.AssignSingleRowWrapper;
 import inference.MCMC;
 import inference.OldSingleTypeMCMC;
-import model.ClusterLikelihood;
-import model.ClusterPrior;
 import model.CompoundClusterLikelihood;
 import model.CompoundClusterPrior;
 import utils.DataUtils;

@@ -1,6 +1,6 @@
 package test;
 
-import cluster.SubTypeList;
+import state.SubTypeList;
 import data.SingleMarkerData;
 import junit.framework.TestCase;
 import model.ClusterLikelihood;

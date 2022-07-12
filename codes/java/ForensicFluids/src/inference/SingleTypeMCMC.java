@@ -1,6 +1,6 @@
 package inference;
 
-import cluster.SubTypeList;
+import state.SubTypeList;
 import data.SingleMarkerData;
 import model.ClusterLikelihood;
 import model.ClusterPrior;

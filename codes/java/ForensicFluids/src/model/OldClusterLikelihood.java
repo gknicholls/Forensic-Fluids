@@ -1,6 +1,6 @@
 package model;
 
-import cluster.SubTypeList;
+import state.SubTypeList;
 import org.apache.commons.math3.special.Beta;
 
 import java.util.ArrayList;
