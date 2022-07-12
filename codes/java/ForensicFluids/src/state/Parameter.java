@@ -24,6 +24,9 @@ public class Parameter implements State{
         this.lowerBound = lower;
         this.name = name;
         update = new boolean[values.length];
+        for(int i = 0; i < update.length; i++){
+            update[i] = true;
+        }
     }
 
     public int getDimension(){
@@ -37,6 +40,11 @@ public class Parameter implements State{
     public void setValue(int index, double value){
         values[index] = value;
         update[index] = true;
+
+    }
+
+    public double getValue(int index){
+        return values[index];
 
     }
 

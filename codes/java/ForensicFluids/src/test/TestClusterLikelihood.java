@@ -1,5 +1,6 @@
 package test;
 
+import state.Parameter;
 import state.SubTypeList;
 import data.SingleMarkerData;
 import junit.framework.TestCase;
@@ -259,15 +260,19 @@ public class TestClusterLikelihood extends TestCase {
         double[][] colPriors = new double[2][];
         colPriors[0] = test0.getColPrior();
         colPriors[1] = test1.getColPrior();
-        double[] alphaC = new double[]{test0.getAlpha(), test1.getAlpha()};
-        double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
+        double[] alphaCValues = new double[]{test0.getAlpha(), test1.getAlpha()};
+        double[] betaCValues = new double[]{test0.getBeta(), test1.getBeta()};
 
         ArrayList<Integer>[] subtypeSets = (ArrayList<Integer>[]) new ArrayList[]{test1.getSubtypeIndexes()};
 
         SubTypeList subTypeList = new SubTypeList(subtypeSets);
 
-        double logSubLik = ClusterLikelihood.CalcLogSubtypeLikelihood(mkrGrpPartitions,
-                colPriors, data, alphaC, betaC, subTypeList, 0);
+        Parameter alphaC = new Parameter("shape.a", alphaCValues, 0);
+        Parameter betaC = new Parameter("shape.b", betaCValues, 0);
+        ClusterLikelihood likelihood = new ClusterLikelihood(mkrGrpPartitions,
+                colPriors, data, alphaC, betaC, subTypeList);
+
+        double logSubLik = likelihood.calcLogSubtypeLikelihood(0);
 
         assertEquals(logSubLik, -49.6924097777349, 1e-10);
 
@@ -289,8 +294,8 @@ public class TestClusterLikelihood extends TestCase {
         double[][] colPriors = new double[2][];
         colPriors[0] = test0.getColPrior();
         colPriors[1] = test1.getColPrior();
-        double[] alphaC = new double[]{test0.getAlpha(), test1.getAlpha()};
-        double[] betaC = new double[]{test0.getBeta(), test1.getBeta()};
+        double[] alphaCValues = new double[]{test0.getAlpha(), test1.getAlpha()};
+        double[] betaCValues = new double[]{test0.getBeta(), test1.getBeta()};
 
 
         ArrayList<Integer>[] subtypeParts;
@@ -315,15 +320,15 @@ public class TestClusterLikelihood extends TestCase {
 
             SubTypeList subTypeList = new SubTypeList(subtypeParts);
 
-            logSubLik = ClusterLikelihood.CalcLogTypeLikelihood(mkrGrpPartitions,
+            Parameter alphaC = new Parameter("shape.a", alphaCValues, 0);
+            Parameter betaC = new Parameter("shape.b", betaCValues, 0);
+            ClusterLikelihood likelihood = new ClusterLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subTypeList);
+
+            logSubLik = likelihood.getLogLikelihood();
 
             assertEquals(logSubLik, logTypeLik[partIndex][0], 1e-10);
         }
-
-
-
-
 
 
     }
