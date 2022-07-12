@@ -146,25 +146,14 @@ public class ClusterLikelihood implements Likelihood {
                 subtypeMkrLik[subtypeIndex][mkrGrpIndex] = 0.0;
                 for(int partIndex = 0; partIndex < eltsAllPartSetList[mkrGrpIndex].length; partIndex++){
 
-                    //System.out.println(eltsAllPartSetPriorList[mkrGrpIndex][partIndex]);
-                    //System.out.println(colPartLik[partIndex]);
-
                     subtypeMkrLik[subtypeIndex][mkrGrpIndex] += eltsAllPartSetPriorList[mkrGrpIndex][partIndex]*colPartLik[partIndex];
-
-
 
                 }
 
-
-
             }
-
-
-
 
             logSubtypeLikelihood += Math.log(subtypeMkrLik[subtypeIndex][mkrGrpIndex]);
             //System.out.println(Math.log(subtypeMkrLik[subtypeIndex][mkrGrpIndex]));
-
 
         }
 
