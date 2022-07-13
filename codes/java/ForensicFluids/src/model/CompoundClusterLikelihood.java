@@ -4,7 +4,7 @@ import data.CompoundMarkerData;
 import state.Parameter;
 import state.TypeList;
 
-public class CompoundClusterLikelihood implements Likelihood{
+public class CompoundClusterLikelihood implements Probability {
     //private int[][][][] eltsAllPartSetList;
     //private double[][] eltsAllPartSetPriorList;
     //private CompoundMarkerData multiTypeSamples;

@@ -1,6 +1,6 @@
 package model;
 
-public class DummyLikelihood implements Likelihood{
+public class DummyLikelihood implements Probability {
     public double getLogLikelihood(){
         return 0.0;
     }

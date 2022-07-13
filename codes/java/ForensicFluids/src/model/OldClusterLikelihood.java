@@ -5,7 +5,7 @@ import org.apache.commons.math3.special.Beta;
 
 import java.util.ArrayList;
 
-public class OldClusterLikelihood implements Likelihood {
+public class OldClusterLikelihood implements Probability {
 
     private double logLikelihood;
     private double storedLogLikelihood;

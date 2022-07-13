@@ -1,14 +1,14 @@
 package inference;
 
 import state.State;
-import model.Likelihood;
+import model.Probability;
 import utils.Randomizer;
 
 import java.io.PrintStream;
 
 public class MCMC {
-    private Likelihood prior;
-    private Likelihood likelihood;
+    private Probability prior;
+    private Probability likelihood;
     private ProposalMove[] proposalMoves;
     private State state;
     private int chainLength;
@@ -18,8 +18,8 @@ public class MCMC {
     private double[] cumSumWeights;
 
 
-    public MCMC(Likelihood prior,
-                Likelihood likelihood,
+    public MCMC(Probability prior,
+                Probability likelihood,
                 ProposalMove proposalMove,
                 State state,
                 int chainLength,
@@ -38,8 +38,8 @@ public class MCMC {
 
     }
 
-    public MCMC(Likelihood prior,
-                Likelihood likelihood,
+    public MCMC(Probability prior,
+                Probability likelihood,
                 ProposalMove[] proposalMoves,
                 double[] weights,
                 State state,

@@ -6,6 +6,7 @@ public class Parameter implements State{
     private double upperBound;
     private double lowerBound;
     private boolean[] update;
+    private boolean anyUpdate;
     private String name;
     public Parameter(String name, double[] values){
         this(name, values, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
@@ -27,6 +28,7 @@ public class Parameter implements State{
         for(int i = 0; i < update.length; i++){
             update[i] = true;
         }
+        anyUpdate = true;
     }
 
     public int getDimension(){
@@ -37,9 +39,19 @@ public class Parameter implements State{
         return update[index];
     }
 
+    public boolean isUpdated(){
+        return anyUpdate;
+    }
+
     public void setValue(int index, double value){
         values[index] = value;
         update[index] = true;
+        anyUpdate = true;
+
+    }
+
+    public double getValue(){
+        return values[0];
 
     }
 
@@ -61,6 +73,7 @@ public class Parameter implements State{
             update[i] = false;
         }
         System.arraycopy(values, 0, storedValues, 0, values.length);
+        anyUpdate = false;
     }
 
     public void restore(){

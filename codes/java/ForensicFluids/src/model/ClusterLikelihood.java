@@ -5,7 +5,7 @@ import state.SubTypeList;
 import data.SingleMarkerData;
 import org.apache.commons.math3.special.Beta;
 
-public class ClusterLikelihood implements Likelihood {
+public class ClusterLikelihood implements Probability {
 
     private double logLikelihood;
     private double storedLogLikelihood;

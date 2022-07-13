@@ -6,7 +6,7 @@ import org.apache.commons.math3.special.Gamma;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClusterPrior implements Likelihood{
+public class ClusterPrior implements Probability {
 
     private double alpha;
     private int setCountMax;

@@ -2,7 +2,7 @@ package model;
 import state.TypeList;
 
 
-public class CompoundClusterPrior implements Likelihood{
+public class CompoundClusterPrior implements Probability {
 
     private double[] logSingleTypePriors;
     private double[] storedLogSingleTypePriors;

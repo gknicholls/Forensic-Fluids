@@ -5,11 +5,9 @@ import data.SingleMarkerData;
 import inference.*;
 import model.ClusterLikelihood;
 import model.ClusterPrior;
-import model.Likelihood;
 import utils.DataUtils;
 import utils.Randomizer;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class ForensicMCMCSingleTypeVer2 {
