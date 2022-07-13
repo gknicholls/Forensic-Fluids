@@ -197,7 +197,6 @@ public class ClusterLikelihood implements Likelihood {
     }
 
     public void store(){
-        System.out.println();
         storedLogLikelihood = logLikelihood;
         for(int typeIndex = 0; typeIndex < storedSubtypeMkrLik.length; typeIndex++){
             System.arraycopy(subtypeMkrLik[typeIndex], 0,

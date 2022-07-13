@@ -48,7 +48,13 @@ public class Parameter implements State{
 
     }
 
+    public double getLowerBound() {
+        return lowerBound;
+    }
 
+    public double getUpperBound(){
+        return upperBound;
+    }
 
     public void store(){
         for(int i = 0; i < update.length; i++){
