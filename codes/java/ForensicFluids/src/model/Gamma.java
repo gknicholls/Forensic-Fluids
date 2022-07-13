@@ -28,7 +28,7 @@ public class Gamma implements Probability {
             logP = 0.0;
             int dim = x.getDimension();
             for(int index = 0; index < dim; index++){
-                logP += Math.log(distr.density(this.x.getValue()));
+                logP += Math.log(distr.density(this.x.getValue(index)));
             }
         }
 
