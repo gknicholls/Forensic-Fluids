@@ -2,6 +2,7 @@ package scripts;
 
 import model.AbstractProbability;
 import state.Parameter;
+import state.State;
 import state.SubTypeList;
 import state.TypeList;
 import data.CompoundMarkerData;
@@ -81,9 +82,10 @@ public class ForensicMCMCSingleTypeVer3 {
                 new Parameter[]{new Parameter("shape.b", betaC, 0)},
                 typeList);
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
+        State[] states = new State[]{subTypeList};
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/slv_single_clust1_0.5_test_seed_2022_07_14.log";
-        MCMC estSubtype = new MCMC(probs, singleRowMove, typeList, 1000, 100, outputFilePath);
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/slv_single_clust1_0.5_test_seed_2022_07_14_v2.log";
+        MCMC estSubtype = new MCMC(probs, singleRowMove, states, 1000, 100, outputFilePath);
         estSubtype.run();
 
 
@@ -137,9 +139,10 @@ public class ForensicMCMCSingleTypeVer3 {
                 typeList);
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
+        State[] states = new State[]{subTypeList};
 
         String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/smn_single_clust1_0.5_test_seed_2022_07_14.log";
-        MCMC estSubtype = new MCMC(probs, singleRowMove, subTypeList, 1000, 10, outputFilePath);
+        MCMC estSubtype = new MCMC(probs, singleRowMove, states, 1000, 10, outputFilePath);
         estSubtype.run();
     }
 

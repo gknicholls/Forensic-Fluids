@@ -1,6 +1,7 @@
 package scripts;
 
 import model.AbstractProbability;
+import state.State;
 import state.SubTypeList;
 import state.TypeList;
 import inference.AssignSingleRowWrapper;
@@ -63,6 +64,7 @@ public class TestPriorMCMC {
             SubTypeList subTypeList = new SubTypeList(subtypeParts);
             SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList};
             TypeList typeList = new TypeList(subTypeLists);
+            State[] states = new State[]{typeList};
 
             AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
             CompoundClusterPrior mdpPrior = new CompoundClusterPrior("multiTypeMDP", alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
@@ -70,7 +72,7 @@ public class TestPriorMCMC {
 
             AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
             String outputFilePath = "/Users/chwu/Documents/research/bfc/output/ex.7obs_J" + maxClustCount + "_v2.log";
-            MCMC estSubtype = new MCMC(probs, singleRowMove, typeList, 1000000, 1, outputFilePath);
+            MCMC estSubtype = new MCMC(probs, singleRowMove, states, 1000000, 1, outputFilePath);
             estSubtype.run();
         }
 
@@ -133,6 +135,7 @@ public class TestPriorMCMC {
 
             SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList1, subTypeList2, subTypeList3};
             TypeList typeList = new TypeList("partition", subTypeLists);
+        State[] states = new State[]{typeList};
 
             AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
             CompoundClusterPrior mdpPrior = new CompoundClusterPrior("multTypeMDP", alphaRow, maxClustCount,
@@ -140,8 +143,9 @@ public class TestPriorMCMC {
             DummyLikelihood lik = new DummyLikelihood();
 
             AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
-            String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/ex.multiTypeObs_2022_07_14.log";
-            MCMC estSubtype = new MCMC(probs, singleRowMove, typeList, 1000000, 1, outputFilePath);
+            //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/ex.multiTypeObs_2022_07_14.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/ex.multiTypeObs_2022_07_14_v2.log";
+            MCMC estSubtype = new MCMC(probs, singleRowMove, states, 1000000, 1, outputFilePath);
             estSubtype.run();
         //}
 

@@ -66,10 +66,11 @@ public class ForensicMCMCSingleTypeVer2 {
         AssignSingleRow singleRowMove = new AssignSingleRow(subTypeList);
         ClusterPrior mdpPrior = new ClusterPrior(alphaRow, maxClustCount, subTypeList, totalObsCount);
         ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
+        State[] states = new State[]{subTypeList};
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
         String outputFilePath = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v2.2.log";
-        MCMC estSubtype = new MCMC(probs, singleRowMove, subTypeList, 1000, 100, outputFilePath);
+        MCMC estSubtype = new MCMC(probs, singleRowMove, states, 1000, 100, outputFilePath);
         estSubtype.run();
 
 
@@ -114,9 +115,10 @@ public class ForensicMCMCSingleTypeVer2 {
         ClusterLikelihood lik = new ClusterLikelihood(mkrGrpPartitions, colPriors, data, alphaC, betaC, subTypeList);
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
+        State[] states = new State[]{subTypeList};
 
         String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v3.2.log";
-        MCMC estSubtype = new MCMC(probs, singleRowMove, subTypeList, 1000, 100, outputFilePath);
+        MCMC estSubtype = new MCMC(probs, singleRowMove, states, 1000, 100, outputFilePath);
         estSubtype.run();
     }
 

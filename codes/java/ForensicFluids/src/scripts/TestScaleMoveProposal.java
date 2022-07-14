@@ -9,6 +9,7 @@ import model.CompoundClusterPrior;
 import model.DummyLikelihood;
 import model.Gamma;
 import state.Parameter;
+import state.State;
 import state.SubTypeList;
 import state.TypeList;
 import utils.Randomizer;
@@ -45,8 +46,11 @@ public class TestScaleMoveProposal {
         DummyLikelihood lik = new DummyLikelihood();
 
         AbstractProbability[] probs = new AbstractProbability[]{gammaPrior, lik};
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_scale_gamma_2022_07_14.log";
-        MCMC estSubtype = new MCMC(probs, scaleMove, param, 100000, 1, outputFilePath);
+        State[] states = new State[]{param};
+
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_scale_gamma_2022_07_14.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_scale_gamma_2022_07_14_v2.log";
+        MCMC estSubtype = new MCMC(probs, scaleMove, states , 100000, 1, outputFilePath);
         estSubtype.run();
 
 

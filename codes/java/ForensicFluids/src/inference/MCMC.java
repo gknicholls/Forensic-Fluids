@@ -9,7 +9,7 @@ import java.io.PrintStream;
 public class MCMC {
     private AbstractProbability[] probs;
     private ProposalMove[] proposalMoves;
-    private State state;
+    private State[] states;
     private int chainLength;
     private int logEvery;
     private String outputFilePath;
@@ -19,13 +19,13 @@ public class MCMC {
 
     public MCMC(AbstractProbability[] probs,
                 ProposalMove proposalMove,
-                State state,
+                State[] states,
                 int chainLength,
                 int logEvery,
                 String outputFilePath){
         this.probs = probs;
         this.proposalMoves = new ProposalMove[]{proposalMove};
-        this.state = state;
+        this.states = states;
         this.chainLength = chainLength;
         this.logEvery = logEvery;
 
@@ -38,14 +38,14 @@ public class MCMC {
     public MCMC(AbstractProbability[] probs,
                 ProposalMove[] proposalMoves,
                 double[] weights,
-                State state,
+                State[] states,
                 int chainLength,
                 int logEvery,
                 String outputFilePath){
         this.probs = probs;
         this.proposalMoves = proposalMoves;
         this.weights = weights;
-        this.state = state;
+        this.states = states;
         this.chainLength = chainLength;
         this.logEvery = logEvery;
 
@@ -81,23 +81,35 @@ public class MCMC {
             for(AbstractProbability prob:probs){
                 labels += "\t"+prob.getLabel();
             }
-            labels += "\t"+state.getLabel()+"\tstored."+state.getLabel()+"\tprop."+state.getLabel()+"\tlogHR\tlogMHR\tdraw";
+            for(State state:states){
+                labels += "\t" + state.getLabel();
+                //labels += "\tstored." + state.getLabel();
+                //labels += "\tprop." + state.getLabel();
+            }
+            labels += "\tlogHR\tlogMHR\tdraw";
 
 
             output.println(labels);
-            log(output, currLogPost, probs, 0, state.log(), state.logStored(), "NA", 0, 0, 0);
+            log(output, currLogPost, probs, 0, states, 0, 0, 0);
             for (int stepIndex = 0; stepIndex < chainLength; stepIndex++) {
                 //System.out.println(stepIndex);
                 //store();
-                state.store();
+                for(State state:states) {
+                    state.store();
+                }
+
+
                 for(AbstractProbability prob:probs){
                     prob.store();
                 }
                 //likelihood.store();
                 //prior.store();
 
-
-                String storedClust = state.logStored();
+                /*String[] storedLog = new String[states.length];
+                for(int stateIndex = 0; stateIndex < states.length; stateIndex++){
+                    storedLog[stateIndex] =  states[stateIndex].logStored();
+                }*/
+                //String storedClust = state.logStored();
 
                 int currProposalIndex;
                 if(weights == null){
@@ -117,7 +129,12 @@ public class MCMC {
                     propLogPost += probs[probsIndex].getLogLikelihood();
                 }
                 logMHR = propLogPost - currLogPost + logHR;
-                String propClust = state.log();
+
+                /*String[] propLog = new String[states.length];
+                for(int stateIndex = 0; stateIndex < states.length; stateIndex++){
+                    propLog[stateIndex] =  states[stateIndex].logStored();
+                }*/
+                //String propClust = state.log();
 
 
                 double draw = Math.log(Randomizer.nextDouble());
@@ -133,7 +150,10 @@ public class MCMC {
                     //currLogLik = propLogLik;
                 } else {
                     //System.out.println("reject");
-                    state.restore();
+                    for(State state:states){
+                        state.restore();
+                    }
+
 
                     for(AbstractProbability prob:probs){
                         prob.restore();
@@ -148,7 +168,7 @@ public class MCMC {
 
 
                 if (((stepIndex + 1) % logEvery) == 0) {
-                    log(output, currLogPost, probs, stepIndex + 1, state.log(), storedClust, propClust, logHR, logMHR, draw);
+                    log(output, currLogPost, probs, stepIndex + 1, states, logHR, logMHR, draw);
                 }
 
 
@@ -176,17 +196,21 @@ public class MCMC {
 
 
 
-    private void log(PrintStream output, double posterior, AbstractProbability[] probs, int state, String currClust, String storedClust, String propClust,
+    private void log(PrintStream output, double posterior, AbstractProbability[] probs, int step, State[] states,
                      double logHR, double logMHR, double draw){
 
 
-        output.print(state + "\t" + posterior);
+        output.print(step + "\t" + posterior);
 
         for(AbstractProbability prob:probs){
             output.print( "\t" + prob.log());
         }
 
-        output.println("\t" + currClust+ "\t"+ storedClust +"\t"+ propClust+"\t"+logHR+"\t"+logMHR+"\t"+ draw );
+        for(State state:states){
+            output.print( "\t" + state.log());
+        }
+
+        output.println("\t" + logHR + "\t" + logMHR+ "\t" + draw);
 
     }
 

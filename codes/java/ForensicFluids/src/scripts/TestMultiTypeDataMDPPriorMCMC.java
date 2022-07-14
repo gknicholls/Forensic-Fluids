@@ -1,6 +1,7 @@
 package scripts;
 
 import model.AbstractProbability;
+import state.State;
 import state.SubTypeList;
 import state.TypeListWithUnknown;
 import inference.*;
@@ -85,10 +86,11 @@ public class TestMultiTypeDataMDPPriorMCMC {
         CompoundClusterPrior mdpPrior = new CompoundClusterPrior("multiTypeMDP", alphaRow, maxClustCount,
                 new int[]{totalObsCount1, totalObsCount2}, typeList);
         DummyLikelihood lik = new DummyLikelihood();
+        State[] states = new State[]{typeList};
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
         String outputFilePath = "/Users/chwu/Documents/research/bfc/output/ex.multiTypeObsWithUnknown_1.01.log";
-        MCMC estSubtype = new MCMC(probs, proposals, null, typeList, 1000000, 100, outputFilePath);
+        MCMC estSubtype = new MCMC(probs, proposals, null, states, 1000000, 100, outputFilePath);
         estSubtype.run();
         //}
 
