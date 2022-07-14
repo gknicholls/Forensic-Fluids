@@ -1,5 +1,6 @@
 package scripts;
 
+import model.AbstractProbability;
 import state.Parameter;
 import state.SubTypeList;
 import state.TypeList;
@@ -73,14 +74,16 @@ public class ForensicMCMCSingleTypeVer3 {
         int[][][] colInfo = new int[][][]{COL_RANGE};
         CompoundMarkerData dataSets =  new CompoundMarkerData(new String[]{dataFilePath}, rowInfo,  colInfo);
         AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
-        CompoundClusterPrior mdpPrior = new CompoundClusterPrior(alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
-        CompoundClusterLikelihood lik = new CompoundClusterLikelihood(mkrGrpPartitions, colPriors, dataSets,
+        CompoundClusterPrior mdpPrior = new CompoundClusterPrior("multiTypeMDP", alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
+        CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood",
+                mkrGrpPartitions, colPriors, dataSets,
                 new Parameter[]{new Parameter("shape.a", alphaC, 0)},
                 new Parameter[]{new Parameter("shape.b", betaC, 0)},
                 typeList);
+        AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/slv_single_clust1_0.5_test_seed_v3.2.21.log";
-        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, typeList, 1000, 100, outputFilePath);
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/slv_single_clust1_0.5_test_seed_2022_07_14.log";
+        MCMC estSubtype = new MCMC(probs, singleRowMove, typeList, 1000, 100, outputFilePath);
         estSubtype.run();
 
 
@@ -127,14 +130,16 @@ public class ForensicMCMCSingleTypeVer3 {
         SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList};
         TypeList typeList = new TypeList(subTypeLists);
         AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
-        CompoundClusterPrior mdpPrior = new CompoundClusterPrior(alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
-        CompoundClusterLikelihood lik = new CompoundClusterLikelihood(mkrGrpPartitions, colPriors, dataSets,
+        CompoundClusterPrior mdpPrior = new CompoundClusterPrior("multiTypeMDP", alphaRow, maxClustCount, new int[]{totalObsCount}, typeList);
+        CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood", mkrGrpPartitions, colPriors, dataSets,
                 new Parameter[]{new Parameter("shape.a", alphaC, 0)},
                 new Parameter[]{new Parameter("shape.b", betaC, 0)},
                 typeList);
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/smn_single_clust1_0.5_test_seed2v4.2.22.log";
-        MCMC estSubtype = new MCMC(mdpPrior, lik, singleRowMove, subTypeList, 1000, 10, outputFilePath);
+        AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
+
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/smn_single_clust1_0.5_test_seed_2022_07_14.log";
+        MCMC estSubtype = new MCMC(probs, singleRowMove, subTypeList, 1000, 10, outputFilePath);
         estSubtype.run();
     }
 

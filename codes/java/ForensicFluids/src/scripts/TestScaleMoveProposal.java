@@ -4,6 +4,7 @@ import inference.AssignSingleRowWrapper;
 import inference.MCMC;
 import inference.OldSingleTypeMCMC;
 import inference.ScaleMove;
+import model.AbstractProbability;
 import model.CompoundClusterPrior;
 import model.DummyLikelihood;
 import model.Gamma;
@@ -43,8 +44,9 @@ public class TestScaleMoveProposal {
         Gamma gammaPrior = new Gamma(gammaShape,gammaScale, param);
         DummyLikelihood lik = new DummyLikelihood();
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/test_scale_gamma_v2.log";
-        MCMC estSubtype = new MCMC(gammaPrior, lik, scaleMove, param, 10000, 1, outputFilePath);
+        AbstractProbability[] probs = new AbstractProbability[]{gammaPrior, lik};
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_scale_gamma_2022_07_14.log";
+        MCMC estSubtype = new MCMC(probs, scaleMove, param, 100000, 1, outputFilePath);
         estSubtype.run();
 
 

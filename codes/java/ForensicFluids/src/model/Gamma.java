@@ -1,9 +1,8 @@
 package model;
 
-import org.apache.commons.math3.distribution.GammaDistribution;
 import state.Parameter;
 
-public class Gamma implements Probability {
+public class Gamma extends AbstractProbability {
     private Parameter shape;
     private Parameter scale;
     private Parameter x;
@@ -11,12 +10,24 @@ public class Gamma implements Probability {
     private boolean update;
     private double logP;
     private double storedLogP;
-    public Gamma(Parameter shape, Parameter scale, Parameter x){
+
+    public Gamma(String label,
+                 Parameter shape,
+                 Parameter scale,
+                 Parameter x){
+        super(label);
         this.shape = shape;
         this.scale = scale;
         this.x = x;
         distr = new GammaDistributionImpl(this.shape.getValue(), this.scale.getValue());
         update = false;
+
+    }
+
+    public Gamma(Parameter shape,
+                 Parameter scale,
+                 Parameter x){
+        this("GammaDistr", shape, scale, x);
 
     }
 
@@ -64,12 +75,11 @@ public class Gamma implements Probability {
     }
 
 
-    @Override
+
     public String log() {
         return ""+logP;
     }
 
-    @Override
     public String logStored() {
         return ""+storedLogP;
     }

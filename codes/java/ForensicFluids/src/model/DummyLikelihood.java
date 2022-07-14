@@ -1,6 +1,14 @@
 package model;
 
-public class DummyLikelihood implements Probability {
+public class DummyLikelihood extends AbstractProbability {
+
+    public DummyLikelihood(String label){
+        super(label);
+    }
+
+    public DummyLikelihood(){
+        super("dummylikelihood");
+    }
     public double getLogLikelihood(){
         return 0.0;
     }

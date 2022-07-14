@@ -4,7 +4,7 @@ import data.CompoundMarkerData;
 import state.Parameter;
 import state.TypeList;
 
-public class CompoundClusterLikelihood implements Probability {
+public class CompoundClusterLikelihood extends AbstractProbability {
     //private int[][][][] eltsAllPartSetList;
     //private double[][] eltsAllPartSetPriorList;
     //private CompoundMarkerData multiTypeSamples;
@@ -17,12 +17,14 @@ public class CompoundClusterLikelihood implements Probability {
     private double logMultiTypeLikelihood;
     private double storedLogMultiTypeLikelihood;
 
-    public CompoundClusterLikelihood(int[][][][] eltsAllPartSetList,
+    public CompoundClusterLikelihood(String label,
+                                     int[][][][] eltsAllPartSetList,
                                      double[][] eltsAllPartSetPriorList,
                                      CompoundMarkerData multiTypeSamples,
                                      double[][] alphaC,
                                      double[][] betaC,
                                      TypeList typeClusters){
+        super(label);
 
         //this.multiTypeSamples = multiTypeSamples;
         this.typeClusters = typeClusters;
@@ -40,13 +42,14 @@ public class CompoundClusterLikelihood implements Probability {
         }
     }
 
-    public CompoundClusterLikelihood(int[][][][] eltsAllPartSetList,
+    public CompoundClusterLikelihood(String label,
+                                     int[][][][] eltsAllPartSetList,
                                      double[][] eltsAllPartSetPriorList,
                                      CompoundMarkerData multiTypeSamples,
                                      Parameter[] alphaC,
                                      Parameter[] betaC,
                                      TypeList typeClusters){
-
+        super(label);
 
 
         //this.multiTypeSamples = multiTypeSamples;

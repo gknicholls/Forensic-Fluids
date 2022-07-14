@@ -6,7 +6,7 @@ import org.apache.commons.math3.special.Gamma;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClusterPrior implements Probability {
+public class ClusterPrior extends AbstractProbability {
 
     private double alpha;
     private int setCountMax;
@@ -14,14 +14,24 @@ public class ClusterPrior implements Probability {
     private int totalObsCount;
     private double logPrior;
     private double storedLogPrior;
-    public ClusterPrior(double alpha,
+    public ClusterPrior(String label,
+                        double alpha,
                         int setCountMax,
                         SubTypeList setList,
                         int totalObsCount){
+        super(label);
         this.alpha = alpha;
         this.setCountMax = setCountMax;
         this.setList = setList;
         this.totalObsCount = totalObsCount;
+
+    }
+
+    public ClusterPrior(double alpha,
+                        int setCountMax,
+                        SubTypeList setList,
+                        int totalObsCount){
+        this("MDP.prior", alpha, setCountMax, setList, totalObsCount);
 
     }
 

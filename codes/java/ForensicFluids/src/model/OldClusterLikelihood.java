@@ -5,7 +5,7 @@ import org.apache.commons.math3.special.Beta;
 
 import java.util.ArrayList;
 
-public class OldClusterLikelihood implements Probability {
+public class OldClusterLikelihood extends AbstractProbability {
 
     private double logLikelihood;
     private double storedLogLikelihood;
@@ -15,12 +15,14 @@ public class OldClusterLikelihood implements Probability {
     private double[] alphaC;
     private double[] betaC;
     private SubTypeList subtypeSets;
-    public OldClusterLikelihood(int[][][][] eltsAllPartSetList,
+    public OldClusterLikelihood(String label,
+                                int[][][][] eltsAllPartSetList,
                              double[][] eltsAllPartSetPriorList,
                              int[][][] sample,
                              double[] alphaC,
                              double[] betaC,
                              SubTypeList subtypeSets){
+        super(label);
         this.eltsAllPartSetList = eltsAllPartSetList;
         this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
         this.sample = sample;
@@ -29,6 +31,18 @@ public class OldClusterLikelihood implements Probability {
         this.subtypeSets = subtypeSets;
 
 
+    }
+
+    public OldClusterLikelihood(int[][][][] eltsAllPartSetList,
+                                double[][] eltsAllPartSetPriorList,
+                                int[][][] sample,
+                                double[] alphaC,
+                                double[] betaC,
+                                SubTypeList subtypeSets){
+
+        this("label",
+                eltsAllPartSetList, eltsAllPartSetPriorList,
+                sample, alphaC, betaC, subtypeSets);
     }
 
     public double getLogLikelihood(){

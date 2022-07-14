@@ -1,15 +1,19 @@
 package state;
 
+import model.AbstractState;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class SubTypeList implements State{
+public class SubTypeList extends AbstractState {
     private ArrayList<Integer>[] subtypeList;
     private ArrayList<Integer>[] storedSubtypeList;
     private boolean[] subtypeUpdated;
     private int totalObsCount;
     private boolean isUpdated;
-    public SubTypeList(ArrayList<Integer>[] subtypeList){
+
+    public SubTypeList(String label, ArrayList<Integer>[] subtypeList){
+        super(label);
         this.subtypeList = subtypeList;
         storedSubtypeList = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
         subtypeUpdated = new boolean[subtypeList.length];
@@ -32,6 +36,11 @@ public class SubTypeList implements State{
         }
         isUpdated = true;
     }
+
+    public SubTypeList(ArrayList<Integer>[] subtypeList){
+        this("subTypeList", subtypeList);
+    }
+
 
     private void calcTotalObs(){
         for(int setIndex = 0; setIndex < this.subtypeList.length; setIndex++){

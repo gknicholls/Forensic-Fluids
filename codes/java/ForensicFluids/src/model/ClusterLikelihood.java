@@ -5,7 +5,7 @@ import state.SubTypeList;
 import data.SingleMarkerData;
 import org.apache.commons.math3.special.Beta;
 
-public class ClusterLikelihood implements Probability {
+public class ClusterLikelihood extends AbstractProbability {
 
     private double logLikelihood;
     private double storedLogLikelihood;
@@ -17,12 +17,15 @@ public class ClusterLikelihood implements Probability {
     private double[][] subtypeMkrLik;
     private double[][] storedSubtypeMkrLik;
     private SubTypeList subtypeSets;
-    public ClusterLikelihood(int[][][][] eltsAllPartSetList,
+
+    public ClusterLikelihood(String label,
+                             int[][][][] eltsAllPartSetList,
                              double[][] eltsAllPartSetPriorList,
                              SingleMarkerData sample,
                              Parameter alphaC,
                              Parameter betaC,
                              SubTypeList subtypeSets){
+        super(label);
         this.eltsAllPartSetList = eltsAllPartSetList;
         this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
         this.sample = sample;
@@ -38,15 +41,28 @@ public class ClusterLikelihood implements Probability {
     public ClusterLikelihood(int[][][][] eltsAllPartSetList,
                              double[][] eltsAllPartSetPriorList,
                              SingleMarkerData sample,
+                             Parameter alphaC,
+                             Parameter betaC,
+                             SubTypeList subtypeSets){
+        this("typeLikelihood", eltsAllPartSetList, eltsAllPartSetPriorList, sample, alphaC, betaC, subtypeSets);
+
+
+    }
+
+    public ClusterLikelihood(int[][][][] eltsAllPartSetList,
+                             double[][] eltsAllPartSetPriorList,
+                             SingleMarkerData sample,
                              double[] alphaCValues,
                              double[] betaCValues,
                              SubTypeList subtypeSets){
-        this(eltsAllPartSetList, eltsAllPartSetPriorList, sample,
+        this("typeLikelihood", eltsAllPartSetList, eltsAllPartSetPriorList, sample,
                 new Parameter("shape.a", alphaCValues, 0),
                 new Parameter("shape.b", betaCValues, 0),
                 subtypeSets);
 
     }
+
+
 
 
 

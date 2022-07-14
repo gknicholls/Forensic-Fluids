@@ -1,11 +1,14 @@
 package state;
 
-public class TypeList implements State{
+import model.AbstractState;
+
+public class TypeList extends AbstractState {
 
     protected SubTypeList[] typeList;
     protected boolean[] typeUpdated;
     protected int totalCount;
-    public TypeList(SubTypeList[] typeList){
+    public TypeList(String label, SubTypeList[] typeList){
+        super(label);
         this.typeList = typeList;
         calcTotalCount();
 
@@ -13,6 +16,10 @@ public class TypeList implements State{
         for(int typeIndex = 0; typeIndex < typeUpdated.length; typeIndex++){
             typeUpdated[typeIndex] = true;
         }
+    }
+
+    public TypeList(SubTypeList[] typeList){
+        this("typeList", typeList);
     }
 
     public int getTypeCount(){

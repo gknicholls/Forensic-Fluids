@@ -2,7 +2,7 @@ package model;
 import state.TypeList;
 
 
-public class CompoundClusterPrior implements Probability {
+public class CompoundClusterPrior extends AbstractProbability {
 
     private double[] logSingleTypePriors;
     private double[] storedLogSingleTypePriors;
@@ -13,7 +13,12 @@ public class CompoundClusterPrior implements Probability {
     private int[] singleTypeTotalObsCounts;
     private TypeList setLists;
 
-    public CompoundClusterPrior(double alpha, int setCountMax, int[] singleTypeTotalObsCounts, TypeList setLists){
+    public CompoundClusterPrior(String label,
+                                double alpha,
+                                int setCountMax,
+                                int[] singleTypeTotalObsCounts,
+                                TypeList setLists){
+        super(label);
         this.alpha = alpha;
         this.setCountMax = setCountMax;
         this.singleTypeTotalObsCounts = singleTypeTotalObsCounts;
@@ -21,6 +26,7 @@ public class CompoundClusterPrior implements Probability {
         logSingleTypePriors = new double[setLists.getTypeCount()];
         storedLogSingleTypePriors = new double[logSingleTypePriors.length];
     }
+
     public double calcLogMDPDensity(){
 
         logMultiTypePrior = 0.0;
