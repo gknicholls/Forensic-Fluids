@@ -10,17 +10,28 @@ public class Gamma extends AbstractProbability {
     private boolean update;
     private double logP;
     private double storedLogP;
+    private int paramIndex;
+
+    public Gamma(String label,
+                 Parameter shape,
+                 Parameter scale,
+                 Parameter x,
+                 int paramIndex){
+        super(label);
+        this.shape = shape;
+        this.scale = scale;
+        this.x = x;
+        this.paramIndex = paramIndex;
+        distr = new GammaDistributionImpl(this.shape.getValue(), this.scale.getValue());
+        update = false;
+
+    }
 
     public Gamma(String label,
                  Parameter shape,
                  Parameter scale,
                  Parameter x){
-        super(label);
-        this.shape = shape;
-        this.scale = scale;
-        this.x = x;
-        distr = new GammaDistributionImpl(this.shape.getValue(), this.scale.getValue());
-        update = false;
+        this(label, shape, scale, x, -1);
 
     }
 
@@ -37,9 +48,14 @@ public class Gamma extends AbstractProbability {
 
         if(update){
             logP = 0.0;
-            int dim = x.getDimension();
-            for(int index = 0; index < dim; index++){
-                logP += Math.log(distr.density(this.x.getValue(index)));
+            if(paramIndex > -1){
+                logP = Math.log(distr.density(this.x.getValue(paramIndex)));
+                //System.out.println(paramIndex);
+            }else {
+                int dim = x.getDimension();
+                for (int index = 0; index < dim; index++) {
+                    logP += Math.log(distr.density(this.x.getValue(index)));
+                }
             }
         }
 
@@ -58,7 +74,12 @@ public class Gamma extends AbstractProbability {
             update = true;
         }
 
-        if(x.isUpdated()){
+        if(paramIndex > -1){
+            if(x.isUpdated(paramIndex)){
+                update = true;
+            }
+
+        }else if(x.isUpdated()){
             update = true;
         }
 

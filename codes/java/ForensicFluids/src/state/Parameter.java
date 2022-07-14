@@ -93,7 +93,7 @@ public class Parameter extends AbstractState {
         String str = "";
         for(int i = 0; i < values.length; i++){
             if(i > 0){
-                str = "\t";
+                str += "\t";
             }
             str += label+"."+i;
         }
@@ -104,7 +104,7 @@ public class Parameter extends AbstractState {
         String str = "";
         for(int i = 0; i < values.length; i++){
             if(i > 0){
-                str = "\t";
+                str += "\t";
             }
             str += values[i];
         }

@@ -89,7 +89,7 @@ public class TestMultiTypeDataMDPPriorMCMC {
         State[] states = new State[]{typeList};
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/ex.multiTypeObsWithUnknown_1.01.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/ex.multiTypeObsWithUnknown_2022_07_14.log";
         MCMC estSubtype = new MCMC(probs, proposals, null, states, 1000000, 100, outputFilePath);
         estSubtype.run();
         //}

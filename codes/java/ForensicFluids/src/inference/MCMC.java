@@ -183,10 +183,10 @@ public class MCMC {
 
     private int getMoveIndex(int stepIndex){
         int currMoveIndex = cumSumWeights.length - 1;
-        double r = cumSumWeights[currMoveIndex]%stepIndex;
+        double r = stepIndex%cumSumWeights[currMoveIndex];
         for(int moveIndex = 0; moveIndex < cumSumWeights.length; moveIndex++){
             if(r > cumSumWeights[moveIndex]){
-                currMoveIndex = moveIndex - 1;
+                currMoveIndex = moveIndex;
                 break;
             }
 
