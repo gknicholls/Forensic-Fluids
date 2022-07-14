@@ -59,20 +59,26 @@ public class TestMultiParameterPrior {
             TypeList typeList = new TypeList(subTypeLists);
 
             Parameter param = new Parameter("parameter1", new double[]{1.0, 1.0, 1.0}, 0);
-            Parameter gammaShape = new Parameter("gamma.shape", new double[]{2.0}, 0);
-            Parameter gammaScale = new Parameter("gamma.scale", new double[]{0.5}, 0);
+            Parameter gammaShape0 = new Parameter("gamma.shape", new double[]{0.5}, 0);
+            Parameter gammaScale0 = new Parameter("gamma.scale", new double[]{1}, 0);
+
+            Parameter gammaShape1 = new Parameter("gamma.shape", new double[]{1.0}, 0);
+            Parameter gammaScale1 = new Parameter("gamma.scale", new double[]{1.5}, 0);
+
+            Parameter gammaShape2 = new Parameter("gamma.shape", new double[]{2.0}, 0);
+            Parameter gammaScale2 = new Parameter("gamma.scale", new double[]{1.25}, 0);
 
             ScaleMove scaleMove = new ScaleMove(param, 0.75);
             AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
             ProposalMove[] proposalMoves = new ProposalMove[]{scaleMove, singleRowMove};
             //ProposalMove[] proposalMoves = new ProposalMove[]{ singleRowMove};
-            double[] proposalWeights = new double[]{10, 2};
+            double[] proposalWeights = new double[]{8, 2};
             //double[] proposalWeights = new double[]{1};
 
 
-            Gamma gammaPrior0 = new Gamma("gammaPrior.0", gammaShape, gammaScale, param, 0);
-            Gamma gammaPrior1 = new Gamma("gammaPrior.1", gammaShape, gammaScale, param, 1);
-            Gamma gammaPrior2 = new Gamma("gammaPrior.2", gammaShape, gammaScale, param, 2);
+            Gamma gammaPrior0 = new Gamma("gammaPrior.0", gammaShape0, gammaScale0, param, 0);
+            Gamma gammaPrior1 = new Gamma("gammaPrior.1", gammaShape1, gammaScale1, param, 1);
+            Gamma gammaPrior2 = new Gamma("gammaPrior.2", gammaShape2, gammaScale2, param, 2);
             CompoundClusterPrior mdpPrior = new CompoundClusterPrior("multiTypeMDP", alphaRow, maxClustCount,
                     new int[]{totalObsCount}, typeList);
             DummyLikelihood lik = new DummyLikelihood();
@@ -83,7 +89,7 @@ public class TestMultiParameterPrior {
             AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik, gammaPrior0, gammaPrior1, gammaPrior2};
             //AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
             String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_sample_prior_parts_param_2022_07_14.log";
-            MCMC estSubtype = new MCMC(probs, proposalMoves, proposalWeights, states, 1000000, 100, outputFilePath);
+            MCMC estSubtype = new MCMC(probs, proposalMoves, proposalWeights, states, 5000000, 500, outputFilePath);
             estSubtype.run();
         }
 
