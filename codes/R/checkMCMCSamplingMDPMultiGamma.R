@@ -77,22 +77,24 @@ sort(test.7obs.prior.expt, decreasing = T)[1:40]
 presentPartIndex = match(names(test.7obs.post.mcmc), names(test.7obs.prior.expt))
 
 
-trace = apply(matrix(names(test.7obs.prior.expt[presentPartIndex])), 1,
+test.sample.prior.parts.param.trace = apply(matrix(names(test.7obs.prior.expt[presentPartIndex])), 1,
        function(z){
          as.numeric(test.sample.prior.parts.param20220714.df$typeList == z)
          })
-trace = do.call(cbind, trace)
 
-ess = apply(trace, 2, ESS)
+test.sample.prior.parts.param.ess = apply(trace, 2, ESS)
+
+ESS(test.sample.prior.parts.param20220714.df$multiTypeMDP)
 
 test.7obs.1sd = sqrt(test.7obs.prior.expt[presentPartIndex]*
-                       (1 - test.7obs.prior.expt[presentPartIndex])/ess)
+                       (1 - test.7obs.prior.expt[presentPartIndex])/test.sample.prior.parts.param.ess)
+
 pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_07_15/mdpPrior7Obs_2022_07_15.pdf", height = 5, width = 7)
 par(mar = c(5,5,4,2) + 0.2)
-plot(test.7obs.prior.expt[presentPartIndex], test.7obs.post.mcmc, pch ="-", col="red", ylim = c(0, 0.0035),
-     xlab = "Expected prior probabilities", ylab = "", main = "7 observations, ESS = 100471.4\n MCMC Steps = 1000000")
+plot(test.7obs.prior.expt[presentPartIndex], test.7obs.post.mcmc, pch ="-", col="red", ylim = c(0, 0.0045),
+     xlab = "Expected prior probabilities", ylab = "", main = "7 observations,\nMCMC Steps = 1000000")
 mtext(text = "MCMC estimated probabilities", side = 2, line = 4)
-axis(side = 2, at = c(1:6)*0.0005, las = 1)
+axis(side = 2, at = c(1:9)*0.0005, las = 1)
 abline(0, 1)
 for(i in 1:length(test.7obs.prior.expt)){
   lines(x = rep(test.7obs.prior.expt[presentPartIndex][i], 2), 
