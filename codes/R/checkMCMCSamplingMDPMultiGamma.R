@@ -1,9 +1,9 @@
 test.sample.prior.parts.param20220714.df = 
-  read.table(file = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_sample_prior_parts_param_2022_07_14.log",
+  read.table(file = "/Users/chwu/Documents/research/bfc/output/2022_07_15/test_sample_prior_parts_param_2022_07_15.log",
            header = T, as.is = T, sep = "\t")
 
 
-pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_07_14/test_sample_prior_parts_param_2022_07_14.pdf",
+pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_07_15/test_sample_prior_parts_param_2022_07_15.pdf",
     width = 6.5, height = 9)
 par(mfrow = c(3,2))
 set.seed(123)
@@ -87,7 +87,7 @@ ess = apply(trace, 2, ESS)
 
 test.7obs.1sd = sqrt(test.7obs.prior.expt[presentPartIndex]*
                        (1 - test.7obs.prior.expt[presentPartIndex])/ess)
-pdf(file = "/Users/chwu/Documents/research/bfc/plots/mdpPrior7Obs.pdf", height = 5, width = 7)
+pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_07_15/mdpPrior7Obs_2022_07_15.pdf", height = 5, width = 7)
 par(mar = c(5,5,4,2) + 0.2)
 plot(test.7obs.prior.expt[presentPartIndex], test.7obs.post.mcmc, pch ="-", col="red", ylim = c(0, 0.0035),
      xlab = "Expected prior probabilities", ylab = "", main = "7 observations, ESS = 100471.4\n MCMC Steps = 1000000")
