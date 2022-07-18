@@ -15,7 +15,13 @@ public class CompoundMarkerDataWithUnknown extends CompoundMarkerData{
                                          int[][] colInfoUnknown,
                                          TypeListWithUnknown typeList){
 
-        super(files, rowInfo, colInfo);
+        super();
+        //super(files, rowInfo, colInfo);
+        dataSets = new MarkerData[files.length];
+        int[][][][] dataMat = DataUtils.extractDataAcrossTypes(files, rowInfo, colInfo);
+        for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
+            dataSets[typeIndex] = new MarkerData(dataMat[typeIndex]);
+        }
         unknownFluid = DataUtils.extractDataAcrossMarkers(unknownFluidFile, rowInfoUnknown, colInfoUnknown);
         getUnknownStartIndex = typeList.getUnknownStartIndex();
 
@@ -28,7 +34,12 @@ public class CompoundMarkerDataWithUnknown extends CompoundMarkerData{
                                          int[] rowInfoUnknown,
                                          int[][] colInfoUnknown,
                                          TypeListWithUnknown typeList){
-        super(files, rowInfo, colInfo);
+        super();
+        dataSets = new MarkerData[files.length];
+        int[][][][] dataMat = DataUtils.extractDataAcrossTypes(files, rowInfo, colInfo);
+        for(int typeIndex = 0; typeIndex < files.length; typeIndex++){
+            dataSets[typeIndex] = new MarkerData(dataMat[typeIndex]);
+        }
         unknownFluid = DataUtils.extractDataAcrossMarkers(unknownFluidFile, rowInfoUnknown, colInfoUnknown);
 
         getUnknownStartIndex = typeList.getUnknownStartIndex();
@@ -44,9 +55,12 @@ public class CompoundMarkerDataWithUnknown extends CompoundMarkerData{
 
         public int getData(int mkrGrpIndex, int obsIndex, int mkrIndex){
 
+            //System.out.println(obsIndex);
+
             if(obsIndex < getUnknownStartIndex){
                 return super.getData(mkrGrpIndex, obsIndex, mkrIndex);
             }else{
+                //System.out.println(mkrGrpIndex+" "+(obsIndex - getUnknownStartIndex) + " "+mkrIndex);
                 return unknownFluid[mkrGrpIndex][obsIndex - getUnknownStartIndex][mkrIndex];
             }
 

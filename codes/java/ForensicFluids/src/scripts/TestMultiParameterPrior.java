@@ -17,10 +17,6 @@ public class TestMultiParameterPrior {
 
     public static void main(String[] args){
 
-        String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
-        String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
-        double[] alphaC = new double[]{0.5, 0.5, 0.5, 0.5, 0.5};
-        double[] betaC = new double[]{2.0, 2.0, 0.25, 2.0, 2.0};
         TestMultiParameterPrior mcmcPrior = new TestMultiParameterPrior();
         try {
 
@@ -35,7 +31,7 @@ public class TestMultiParameterPrior {
     }
 
 
-    private void runEx7Obs3DimParam() throws Exception{
+    private void runEx7Obs3DimParam() {
         double alphaRow = 20;
 
 
@@ -88,7 +84,7 @@ public class TestMultiParameterPrior {
 
             AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik, gammaPrior0, gammaPrior1, gammaPrior2};
             //AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
-            String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_14/test_sample_prior_parts_param_2022_07_14.log";
+            String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_15/test_sample_prior_parts_param_2022_07_15.log";
             MCMC estSubtype = new MCMC(probs, proposalMoves, proposalWeights, states, 5000000, 500, outputFilePath);
             estSubtype.run();
         }

@@ -23,9 +23,12 @@ public class AssignBetweenTypes implements ProposalMove{
         // Retrieve the classification information on this sample.
         int currTypeIndex = typeList.getUnknownObsTypeIndex(unknownObsIndex);
         int currSubTypeIndex = typeList.getUnknownObsSubTypeIndex(unknownObsIndex);
-        int currEltIndex = typeList.getUnknownObsEltIndex(unknownObsIndex);
+        int currEltIndex = typeList.getUnknownObsEltIndex(
+                unknownObsIndex + typeList.getUnknownStartIndex(),
+                currTypeIndex, currSubTypeIndex);
+        //System.out.println(unknownObsIndex+": "+currTypeIndex+" "+currSubTypeIndex+" "+currEltIndex);
 
-        //System.out.println("pos: "+currTypeIndex+" "+currSubTypeIndex+" "+currEltIndex);
+
         //System.out.println("unknown obs: "+ typeList.getObs(currTypeIndex, currSubTypeIndex, currEltIndex)+" "+
         //        currTypeIndex +" "+ currSubTypeIndex+" "+ currEltIndex);
 

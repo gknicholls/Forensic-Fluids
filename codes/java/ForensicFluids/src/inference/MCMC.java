@@ -185,7 +185,8 @@ public class MCMC {
         int currMoveIndex = cumSumWeights.length - 1;
         double r = stepIndex%cumSumWeights[currMoveIndex];
         for(int moveIndex = 0; moveIndex < cumSumWeights.length; moveIndex++){
-            if(r > cumSumWeights[moveIndex]){
+            //System.out.println(r+" "+cumSumWeights[moveIndex]+" "+cumSumWeights[currMoveIndex]);
+            if(r >= cumSumWeights[moveIndex]){
                 currMoveIndex = moveIndex;
                 break;
             }

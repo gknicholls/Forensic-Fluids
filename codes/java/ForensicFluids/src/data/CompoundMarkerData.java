@@ -6,6 +6,9 @@ import utils.DataUtils;
 public class CompoundMarkerData {
 
     protected SingleMarkerData[] dataSets;
+    public CompoundMarkerData(){
+
+    }
     public CompoundMarkerData(String[] files, int[][] rowInfo, int[][][] colInfo){
         dataSets = new SingleMarkerData[files.length];
         int[][][][] dataMat = DataUtils.extractDataAcrossTypes(files, rowInfo, colInfo);

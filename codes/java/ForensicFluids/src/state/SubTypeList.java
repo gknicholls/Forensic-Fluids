@@ -79,6 +79,10 @@ public class SubTypeList extends AbstractState {
         return setSizes;
     }
 
+    public int getPosInSubtype(int obsIndex, int subtypeIndex){
+        return subtypeList[subtypeIndex].indexOf(obsIndex);
+    }
+
     public int getSubTypeSetSize(int subTypeIndex){
 
         return subtypeList[subTypeIndex].size();

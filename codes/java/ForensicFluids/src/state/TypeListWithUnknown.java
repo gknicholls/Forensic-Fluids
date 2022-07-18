@@ -3,7 +3,6 @@ package state;
 public class TypeListWithUnknown extends TypeList{
     public static final int TYPE_POS = 0;
     public static final int SUBTYPE_POS = 1;
-    public static final int ELT_POS = 2;
 
     private int unknownObsCount;
     private int[][] unknownClusterMap;
@@ -12,7 +11,7 @@ public class TypeListWithUnknown extends TypeList{
     public TypeListWithUnknown(SubTypeList[] subTypeLists, int unknownStartIndex){
         super(subTypeLists);
         unknownObsCount = totalCount - unknownStartIndex;
-        unknownClusterMap = new int[3][unknownObsCount];
+        unknownClusterMap = new int[2][unknownObsCount];
         storedUnknownClusterMap = new int[unknownClusterMap.length][unknownObsCount];
         this.unknownStartIndex = unknownStartIndex;
         createMap();
@@ -49,7 +48,6 @@ public class TypeListWithUnknown extends TypeList{
                     if(obsNum >= unknownStartIndex ){
                         unknownClusterMap[0][obsNum - unknownStartIndex] = typeIndex;
                         unknownClusterMap[1][obsNum - unknownStartIndex] = subTypeIndex;
-                        unknownClusterMap[2][obsNum - unknownStartIndex] = eltIndex;
                     }
                 }
             }
@@ -72,9 +70,11 @@ public class TypeListWithUnknown extends TypeList{
         return unknownClusterMap[SUBTYPE_POS][obsIndex];
     }
 
-    public int getUnknownObsEltIndex(int obsIndex){
-        return unknownClusterMap[ELT_POS][obsIndex];
+    public int getUnknownObsEltIndex(int obsIndex, int typeIndex, int subtypeIndex){
+        return typeList[typeIndex].getPosInSubtype(obsIndex, subtypeIndex);
     }
+
+
 
     public void addObs(int typeIndex, int subtypeIndex, int obs){
         /*for(int typeIndex1 = 0; typeIndex1 < typeList.length; typeIndex1++){
@@ -102,7 +102,6 @@ public class TypeListWithUnknown extends TypeList{
         if(obs >= unknownStartIndex){
             unknownClusterMap[TYPE_POS][obs - unknownStartIndex] = typeIndex;
             unknownClusterMap[SUBTYPE_POS][obs - unknownStartIndex] = subtypeIndex;
-            unknownClusterMap[ELT_POS][obs - unknownStartIndex] = typeList[typeIndex].getSubTypeSetSize(subtypeIndex) - 1;
         }else{
             //Very expensive
             createMap();
@@ -141,7 +140,6 @@ public class TypeListWithUnknown extends TypeList{
         if(rmvObs >= unknownStartIndex){
             unknownClusterMap[TYPE_POS][rmvObs - unknownStartIndex] = -1;
             unknownClusterMap[SUBTYPE_POS][rmvObs - unknownStartIndex] = -1;
-            unknownClusterMap[ELT_POS][rmvObs - unknownStartIndex] = -1;
         }else{
             createMap();
         }

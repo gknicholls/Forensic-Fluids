@@ -59,6 +59,7 @@ public class CompoundClusterLikelihood extends AbstractProbability {
 
         liks = new ClusterLikelihood[typeClusters.getTypeCount()];
         for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
+
             liks[typeIndex] = new ClusterLikelihood(
                     eltsAllPartSetList, eltsAllPartSetPriorList,
                     multiTypeSamples.getData(typeIndex),

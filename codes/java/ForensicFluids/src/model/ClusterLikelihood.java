@@ -149,7 +149,7 @@ public class ClusterLikelihood extends AbstractProbability {
 
         double[] colPartLik;
         for(int mkrGrpIndex = 0; mkrGrpIndex < sample.getMarkerGroupCount(); mkrGrpIndex++){
-            if(alphaC.isUpdated(mkrGrpIndex) || betaC.isUpdated(mkrGrpIndex) || subtypeSets.isUpdated(subtypeIndex)){
+            //if(alphaC.isUpdated(mkrGrpIndex) || betaC.isUpdated(mkrGrpIndex) || subtypeSets.isUpdated(subtypeIndex)){
                 colPartLik =
                         CalcIntAllPartsMkrGrpLik(
                                 eltsAllPartSetList[mkrGrpIndex],
@@ -166,7 +166,7 @@ public class ClusterLikelihood extends AbstractProbability {
 
                 }
 
-            }
+            //}
 
             logSubtypeLikelihood += Math.log(subtypeMkrLik[subtypeIndex][mkrGrpIndex]);
             //System.out.println(Math.log(subtypeMkrLik[subtypeIndex][mkrGrpIndex]));
