@@ -59,19 +59,27 @@ public class TypeList extends AbstractState {
         return typeList[typeIndex].getObs(subtypeIndex, eltIndex);
     }
 
+    public void setTypeUpdate(int typeIndex){
+        typeUpdated[typeIndex] = true;
+    }
+
     public void addObs(int typeIndex, int subtypeIndex, int obs){
+        //System.out.println("add: "+typeIndex);
         typeList[typeIndex].addObs(subtypeIndex, obs);
         typeUpdated[typeIndex] = true;
 
     }
 
     public int removeObs(int typeIndex, int subtypeIndex, int eltIndex){
+
+        //System.out.println("remove: "+typeIndex);
         typeUpdated[typeIndex] = true;
         return typeList[typeIndex].removeObs(subtypeIndex, eltIndex);
 
     }
 
     public boolean hasUpdated(int typeIndex){
+        //System.out.println(typeIndex+" "+typeUpdated[typeIndex]);
         return typeUpdated[typeIndex];
     }
 

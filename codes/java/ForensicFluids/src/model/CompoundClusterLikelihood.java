@@ -72,17 +72,18 @@ public class CompoundClusterLikelihood extends AbstractProbability {
 
         logMultiTypeLikelihood = 0;
         for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
-            //if(typeClusters.hasUpdated(typeIndex)){
+            if(typeClusters.hasUpdated(typeIndex)){
                 logMultiTypeLikelihoods[typeIndex] =  liks[typeIndex].getLogLikelihood();
-            //}
+            }
 
-            //System.out.println(logMultiTypeLikelihoods[typeIndex]);
+            //System.out.println("type log-lik"+ logMultiTypeLikelihoods[typeIndex]);
             logMultiTypeLikelihood += logMultiTypeLikelihoods[typeIndex];
 
 
         }
 
 
+        //System.out.println("all log-lik"+ logMultiTypeLikelihood);
         return(logMultiTypeLikelihood);
     }
 
@@ -98,6 +99,11 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         storedLogMultiTypeLikelihood = logMultiTypeLikelihood;
         System.arraycopy(logMultiTypeLikelihoods, 0,
                 storedLogMultiTypeLikelihoods, 0, logMultiTypeLikelihoods.length);
+        /*System.out.print(this.getClass()+"store ");
+        for(int i = 0; i < logMultiTypeLikelihoods.length; i++){
+            System.out.print(logMultiTypeLikelihoods[i]+" ");
+        }
+        System.out.println();*/
         for(ClusterLikelihood likelihood:liks){
             likelihood.store();
         }
@@ -112,5 +118,11 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         for(ClusterLikelihood likelihood:liks){
             likelihood.restore();
         }
+
+        /*System.out.print(this.getClass()+"restore ");
+        for(int i = 0; i < logMultiTypeLikelihoods.length; i++){
+            System.out.print(logMultiTypeLikelihoods[i]+" ");
+        }
+        System.out.println();*/
     }
 }

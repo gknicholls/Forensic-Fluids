@@ -16,10 +16,11 @@ public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalM
         if(typeList.getTypeCount() > 1){
             updateTypeIndex = Randomizer.nextInt(typeList.getTypeCount());
         }
-        //System.out.println("updateTypeIndex: "+updateTypeIndex);
+        //System.out.println("Single row wrapper updateTypeIndex: "+updateTypeIndex);
 
 
         double temp=  SingleRowMove(typeList.getSubTypeList(updateTypeIndex));
+        typeList.setTypeUpdate(updateTypeIndex);
         /*int[] setSizes = typeList.getSubTypeSetSizes(updateTypeIndex);
         for(int i = 0; i < setSizes.length; i++){
             if(setSizes[i] > 0){

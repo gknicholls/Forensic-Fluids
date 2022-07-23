@@ -117,6 +117,7 @@ public class MCMC {
                 }else{
                     currProposalIndex = getMoveIndex(stepIndex);
                 }
+
                 //System.out.println("mcmc: "+stepIndex+" "+proposalMoves.length+" "+currProposalIndex);
                 logHR = proposalMoves[currProposalIndex].proposal();
 
@@ -139,6 +140,7 @@ public class MCMC {
 
                 double draw = Math.log(Randomizer.nextDouble());
                 //boolean accept = false;
+                //System.out.println("mcmc2: "+ draw +" "+ logMHR);
                 if (logMHR >= 0.0 || draw < logMHR) {
                     //System.out.println("accepted: "+ accept+"," + currLogLik+" "+ currLogPrior+ " "+propLogLik+" "+ propLogPrior);
                     //System.out.println("accept");
@@ -149,15 +151,19 @@ public class MCMC {
                     //currLogPrior = propLogPrior;
                     //currLogLik = propLogLik;
                 } else {
-                    //System.out.println("reject");
+                    //System.out.println("reject1");
                     for(State state:states){
                         state.restore();
                     }
+                    //System.out.println("between");
 
 
-                    for(AbstractProbability prob:probs){
-                        prob.restore();
+                    //System.out.println(probs.length);
+                    for(int probIndex = 0; probIndex < probs.length; probIndex++){
+                        //System.out.println(probs[probIndex].getClass());
+                        probs[probIndex].restore();
                     }
+                    //System.out.println("reject2");
 
 
                 }
@@ -182,12 +188,12 @@ public class MCMC {
     }
 
     private int getMoveIndex(int stepIndex){
-        int currMoveIndex = cumSumWeights.length - 1;
-        double r = stepIndex%cumSumWeights[currMoveIndex];
+        int currMoveIndex = 0;
+        double r = stepIndex%cumSumWeights[cumSumWeights.length - 1];
         for(int moveIndex = 0; moveIndex < cumSumWeights.length; moveIndex++){
-            //System.out.println(r+" "+cumSumWeights[moveIndex]+" "+cumSumWeights[currMoveIndex]);
-            if(r >= cumSumWeights[moveIndex]){
-                currMoveIndex = moveIndex;
+            //System.out.println("proposal: "+r+" "+cumSumWeights[moveIndex]+" "+cumSumWeights[cumSumWeights.length - 1]);
+            currMoveIndex = moveIndex;
+            if(r < cumSumWeights[moveIndex]){
                 break;
             }
 

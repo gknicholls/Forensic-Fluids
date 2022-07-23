@@ -2,30 +2,30 @@ package scripts;
 
 import data.CompoundMarkerData;
 import inference.*;
-import model.*;
-import state.*;
+import model.AbstractProbability;
+import model.CompoundClusterLikelihood;
+import model.CompoundClusterPrior;
+import model.Gamma;
+import state.Parameter;
+import state.State;
+import state.SubTypeList;
+import state.TypeList;
 import utils.DataUtils;
 import utils.Randomizer;
 
 import java.util.ArrayList;
 
-
-
-public class TestSamplingPartitionAndShapes {
+public class TestSamplingPartsAndShapesColJ2MCMC {
 
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
     public static void main(String[] args){
 
-        TestSamplingPartitionAndShapes mcmcPrior = new TestSamplingPartitionAndShapes();
+        TestSamplingPartsAndShapesColJ2MCMC mcmcPrior = new TestSamplingPartsAndShapesColJ2MCMC();
         try {
 
-            String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
-            String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
-
-
             Randomizer.setSeed(123);
-            mcmcPrior.runEx7ObsShape1(allPartitionSets5File, allPartitionSets7File);
+            mcmcPrior.runEx7ObsShape1();
 
 
         }catch(Exception e){
@@ -34,14 +34,18 @@ public class TestSamplingPartitionAndShapes {
     }
 
 
-    private void runEx7ObsShape1(String allPartitionSets5File,
-                                 String allPartitionSets7File){
-        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+    private void runEx7ObsShape1(){
+        String allPartitionSets5J2File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/twoPartitionSets5.txt";
+        String allPartitionSets7J2File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/twoPartitionSets7.txt";
+        int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(
+                allPartitionSets5J2File, allPartitionSets7J2File,15, 63);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow = 0.18;
 
-        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = DataUtils.getColPriors(alpha5, alpha7,
+                allPartitionSets5J2File, allPartitionSets7J2File,
+                15, 63);
 
         int totalObsCount = 81;
         int maxClustCount = 5;
@@ -69,8 +73,8 @@ public class TestSamplingPartitionAndShapes {
         Parameter shapeB = new Parameter("shape.b", new double[]{1.0, 1.0, 1.0, 1.0, 1.0}, 0);
 
 
-        Parameter gammaShape0 = new Parameter("gamma.shape", new double[]{100}, 0);
-        Parameter gammaScale0 = new Parameter("gamma.scale", new double[]{0.001}, 0);
+        Parameter gammaShape0 = new Parameter("gamma.shape", new double[]{1}, 0);
+        Parameter gammaScale0 = new Parameter("gamma.scale", new double[]{0.1}, 0);
 
 
         ScaleMove scaleMove = new ScaleMove(shapeA, 0.75);
@@ -96,7 +100,7 @@ public class TestSamplingPartitionAndShapes {
                 gammaPrior0, gammaPrior1, gammaPrior2, gammaPrior3, gammaPrior4};
         State[] states = new State[]{subTypeList, shapeA};
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_15/test_slv_single_7obs_part_shapeA_2022_07_15_v4.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/test_slv_single_7obs_part_shapeA_2022_07_22.log";
         MCMC estSubtype = new MCMC(probs, proposalMoves, null, states, 1000000, 100, outputFilePath);
         estSubtype.run();
 
