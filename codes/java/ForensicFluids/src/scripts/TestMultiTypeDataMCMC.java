@@ -26,11 +26,11 @@ public class TestMultiTypeDataMCMC {
         TestMultiTypeDataMCMC subtypeClf = new TestMultiTypeDataMCMC();
         try {
 
-            //Randomizer.setSeed(123);
-            //subtypeClf.runMultiTypeObsEx1(allPartitionSets5File, allPartitionSets7File, alphaC, betaC);
             Randomizer.setSeed(123);
+            subtypeClf.runMultiTypeObsEx1(allPartitionSets5File, allPartitionSets7File);
+            //Randomizer.setSeed(123);
             //subtypeClf.runMultiTypeObsEx5(allPartitionSets5File, allPartitionSets7File);
-            subtypeClf.runMultiTypeObsEx2(allPartitionSets5File, allPartitionSets7File);
+            //subtypeClf.runMultiTypeObsEx2(allPartitionSets5File, allPartitionSets7File);
             //subtypeClf.runMultiTypeObsEx4(allPartitionSets5File, allPartitionSets7File);
             //Randomizer.setSeed(123);
             //subtypeClf.runMultiTypeObsEx6(allPartitionSets5File, allPartitionSets7File);
@@ -44,8 +44,7 @@ public class TestMultiTypeDataMCMC {
     }
 
     private void runMultiTypeObsEx1(String allPartitionSets5File,
-                                 String allPartitionSets7File,
-                                 double[] alphaC, double[] betaC) throws Exception{
+                                 String allPartitionSets7File) throws Exception{
         int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
@@ -94,7 +93,7 @@ public class TestMultiTypeDataMCMC {
 
         String slvFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv";
         String bldFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/bld.single.csv";
-        String unknownPath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/unknown.csv";
+        String unknownPath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv_unknown_close.csv";
         int[][] rowInfo = new int[][]{new int[]{0, totalObsCount1 - 1}, new int[]{0, totalObsCount2 - 1}};
         int[][][] colInfo = new int[][][]{COL_RANGE, COL_RANGE};
         int[] rowInfoUnknown = new int[]{0, 1};
@@ -131,7 +130,8 @@ public class TestMultiTypeDataMCMC {
         State[] states = new State[]{typeList};
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_18/ex.multiTypeObsWithUnknown_2022_07_18.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_18/ex.multiTypeObsWithUnknown_2022_07_18.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/ex.multiTypeObsWithUnknownEx1_2022_07_22.log";
         MCMC estSubtype = new MCMC(probs, proposals, null, states, 1000000, 100, outputFilePath);
         estSubtype.run();
         //}

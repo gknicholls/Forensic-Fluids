@@ -132,8 +132,8 @@ public class TestMultiTypeColJ2DataMCMC {
 
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
 
-        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/ex.multiTypeObsWithUnknownAtypicalV2Ex1_2022_07_22.log";
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/ex.multiTypeObsWithUnknownAtypicalV2Ex2_2022_07_22.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/ex.multiTypeObsWithUnknownColJ2AtypicalV2Ex1_2022_07_22.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/ex.multiTypeObsWithUnknownColJ2AtypicalV2Ex2_2022_07_22.log";
         MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 1000000, 100, outputFilePath);
         estSubtype.run();
         //}
