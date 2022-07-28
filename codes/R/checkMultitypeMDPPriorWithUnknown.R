@@ -36,7 +36,7 @@ test.multiObs.mcmc.log.df = read.table(file = "/Users/chwu/Documents/research/bf
                                        header = T, as.is = T, sep="\t")
 
 
-multObsPartMat = do.call(rbind, unname(sapply(test.multiObs.mcmc.log.df$Partition, strsplit, split=" ")))
+multObsPartMat = do.call(rbind, unname(sapply(test.multiObs.mcmc.log.df$typeList, strsplit, split=" ")))
 index1 = grep(multObsPartMat[,1], pattern="10")
 temp1 = table(multObsPartMat[index1,1])/sum(table(multObsPartMat[index1,1]))
 test.multiObs.mcmc.parts = names(temp1)
