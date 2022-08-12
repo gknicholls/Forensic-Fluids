@@ -1,4 +1,4 @@
-package scripts;
+package scripts.tests;
 
 import inference.*;
 import model.AbstractProbability;

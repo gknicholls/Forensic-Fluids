@@ -1,4 +1,4 @@
-package scripts;
+package scripts.tests;
 
 import model.AbstractProbability;
 import state.State;

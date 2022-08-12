@@ -1,20 +1,13 @@
-package scripts;
+package scripts.tests;
 
-import inference.AssignSingleRowWrapper;
 import inference.MCMC;
-import inference.OldSingleTypeMCMC;
 import inference.ScaleMove;
 import model.AbstractProbability;
-import model.CompoundClusterPrior;
 import model.DummyLikelihood;
 import model.Gamma;
 import state.Parameter;
 import state.State;
-import state.SubTypeList;
-import state.TypeList;
 import utils.Randomizer;
-
-import java.util.ArrayList;
 
 public class TestScaleMoveProposal {
 
