@@ -79,3 +79,18 @@ getSubtypeSize = function(partition = NULL , unknownLabel = NULL){
   subTypeSize = unname(subTypeSize)
   return(subTypeSize)
 }
+
+
+
+
+getPartsPerType = function(partition = NULL, targetStr = NULL, replaceStr = NULL){
+  partStr = gsub(partition, 
+                 pattern = targetStr, replace = replaceStr)
+  parts = gsub(partStr, pattern = ",", replace = ", ")
+  return(parts)
+}
+
+getSubtypeSizeOfTarget = function(partition = NULL, targetStr = NULL){
+  subTypes = unlist(strsplit(partition, split = "], [", fixed = T))
+  length(unlist(strsplit(subTypes[grep(subTypes , pattern = targetStr)], split=", ")))
+}
