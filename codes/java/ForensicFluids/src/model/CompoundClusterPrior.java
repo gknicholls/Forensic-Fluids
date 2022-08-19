@@ -31,9 +31,20 @@ public class CompoundClusterPrior extends AbstractProbability {
 
         logMultiTypePrior = 0.0;
 
+        int typeObsCount;
+
+        int[] setSizes;
         for(int typeIndex = 0; typeIndex < setLists.getTypeCount(); typeIndex++){
+
+            typeObsCount = 0;
+            setSizes = setLists.getSubTypeSetSizes(typeIndex);
+            for(int setIndex = 0; setIndex < setSizes.length; setIndex++){
+                typeObsCount += setSizes[setIndex];
+            }
+
+            //System.out.println("alpha="+alpha+" max J = "+setCountMax);
             logSingleTypePriors[typeIndex] = ClusterPrior.calcLogMDPDensity(alpha, setCountMax,
-                    setLists.getSubTypeList(typeIndex), singleTypeTotalObsCounts[typeIndex]);
+                    setLists.getSubTypeList(typeIndex), typeObsCount);
             logMultiTypePrior += logSingleTypePriors[typeIndex];
 
         }
@@ -43,7 +54,7 @@ public class CompoundClusterPrior extends AbstractProbability {
     }
 
     public String log(){
-        return ""+ logMultiTypePrior;
+        return ""+ logMultiTypePrior+", "+logSingleTypePriors[0]+", "+logSingleTypePriors[1];
     }
 
     public String logStored(){

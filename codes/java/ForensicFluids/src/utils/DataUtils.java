@@ -60,7 +60,8 @@ public class DataUtils {
             String[] elts;
             int[][] data = new int[rowEnd - rowStart + 1][endCol - startCol + 1];
             int counter = 0;
-            while((line = dataReader.readLine()) != null){
+
+            while((line = dataReader.readLine()) != null & counter< data.length){
                 elts = line.split(",");
                 for(int colIndex = 0; colIndex < data[counter].length; colIndex++){
                     data[counter][colIndex] = Integer.parseInt(elts[startCol + colIndex]);

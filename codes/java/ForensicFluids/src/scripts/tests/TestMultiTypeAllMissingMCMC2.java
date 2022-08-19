@@ -14,7 +14,7 @@ import utils.Randomizer;
 
 import java.util.ArrayList;
 
-public class TestMultiTypeAllMissingMCMC {
+public class TestMultiTypeAllMissingMCMC2 {
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
     public static void main(String[] args){
@@ -22,12 +22,13 @@ public class TestMultiTypeAllMissingMCMC {
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
 
-        TestMultiTypeAllMissingMCMC allMissingProfile = new TestMultiTypeAllMissingMCMC();
+        TestMultiTypeAllMissingMCMC2 allMissingProfile = new TestMultiTypeAllMissingMCMC2();
         try {
 
-            Randomizer.setSeed(123);
-            allMissingProfile.runMultiTypeAllMissingProfileEx1(allPartitionSets5File, allPartitionSets7File);
+            Randomizer.setSeed(333);
             //Randomizer.setSeed(702974802);
+            allMissingProfile.runMultiTypeAllMissingProfileEx1(allPartitionSets5File, allPartitionSets7File);
+            //
             //allMissingProfile.runMultiTypeAllMissingProfileEx3(allPartitionSets5File, allPartitionSets7File);
 
 
@@ -44,15 +45,15 @@ public class TestMultiTypeAllMissingMCMC {
         int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
-        double alphaRow1 = 0.18;
+        double alphaRow1 = 1;
         double alphaRow2 = 0.1894025;
 
         double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
 
 
-        int totalObsCount1 = 81;
-        int totalObsCount2 = 65;
+        int totalObsCount1 = 50;
+        int totalObsCount2 = 5;
 
         int maxClustCount = 5;
         //int maxClustCount = 15;
@@ -81,13 +82,13 @@ public class TestMultiTypeAllMissingMCMC {
             subtypeParts2[0].add(obsIndex);
         }
 
-        subtypeParts2[0].add(146);
+        subtypeParts2[0].add(55);
 
         SubTypeList subTypeList1 = new SubTypeList(subtypeParts1);
         SubTypeList subTypeList2 = new SubTypeList(subtypeParts2);
 
         SubTypeList[] subTypeLists = new SubTypeList[]{subTypeList1, subTypeList2};
-        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, 146);
+        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, 55);
 
         String slvFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv";
         String bldFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/bld.single.csv";
@@ -124,8 +125,13 @@ public class TestMultiTypeAllMissingMCMC {
         AbstractProbability[] probs = new AbstractProbability[]{mdpPrior, lik};
 
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_21/ex.missing_v2_2022_07_21.log";
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_v3_seed123_v2.log";
-        MCMC estSubtype = new MCMC(probs, proposals, new double[]{28.0, 3.0}, states, 1000000, 100, outputFilePath);
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_v3_seed123.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_J2_slv5_bld50_seed123.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_J2_slv2_bld20_seed123.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123_v2.log";
+
+        MCMC estSubtype = new MCMC(probs, proposals, new double[]{1.0, 1.0}, states, 100000, 100, outputFilePath);
         //MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 1000, 100, outputFilePath);
         estSubtype.run();
         //}
@@ -341,8 +347,8 @@ public class TestMultiTypeAllMissingMCMC {
         //int totalObsCount2 = 5;
 
 
-        int totalObsCount1 = 50;
-        int totalObsCount2 = 5;
+        int totalObsCount1 = 5;
+        int totalObsCount2 = 50;
 
         int maxClustCount = 5;
         //int maxClustCount = 15;
@@ -395,8 +401,8 @@ public class TestMultiTypeAllMissingMCMC {
 
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_17/ex.missing_prior_2022_08_17.log";
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_17/ex.missing_prior_alpha2_2022_08_17.log";
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_J2_slv5_bld50_seed123.log";
-        MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 1000000, 10, outputFilePath);
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_17/ex.missing_prior_alpha2_2022_08_18_v2.log";
+        MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 100000, 10, outputFilePath);
         //MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 1000, 100, outputFilePath);
         estSubtype.run();
         //}

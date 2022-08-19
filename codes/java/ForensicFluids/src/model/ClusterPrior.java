@@ -122,24 +122,29 @@ public class ClusterPrior extends AbstractProbability {
 
 
         int setCount = 0;
+
         for(int setIndex = 0; setIndex < setList.getSubTypeMaxCount(); setIndex++){
             //if(setList[setIndex].size() > 0){
             if(setList.getSubTypeSetSize(setIndex) > 0){
                 setCount++;
             }
         }
+        //System.out.println("setCount = "+setCount );
         double frac1 = Gamma.logGamma(alpha) - setCount*Gamma.logGamma(alpha/setCountMax);
         double frac2 = Gamma.logGamma(setCountMax + 1) - Gamma.logGamma(setCountMax - setCount + 1);
         double frac3 = 0.0;
         for(int setIndex = 0; setIndex < setCountMax; setIndex++){
             //if(setList[setIndex].size() > 0) {
             if(setList.getSubTypeSetSize(setIndex) > 0){
-                //frac3 += Gamma.logGamma(alpha / setCountMax + setList[setIndex].size());
+                //System.out.println("frac3 calc1 = "+ alpha+" "+setCountMax+" "+setList.getSubTypeSetSize(setIndex));
                 frac3 += Gamma.logGamma(alpha / setCountMax + setList.getSubTypeSetSize(setIndex));
             }
         }
         frac3 -= Gamma.logGamma(alpha + totalObsCount);
+        //System.out.println("frac3 calc2 = "+ alpha+" "+totalObsCount);
         double logMDP = frac1 + frac2 + frac3;
+
+        //System.out.println("frac1="+frac1+", frac2="+frac2+", frac3="+frac3);
 
         return logMDP;
 
@@ -152,7 +157,9 @@ public class ClusterPrior extends AbstractProbability {
                                            int totalObsCount){
 
 
+
         int setCount = setList.length;
+        //System.out.println("setCount = "+setCount );
         double frac1 = Gamma.logGamma(alpha) - setCount*Gamma.logGamma(alpha/setCountMax);
         double frac2 = Gamma.logGamma(setCountMax + 1) - Gamma.logGamma(setCountMax - setCount + 1);
         double frac3 = 0.0;

@@ -10,16 +10,16 @@ public class CalculateMDPPrior {
     public static void main(String[] args){
         //String allPartitionSets10File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets10.txt";
         //String allPartitionSets3File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets3.txt";
-        String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
+        //String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
         //String allPartitionSets4File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets4.txt";
         //String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets7.txt";
-        //String allPartitionSets6File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets6.txt";
+        String allPartitionSets6File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets6.txt";
         //int totalPartsCount = 115975;
-        int totalPartsCount = 52;
-        int[][][] partitions = getClusterArray(allPartitionSets5File, totalPartsCount);
-        double alpha = 20;
-        int maxSetCount = 4;
-        int totalObsCount = 5;
+        int totalPartsCount = 203;
+        int[][][] partitions = getClusterArray(allPartitionSets6File, totalPartsCount);
+        double alpha = 2;
+        int maxSetCount = 5;
+        int totalObsCount = 6;
         double[] mdpProb = new double[totalPartsCount];
 
         for (int partIndex = 0; partIndex < partitions.length; partIndex++) {
@@ -36,7 +36,7 @@ public class CalculateMDPPrior {
         }
 
         try{
-            PrintWriter writer = new PrintWriter("/Users/chwu/Documents/research/bfc/output/ex.5 obs.mdp_obsMoreJ4.txt");
+            PrintWriter writer = new PrintWriter("/Users/chwu/Documents/research/bfc/output/ex.6obs.mdp_alp2_maxJ5.txt");
             for(int i = 0; i < mdpProb.length; i++){
                 writer.println(mdpProb[i]);
             }
@@ -59,6 +59,7 @@ public class CalculateMDPPrior {
 
                 line = clustReader.readLine().trim();
                 line = line.substring(1, line.length() - 1);
+                System.out.println(line);
 
                 if(line.contains("], [")){
                     clustStr = line.split("\\], \\[");

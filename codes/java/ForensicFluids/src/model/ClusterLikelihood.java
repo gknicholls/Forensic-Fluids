@@ -78,11 +78,12 @@ public class ClusterLikelihood extends AbstractProbability {
                                                     int subtypeIndex){
 
         int partCount = eltsAllPartSet.length;
+        double priorBetaNC = Beta.logBeta(alphaC, betaC);
 
         int s, c;
         double logMarkerLik = 0.0;
 
-        int[] nonZeros;
+        int[] nonZeros = new int[2];
         double[] partLikVec = new double[eltsAllPartSet.length];
         for(int partIndex = 0; partIndex < partCount; partIndex++){
 
@@ -96,16 +97,22 @@ public class ClusterLikelihood extends AbstractProbability {
                 nonZeros = CalculateAmplifiedCount(sample, mkrGrpIndex, eltsAllPartSet[partIndex][setIndex], subtypeSets, subtypeIndex);
                 c = subtypeSets.getSubTypeSetSize(subtypeIndex) * eltsAllPartSet[partIndex][setIndex].length;
                 //logMarkerLik += Beta.logBeta(alphaC + s, betaC + c - s);
-                logMarkerLik += Beta.logBeta(alphaC + nonZeros[0], betaC + c - nonZeros[0] - nonZeros[1]);
+                logMarkerLik += Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]);
                 //System.out.println(alphaC + " "+ s +" "+betaC+" "+c);
                 //System.out.println(Beta.logBeta(alphaC + s, betaC + c - s));
 
 
             }
+            logMarkerLik -= eltsAllPartSet[partIndex].length*priorBetaNC;
+            /*if(nonZeros[0] == 0 && nonZeros[1] ==0){
+                System.out.println("missing:"+logMarkerLik);
+            }else{
+                System.out.println(logMarkerLik);
+            }*/
 
 
             partLikVec[partIndex] = Math.exp(logMarkerLik);
-            //System.out.println(partLikVec[partIndex]);
+
         }
 
         return partLikVec;
@@ -114,18 +121,21 @@ public class ClusterLikelihood extends AbstractProbability {
     }
 
     private static int[] CalculateAmplifiedCount(SingleMarkerData sample,
-                                               int mkrGrpIndex,
-                                               int[] set,
-                                               SubTypeList subtypeSets,
-                                               int subtypeIndex){
+                                                 int mkrGrpIndex,
+                                                 int[] set,
+                                                 SubTypeList subtypeSets,
+                                                 int subtypeIndex){
         int amplified = 0;
         int col;
         int mkrStatus;
         int missingCount = 0;
+        int zeroCount = 0;
+        int oneCount = 0;
 
         for(int colIndex = 0; colIndex < set.length; colIndex++){
 
             col = set[colIndex];
+
 
             for(int rowIndex = 0; rowIndex < subtypeSets.getSubTypeSetSize(subtypeIndex); rowIndex++){
 
@@ -134,10 +144,15 @@ public class ClusterLikelihood extends AbstractProbability {
                 //amplified += sample[subtypeSets.getObs(subtypeIndex, rowIndex)][col];
                 //System.out.println(subtypeIndex+" "+rowIndex);
                 mkrStatus = sample.getData(mkrGrpIndex, subtypeSets.getObs(subtypeIndex, rowIndex), col);
-                if(mkrStatus == -1){
+                /*if(mkrStatus == -1){
                     missingCount++;
                 }else{
                     amplified += mkrStatus;
+                }*/
+                if(mkrStatus == 0){
+                    zeroCount++;
+                }else if(mkrStatus == 1){
+                    oneCount++;
                 }
 
                 //amplified += sample.getData(mkrGrpIndex, subtypeSets.getObs(subtypeIndex, rowIndex), col);
@@ -147,7 +162,7 @@ public class ClusterLikelihood extends AbstractProbability {
         //System.out.println(amplified+" "+set.length+" "+subtypeIndexes.size());
         //System.out.println(amplified+ " " + missingCount);
 
-        return new int[]{amplified, missingCount};
+        return new int[]{zeroCount, oneCount};
 
     }
 

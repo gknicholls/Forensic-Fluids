@@ -58,6 +58,9 @@ public class MCMC {
                 cumSumWeights[i] = prevWeight + weights[i];
                 prevWeight = cumSumWeights[i];
             }
+            for(int i = 0; i < cumSumWeights.length; i++){
+                cumSumWeights[i] = cumSumWeights[i]/ cumSumWeights[cumSumWeights.length - 1];
+            }
         }
 
 
@@ -189,7 +192,9 @@ public class MCMC {
 
     private int getMoveIndex(int stepIndex){
         int currMoveIndex = 0;
-        double r = stepIndex%cumSumWeights[cumSumWeights.length - 1];
+        //double r = stepIndex%cumSumWeights[cumSumWeights.length - 1];
+        double r = Randomizer.nextDouble();
+
         for(int moveIndex = 0; moveIndex < cumSumWeights.length; moveIndex++){
             //System.out.println("proposal: "+r+" "+cumSumWeights[moveIndex]+" "+cumSumWeights[cumSumWeights.length - 1]);
             currMoveIndex = moveIndex;
@@ -198,6 +203,7 @@ public class MCMC {
             }
 
         }
+
         return currMoveIndex;
     }
 
