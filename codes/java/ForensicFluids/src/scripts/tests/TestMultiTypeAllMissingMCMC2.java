@@ -52,8 +52,8 @@ public class TestMultiTypeAllMissingMCMC2 {
 
 
 
-        int totalObsCount1 = 50;
-        int totalObsCount2 = 5;
+        int totalObsCount1 = 5;
+        int totalObsCount2 = 50;
 
         int maxClustCount = 5;
         //int maxClustCount = 15;
@@ -129,9 +129,10 @@ public class TestMultiTypeAllMissingMCMC2 {
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_J2_slv5_bld50_seed123.log";
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_J2_slv2_bld20_seed123.log";
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123.log";
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123_v2.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123_v2.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv5_bld50_seed123_v2.log";
 
-        MCMC estSubtype = new MCMC(probs, proposals, new double[]{1.0, 1.0}, states, 100000, 100, outputFilePath);
+        MCMC estSubtype = new MCMC(probs, proposals, new double[]{3.0, 1.0}, states, 100000, 1, outputFilePath);
         //MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 1000, 100, outputFilePath);
         estSubtype.run();
         //}

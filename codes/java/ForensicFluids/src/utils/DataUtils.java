@@ -230,5 +230,23 @@ public class DataUtils {
         return colPriors;
     }
 
+    public static double[] processSeqsDouble(String seqStr, String regex){
+        String[] seqValuesStr = seqStr.trim().split(regex);
+        double[] seqVals = new double[seqValuesStr.length];
+        for(int index = 0; index < seqVals.length; index++){
+            seqVals[index] = Double.parseDouble(seqValuesStr[index]);
+        }
+        return seqVals;
+    }
+
+    public static int[] processSeqsInteger(String seqStr, String regex){
+        String[] seqValuesStr = seqStr.trim().split(regex);
+        int[] seqVals = new int[seqValuesStr.length];
+        for(int index = 0; index < seqVals.length; index++){
+            seqVals[index] = Integer.parseInt(seqValuesStr[index]);
+        }
+        return seqVals;
+    }
+
 
 }
