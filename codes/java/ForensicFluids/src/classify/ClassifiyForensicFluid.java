@@ -10,6 +10,7 @@ import state.State;
 import state.SubTypeList;
 import state.TypeListWithUnknown;
 import utils.DataUtils;
+import utils.Randomizer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -36,8 +37,9 @@ public class ClassifiyForensicFluid {
     public static String CHAIN_LENGTH = "chainLength";
     public static String LOG_EVERY = "logEvery";
     public static String OUTPUT_PATH = "outputPath";
-    public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
     public static String UNKNOWN_COUNT = "unknownCount";
+    public static String SEED = "seed";
+    public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
 
     private AbstractProbability[] probs;
@@ -160,6 +162,10 @@ public class ClassifiyForensicFluid {
 
             }else if(currLabel.equals(OUTPUT_PATH)){
                 outputFilePath = lineElts[1];
+            }else if(currLabel.equals(SEED)){
+                int seed = Integer.parseInt(lineElts[1]);
+                System.out.println("Seed: " + seed);
+                Randomizer.setSeed(seed);
             }
         }
         inputReader.close();
@@ -172,7 +178,7 @@ public class ClassifiyForensicFluid {
                 trainingRNAProfilePathList, unknownPath, totalObsCounts, colRange, unknownCount, typeList);
 
         Parameter[] shapeAParams = setupShapeParameters(colShapeAList, "shapeA");
-        Parameter[] shapeBParams = setupShapeParameters(colShapeAList, "shapeB");
+        Parameter[] shapeBParams = setupShapeParameters(colShapeBList, "shapeB");
         proposals = setUpProposalMoves(typeList);
 
         probs = setUpPosterior(alphaRow, maxRowClustCount, totalObsCounts,
@@ -193,6 +199,7 @@ public class ClassifiyForensicFluid {
 
         int totalCount = 0;
         SubTypeList[] subTypeLists = new SubTypeList[totalObsCounts.length];
+
         for(int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++){
             totalCount += totalObsCounts[typeIndex];
 
@@ -217,7 +224,7 @@ public class ClassifiyForensicFluid {
 
 
 
-        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, -1);
+        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, totalCount);
         return typeList;
     }
 

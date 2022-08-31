@@ -53,8 +53,23 @@ public class CompoundClusterPrior extends AbstractProbability {
 
     }
 
+    public String getLabel(){
+
+        String newLabel = label;
+        for(int typeIndex = 0; typeIndex < setLists.getTypeCount(); typeIndex++){
+            newLabel+= "\t"+label+"."+typeIndex;
+        }
+        
+        return newLabel;
+    }
+
     public String log(){
-        return ""+ logMultiTypePrior+", "+logSingleTypePriors[0]+", "+logSingleTypePriors[1];
+        String logCompClustPrior = ""+logMultiTypePrior;
+        for(int typeIndex = 0; typeIndex < logSingleTypePriors.length; typeIndex++){
+            logCompClustPrior+=("\t" + logSingleTypePriors[typeIndex]);
+        }
+
+        return logCompClustPrior;
     }
 
     public String logStored(){

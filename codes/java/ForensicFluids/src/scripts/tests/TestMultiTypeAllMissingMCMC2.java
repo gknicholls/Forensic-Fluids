@@ -10,6 +10,7 @@ import state.Parameter;
 import state.State;
 import state.SubTypeList;
 import state.TypeListWithUnknown;
+import utils.DataUtils;
 import utils.Randomizer;
 
 import java.util.ArrayList;
@@ -42,13 +43,13 @@ public class TestMultiTypeAllMissingMCMC2 {
 
     private void runMultiTypeAllMissingProfileEx1(String allPartitionSets5File,
                                                String allPartitionSets7File) throws Exception{
-        int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
         double alphaRow1 = 1;
         double alphaRow2 = 0.1894025;
 
-        double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = DataUtils.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
 
 
@@ -130,7 +131,9 @@ public class TestMultiTypeAllMissingMCMC2 {
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_18_J2_slv2_bld20_seed123.log";
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123.log";
         //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv2_bld20_seed123_v2.log";
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv5_bld50_seed123_v2.log";
+        //String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_18/ex.missing_v2_2022_08_19_J2_slv5_bld50_seed123_v2.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_08_31/ex.missing_2022_08_31_J5_slv5_bld50_seed333.log";
+
 
         MCMC estSubtype = new MCMC(probs, proposals, new double[]{3.0, 1.0}, states, 100000, 1, outputFilePath);
         //MCMC estSubtype = new MCMC(probs, proposals, new double[]{8.0, 2.0}, states, 1000, 100, outputFilePath);
