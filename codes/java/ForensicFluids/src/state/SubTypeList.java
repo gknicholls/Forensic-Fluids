@@ -66,7 +66,10 @@ public class SubTypeList extends AbstractState {
         int[] setSizes = getSubTypeSetSizes();
         int notEmptySetCount = 0;
         for(int setIndex = 0; setIndex < setSizes.length; setIndex++){
-            notEmptySetCount++;
+            if(setSizes[setIndex] > 0.0){
+                notEmptySetCount++;
+            }
+
         }
         return notEmptySetCount;
     }

@@ -1,5 +1,6 @@
-package model;
+package distribution;
 
+import model.AbstractProbability;
 import state.Parameter;
 
 public class Gamma extends AbstractProbability {
@@ -8,8 +9,7 @@ public class Gamma extends AbstractProbability {
     private Parameter x;
     private GammaDistributionImpl distr;
     private boolean update;
-    private double logP;
-    private double storedLogP;
+
     private int paramIndex;
 
     public Gamma(String label,
@@ -86,22 +86,16 @@ public class Gamma extends AbstractProbability {
     }
 
     public void store(){
-       storedLogP = logP;
+       super.store();
        update = false;
     }
 
     public void restore(){
-        storedLogP = logP;
+        super.restore();
         update = false;
     }
 
 
 
-    public String log() {
-        return ""+logP;
-    }
 
-    public String logStored() {
-        return ""+storedLogP;
-    }
 }

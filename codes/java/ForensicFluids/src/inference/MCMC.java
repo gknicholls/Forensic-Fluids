@@ -203,6 +203,7 @@ public class MCMC {
             }
 
         }
+        //System.out.println("currMoveIndex: " +currMoveIndex);
 
         return currMoveIndex;
     }

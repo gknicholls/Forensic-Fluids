@@ -12,6 +12,10 @@ public class Parameter extends AbstractState {
 
 
 
+    public Parameter(String label){
+        super(label);
+
+    }
 
     public Parameter(String label, double[] values){
         this(label, values, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);

@@ -59,7 +59,7 @@ public class CompoundClusterPrior extends AbstractProbability {
         for(int typeIndex = 0; typeIndex < setLists.getTypeCount(); typeIndex++){
             newLabel+= "\t"+label+"."+typeIndex;
         }
-        
+
         return newLabel;
     }
 

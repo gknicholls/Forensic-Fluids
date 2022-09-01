@@ -1,7 +1,7 @@
 package test;
 
 import junit.framework.TestCase;
-import model.Gamma;
+import distribution.Gamma;
 import state.Parameter;
 
 public class TestGamma extends TestCase {

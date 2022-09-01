@@ -1,14 +1,12 @@
 package classify;
 
 import data.CompoundMarkerDataWithUnknown;
+import distribution.Multinomial;
 import inference.*;
 import model.AbstractProbability;
 import model.CompoundClusterLikelihood;
 import model.CompoundClusterPrior;
-import state.Parameter;
-import state.State;
-import state.SubTypeList;
-import state.TypeListWithUnknown;
+import state.*;
 import utils.DataUtils;
 import utils.Randomizer;
 
@@ -38,6 +36,7 @@ public class ClassifiyForensicFluid {
     public static String LOG_EVERY = "logEvery";
     public static String OUTPUT_PATH = "outputPath";
     public static String UNKNOWN_COUNT = "unknownCount";
+    public static String UNKNOWN_TYPE_PRIOR = "unknownTypePrior";
     public static String SEED = "seed";
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
@@ -97,6 +96,8 @@ public class ClassifiyForensicFluid {
         String unknownPath = null;
         ArrayList<String> colShapeAList = new ArrayList<>();
         ArrayList<String> colShapeBList = new ArrayList<>();
+
+        double[] unknownTypePriorParamVals = null;
 
         int unknownCount = 1;
 
@@ -160,8 +161,10 @@ public class ClassifiyForensicFluid {
 
                 logEvery = Integer.parseInt(lineElts[1]);
 
-            }else if(currLabel.equals(OUTPUT_PATH)){
+            }else if(currLabel.equals(OUTPUT_PATH)) {
                 outputFilePath = lineElts[1];
+            }else if(currLabel.equals(UNKNOWN_TYPE_PRIOR)){
+                unknownTypePriorParamVals = DataUtils.processSeqsDouble(lineElts[1], ",");
             }else if(currLabel.equals(SEED)){
                 int seed = Integer.parseInt(lineElts[1]);
                 System.out.println("Seed: " + seed);
@@ -181,9 +184,17 @@ public class ClassifiyForensicFluid {
         Parameter[] shapeBParams = setupShapeParameters(colShapeBList, "shapeB");
         proposals = setUpProposalMoves(typeList);
 
+
+
+        unknownTypePriorParamVals = setUpUnknownTypePrior(unknownTypePriorParamVals, typeList);
+
+        System.out.println("unknownTypePriorParamVals: "+unknownTypePriorParamVals.length);
+        UnlabelledTypeWrapperParameter unknownTypeParam = new UnlabelledTypeWrapperParameter("unknownType", typeList);
+
         probs = setUpPosterior(alphaRow, maxRowClustCount, totalObsCounts,
-                typeList, mkrGrpPartitions, colPriors, dataSets, shapeAParams, shapeBParams);
-        states = new State[]{typeList};
+                typeList, mkrGrpPartitions, colPriors, dataSets, shapeAParams, shapeBParams,
+                unknownTypePriorParamVals, unknownTypeParam);
+        states = new State[]{typeList, unknownTypeParam};
 
 
 
@@ -265,6 +276,18 @@ public class ClassifiyForensicFluid {
 
     }
 
+    private double[] setUpUnknownTypePrior(double[] unknownTypePriorParamVals,
+                                            TypeList typeList){
+        if(unknownTypePriorParamVals == null){
+            unknownTypePriorParamVals = new double[typeList.getTypeCount()];
+            for(int typeIndex = 0; typeIndex < unknownTypePriorParamVals.length; typeIndex++){
+                unknownTypePriorParamVals[typeIndex] = 1.0/unknownTypePriorParamVals.length;
+            }
+        }
+        return unknownTypePriorParamVals;
+
+    }
+
     private ProposalMove[] setUpProposalMoves(TypeListWithUnknown typeList){
         AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
         AssignBetweenTypes btwnTypeMove = new AssignBetweenTypes(typeList);
@@ -281,7 +304,13 @@ public class ClassifiyForensicFluid {
                                                double[][] colPriors,
                                                CompoundMarkerDataWithUnknown dataSets,
                                                Parameter[] shapeA,
-                                               Parameter[] shapeB){
+                                               Parameter[] shapeB,
+                                                 double[] unknownTypePriorParam,
+                                                 Parameter unknownTypeParam){
+
+        Multinomial typePrior = new Multinomial("unknownTypePrior",
+                unknownTypeParam, unknownTypePriorParam);
+
         CompoundClusterPrior mdpPrior = null;
         if(alphaRow.length == 1){
             mdpPrior = new CompoundClusterPrior(
@@ -294,7 +323,7 @@ public class ClassifiyForensicFluid {
                 shapeB,
                 typeList);
 
-        return new AbstractProbability[]{mdpPrior, lik};
+        return new AbstractProbability[]{typePrior, mdpPrior, lik};
 
     }
 

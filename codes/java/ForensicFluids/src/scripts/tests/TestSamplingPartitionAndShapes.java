@@ -1,6 +1,7 @@
 package scripts.tests;
 
 import data.CompoundMarkerData;
+import distribution.Gamma;
 import inference.*;
 import model.*;
 import state.*;

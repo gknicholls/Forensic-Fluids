@@ -116,9 +116,11 @@ public class AssignBetweenTypes implements ProposalMove{
         }else{
             //log(1.0/(currTypeSubtypeCount + 1.0));
             fwd = -Math.log(propTypeNonEmptySets.size() + 1.0);
+            //System.out.println(propTypeNonEmptySets.size() + 1.0);
             if(isSingleton){
                 //log(1.0/currTypeSubtypeCount);
                 bwd = -Math.log(currTypeSubtypeCount);
+                //System.out.println(currTypeSubtypeCount);
             }else{
                 //log(1.0/(currTypeSubtypeCount + 1.0));
                 bwd = -Math.log(currTypeSubtypeCount + 1.0);

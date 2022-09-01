@@ -4,7 +4,7 @@ import inference.*;
 import model.AbstractProbability;
 import model.CompoundClusterPrior;
 import model.DummyLikelihood;
-import model.Gamma;
+import distribution.Gamma;
 import state.Parameter;
 import state.State;
 import state.SubTypeList;

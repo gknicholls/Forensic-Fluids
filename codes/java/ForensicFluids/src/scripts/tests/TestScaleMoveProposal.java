@@ -4,7 +4,7 @@ import inference.MCMC;
 import inference.ScaleMove;
 import model.AbstractProbability;
 import model.DummyLikelihood;
-import model.Gamma;
+import distribution.Gamma;
 import state.Parameter;
 import state.State;
 import utils.Randomizer;

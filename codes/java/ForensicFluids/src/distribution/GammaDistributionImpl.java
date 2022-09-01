@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package model;
+package distribution;
 
 import org.apache.commons.math3.distribution.AbstractRealDistribution;
 

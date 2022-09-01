@@ -45,6 +45,12 @@ public class AssignSingleRow implements ProposalMove{
         ArrayList<Integer> propNonEmptySet = new ArrayList<>();
         ArrayList<Integer> currEmptySet = new ArrayList<>();
         int[] currSetSizes = subtypesList.getSubTypeSetSizes();
+        /*System.out.print("setSizes: ");
+        for(int setIndex = 0; setIndex < currSetSizes.length; setIndex++){
+            System.out.print(currSetSizes[setIndex]+" ");
+
+        }
+        System.out.println();*/
         for(int setIndex = 0; setIndex < setMaxCount; setIndex++){
             if(currSetSizes[setIndex] > 0){
                 currNonEmptySet.add(setIndex);
@@ -93,6 +99,14 @@ public class AssignSingleRow implements ProposalMove{
             //subtypesList[propSetIndex].add(obs);
 
         }else{
+
+
+            if(currNonEmptySet.size() == 1 && currSetSizes[currNonEmptySet.get(0)]==1){
+                return Double.NEGATIVE_INFINITY;
+            }
+
+
+
 
             propClustOption = Randomizer.nextInt(currNonEmptySet.size() - 1); // possible values are 0 ... K - 2.
             propClustOption = propClustOption < currNonEmptySetIndex? propClustOption : propClustOption + 1;
