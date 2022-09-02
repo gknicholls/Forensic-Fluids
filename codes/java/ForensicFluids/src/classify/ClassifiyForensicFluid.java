@@ -315,6 +315,9 @@ public class ClassifiyForensicFluid {
         if(alphaRow.length == 1){
             mdpPrior = new CompoundClusterPrior(
                     "multiTypeMDP", alphaRow[0], maxRowClustCount, totalObsCounts, typeList);
+        }else{
+            mdpPrior = new CompoundClusterPrior(
+                    "multiTypeMDP", alphaRow, maxRowClustCount, totalObsCounts, typeList);
         }
 
         CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood",

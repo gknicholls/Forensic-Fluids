@@ -8,7 +8,7 @@ public class CompoundClusterPrior extends AbstractProbability {
     private double[] storedLogSingleTypePriors;
     private double logMultiTypePrior;
     private double storedLogMultiTypePrior;
-    private double alpha;
+    private double[] alpha;
     private int setCountMax;
     private int[] singleTypeTotalObsCounts;
     private TypeList setLists;
@@ -19,12 +19,37 @@ public class CompoundClusterPrior extends AbstractProbability {
                                 int[] singleTypeTotalObsCounts,
                                 TypeList setLists){
         super(label);
+
+        double[] alphaVals = new double[setLists.getTypeCount()];
+        for(int typeIndex = 0; typeIndex < alphaVals.length; typeIndex++){
+            alphaVals[typeIndex] = alpha;
+        }
+
+        setup(alphaVals, setCountMax, singleTypeTotalObsCounts, setLists);
+    }
+
+    public CompoundClusterPrior(String label,
+                                double[] alpha,
+                                int setCountMax,
+                                int[] singleTypeTotalObsCounts,
+                                TypeList setLists){
+        super(label);
+        setup(alpha, setCountMax, singleTypeTotalObsCounts, setLists);
+
+    }
+
+    private void setup(double[] alpha,
+                       int setCountMax,
+                       int[] singleTypeTotalObsCounts,
+                       TypeList setLists){
         this.alpha = alpha;
         this.setCountMax = setCountMax;
         this.singleTypeTotalObsCounts = singleTypeTotalObsCounts;
         this.setLists = setLists;
-        logSingleTypePriors = new double[setLists.getTypeCount()];
+
+        logSingleTypePriors = new double[this.setLists.getTypeCount()];
         storedLogSingleTypePriors = new double[logSingleTypePriors.length];
+
     }
 
     public double calcLogMDPDensity(){
@@ -43,7 +68,8 @@ public class CompoundClusterPrior extends AbstractProbability {
             }
 
             //System.out.println("alpha="+alpha+" max J = "+setCountMax);
-            logSingleTypePriors[typeIndex] = ClusterPrior.calcLogMDPDensity(alpha, setCountMax,
+            logSingleTypePriors[typeIndex] = ClusterPrior.calcLogMDPDensity(
+                    alpha[typeIndex], setCountMax,
                     setLists.getSubTypeList(typeIndex), typeObsCount);
             logMultiTypePrior += logSingleTypePriors[typeIndex];
 
