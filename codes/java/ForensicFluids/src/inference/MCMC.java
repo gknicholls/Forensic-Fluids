@@ -242,10 +242,16 @@ public class MCMC {
         try{
 
             PrintWriter proposalWriter = new PrintWriter(outputFilePath);
+            double acceptCount = 0;
+            double rejectCount = 0;
+
             for(ProposalMove proposal: proposals){
+                acceptCount = proposal.getAcceptCount();
+                rejectCount = proposal.getRejectCount();
                 proposalWriter.println(proposal.getClass()+"\t"+
-                        proposal.getAcceptCount()+"\t"+
-                        proposal.getRejectCount());
+                        acceptCount+"\t"+
+                        rejectCount+"\t"+
+                        acceptCount/rejectCount);
             }
             proposalWriter.close();
 
