@@ -6,13 +6,14 @@ import utils.Randomizer;
 import java.util.ArrayList;
 
 
-public class AssignSingleRow implements ProposalMove{
+public class AssignSingleRow extends ProposalMove{
 
     private SubTypeList subtypesList;
     public AssignSingleRow(){
-
+        super();
     }
     public AssignSingleRow(SubTypeList subtypesList){
+        super();
         this.subtypesList = subtypesList;
     }
 

@@ -4,10 +4,11 @@ import state.TypeList;
 import state.TypeListWithUnknown;
 import utils.Randomizer;
 
-public class AssignSingleRowWrapper extends AssignSingleRow implements ProposalMove{
+public class AssignSingleRowWrapper extends AssignSingleRow {
 
     private TypeList typeList;
     public AssignSingleRowWrapper(TypeList typeList){
+        super();
         this.typeList = typeList;
     }
 

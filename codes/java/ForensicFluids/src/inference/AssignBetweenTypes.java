@@ -5,7 +5,7 @@ import utils.Randomizer;
 
 import java.util.ArrayList;
 
-public class AssignBetweenTypes implements ProposalMove{
+public class AssignBetweenTypes extends ProposalMove{
 
     private ArrayList<Integer> propTypeNonEmptySets;
     private ArrayList<Integer> propTypeEmptySets;
@@ -13,6 +13,7 @@ public class AssignBetweenTypes implements ProposalMove{
     private TypeListWithUnknown typeList;
 
     public AssignBetweenTypes(TypeListWithUnknown typeList){
+        super();
         this.typeList = typeList;
     }
 

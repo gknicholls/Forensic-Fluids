@@ -4,7 +4,9 @@ import state.State;
 import model.AbstractProbability;
 import utils.Randomizer;
 
+import java.io.File;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 
 public class MCMC {
     private AbstractProbability[] probs;
@@ -68,6 +70,10 @@ public class MCMC {
 
     public void run(){
         try {
+            File outputFile = new File(outputFilePath);
+            if(outputFile.exists()){
+                throw new RuntimeException("File already exists" +outputFilePath);
+            }
 
             PrintStream output = new PrintStream(outputFilePath);
 
@@ -153,6 +159,7 @@ public class MCMC {
                     currLogPost = propLogPost;
                     //currLogPrior = propLogPrior;
                     //currLogLik = propLogLik;
+                    proposalMoves[currProposalIndex].countAccept(ProposalMove.ACCEPT);
                 } else {
                     //System.out.println("reject1");
                     for(State state:states){
@@ -167,6 +174,7 @@ public class MCMC {
                         probs[probIndex].restore();
                     }
                     //System.out.println("reject2");
+                    proposalMoves[currProposalIndex].countAccept(ProposalMove.REJECT);
 
 
                 }
@@ -183,6 +191,8 @@ public class MCMC {
 
             }
             output.close();
+
+            proposalPerformance(outputFilePath+".ops", proposalMoves);
         }catch(Exception e){
             throw new RuntimeException(e);
         }
@@ -225,6 +235,23 @@ public class MCMC {
         }
 
         output.println("\t" + logHR + "\t" + logMHR+ "\t" + draw);
+
+    }
+
+    private void proposalPerformance(String outputFilePath, ProposalMove[] proposals){
+        try{
+
+            PrintWriter proposalWriter = new PrintWriter(outputFilePath);
+            for(ProposalMove proposal: proposals){
+                proposalWriter.println(proposal.getClass()+"\t"+
+                        proposal.getAcceptCount()+"\t"+
+                        proposal.getRejectCount());
+            }
+            proposalWriter.close();
+
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
 
     }
 

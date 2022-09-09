@@ -3,12 +3,13 @@ package inference;
 import state.Parameter;
 import utils.Randomizer;
 
-public class ScaleMove implements ProposalMove{
+public class ScaleMove extends ProposalMove{
 
     private Parameter parameter;
     private double scaleFactor;
 
     public ScaleMove(Parameter parameter, double scaleFactor){
+        super();
         this.parameter = parameter;
         this.scaleFactor = scaleFactor;
     }
