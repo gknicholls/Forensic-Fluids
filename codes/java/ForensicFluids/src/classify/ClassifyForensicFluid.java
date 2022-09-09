@@ -15,8 +15,10 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class ClassifiyForensicFluid {
+public class ClassifyForensicFluid {
 
     private String inputFile;
 
@@ -50,11 +52,14 @@ public class ClassifiyForensicFluid {
     private int logEvery;
     private String outputFilePath;
 
+    static public int threadCount = 1;
+    public static ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+
     public static void main(String[] args){
 
         try {
 
-            ClassifiyForensicFluid bfc = new ClassifiyForensicFluid(args[0]);
+            ClassifyForensicFluid bfc = new ClassifyForensicFluid(args[0]);
 
             bfc.runMCMC();
 
@@ -64,7 +69,7 @@ public class ClassifiyForensicFluid {
         }
     }
 
-    public ClassifiyForensicFluid(String inputFile) throws Exception{
+    public ClassifyForensicFluid(String inputFile) throws Exception{
         this.inputFile = inputFile;
         colRange = COL_RANGE;
         chainLength = -1;
@@ -203,7 +208,10 @@ public class ClassifiyForensicFluid {
 
     public void runMCMC(){
         MCMC estSubtype = new MCMC(probs, proposals, weights, states, chainLength, logEvery, outputFilePath);
+        executor = Executors.newFixedThreadPool(threadCount);
         estSubtype.run();
+        executor.shutdown();
+        executor.shutdownNow();
     }
 
     private TypeListWithUnknown createTypeList(int[] totalObsCounts, int maxRowClustCount){
