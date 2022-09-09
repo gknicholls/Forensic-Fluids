@@ -52,8 +52,10 @@
         </java>
     </target>
 
+    <target name="clean-build" depends="clean,jar"/>
 
-    <target name="clean-build" depends="clean,jar">
+
+    <target name="clean-build-clean" depends="clean,jar">
         <delete dir="build/classes"/>
     </target>
 
