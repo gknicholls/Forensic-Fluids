@@ -53,7 +53,9 @@
     </target>
 
 
-    <target name="clean-build" depends="clean,jar"/>
+    <target name="clean-build" depends="clean,jar">
+        <delete dir="build/classes"/>
+    </target>
 
     <target name="main" depends="clean,run"/>
 
