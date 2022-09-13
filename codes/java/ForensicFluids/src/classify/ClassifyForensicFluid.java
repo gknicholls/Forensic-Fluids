@@ -59,15 +59,31 @@ public class ClassifyForensicFluid {
 
         try {
 
-            ClassifyForensicFluid bfc = new ClassifyForensicFluid(args[0]);
+            if(args.length == 1){
+                ClassifyForensicFluid bfc = new ClassifyForensicFluid(args[0]);
 
-            bfc.runMCMC();
+                bfc.run();
+            }else if(args.length == 2){
 
+                if(!args[0].equals("-fileSeq")){
+                    throw new RuntimeException("When have multiple input files, the option label should be -fileSeq");
+                }
+
+                BufferedReader inputFilePathReader = new BufferedReader(new FileReader(args[1]));
+                String inputFilePath = "";
+                while((inputFilePath = inputFilePathReader.readLine()) != null){
+                    ClassifyForensicFluid bfc = new ClassifyForensicFluid(inputFilePath);
+                    bfc.run();
+                }
+            }
 
         }catch(Exception e){
             throw new RuntimeException(e);
         }
     }
+
+
+
 
     public ClassifyForensicFluid(String inputFile) throws Exception{
         this.inputFile = inputFile;
@@ -206,7 +222,7 @@ public class ClassifyForensicFluid {
 
     }
 
-    public void runMCMC(){
+    public void run(){
         MCMC estSubtype = new MCMC(probs, proposals, weights, states, chainLength, logEvery, outputFilePath);
         executor = Executors.newFixedThreadPool(threadCount);
         estSubtype.run();
