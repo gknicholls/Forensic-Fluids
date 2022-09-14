@@ -88,7 +88,14 @@ public class CompoundClusterLikelihood extends AbstractProbability {
     }
 
     public String log(){
-        return "" + logMultiTypeLikelihood;
+
+
+        String logCompLik = "" + logMultiTypeLikelihood;
+        for(int typeIndex = 0; typeIndex < logMultiTypeLikelihoods.length; typeIndex++){
+            logCompLik+=("\t" + logMultiTypeLikelihoods[typeIndex]);
+        }
+        //return "" + logMultiTypeLikelihood;
+        return logCompLik;
     }
 
     public String logStored(){
