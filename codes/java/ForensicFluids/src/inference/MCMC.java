@@ -70,6 +70,8 @@ public class MCMC {
 
     public void run(){
         try {
+            double startTime = System.currentTimeMillis();
+
             File outputFile = new File(outputFilePath);
             if(outputFile.exists()){
                 throw new RuntimeException("File already exists" +outputFilePath);
@@ -192,7 +194,9 @@ public class MCMC {
             }
             output.close();
 
-            proposalPerformance(outputFilePath+".ops", proposalMoves);
+            double endTime = System.currentTimeMillis();
+
+            proposalPerformance(outputFilePath+".ops", proposalMoves, endTime - startTime);
         }catch(Exception e){
             throw new RuntimeException(e);
         }
@@ -238,12 +242,14 @@ public class MCMC {
 
     }
 
-    private void proposalPerformance(String outputFilePath, ProposalMove[] proposals){
+    private void proposalPerformance(String outputFilePath, ProposalMove[] proposals, double runtime){
         try{
 
             PrintWriter proposalWriter = new PrintWriter(outputFilePath);
             double acceptCount = 0;
             double rejectCount = 0;
+
+            proposalWriter.println("# Total calculation time: "+(runtime/1000.0));
 
             for(ProposalMove proposal: proposals){
                 acceptCount = proposal.getAcceptCount();
