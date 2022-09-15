@@ -249,6 +249,7 @@ public class MCMC {
             double acceptCount = 0;
             double rejectCount = 0;
 
+            proposalWriter.println("# Seed for random number generation: " + Randomizer.getSeed());
             runtime = runtime/1000.0;
             if(runtime < 60.0){
                 proposalWriter.println("# Total calculation time: "+ runtime +" seconds.");
