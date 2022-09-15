@@ -40,7 +40,7 @@ calcLikIntAllPart = function(eltsAllPartSet = NULL,
       colPart0Count = colPartCellCount - colPart1Count
       ## Update the likelihood of that partition.
       pXgvColPartVec[partIndex] = pXgvColPartVec[partIndex] * 
-        beta(alphaC + colPart1Count, betaC + colPart0Count)
+        beta(alphaC + colPart1Count, betaC + colPart0Count) / beta(alphaC, betaC)
       
       # message(paste(alphaC,  colPart1Count, betaC,  colPartCellCount, colPart0Count, sep = " "))
       # message(lbeta(alphaC + colPart1Count, betaC + colPart0Count))
