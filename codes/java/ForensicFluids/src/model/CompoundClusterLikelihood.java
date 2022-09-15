@@ -42,6 +42,8 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         }
     }
 
+
+
     public CompoundClusterLikelihood(String label,
                                      int[][][][] eltsAllPartSetList,
                                      double[][] eltsAllPartSetPriorList,
@@ -85,6 +87,16 @@ public class CompoundClusterLikelihood extends AbstractProbability {
 
         //System.out.println("all log-lik"+ logMultiTypeLikelihood);
         return(logMultiTypeLikelihood);
+    }
+
+    public String getLabel(){
+
+        String newLabel = label;
+        for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
+            newLabel+= "\t"+label+"."+typeIndex;
+        }
+
+        return newLabel;
     }
 
     public String log(){

@@ -249,7 +249,20 @@ public class MCMC {
             double acceptCount = 0;
             double rejectCount = 0;
 
-            proposalWriter.println("# Total calculation time: "+(runtime/1000.0));
+            runtime = runtime/1000.0;
+            if(runtime < 60.0){
+                proposalWriter.println("# Total calculation time: "+ runtime +" seconds.");
+            }else{
+                runtime = runtime/60.0;
+                if(runtime < 60.0){
+                    proposalWriter.println("# Total calculation time: "+ runtime +" minutes.");
+                }else{
+                    runtime = runtime/60.0;
+                    proposalWriter.println("# Total calculation time: "+ runtime +" hours.");
+                }
+            }
+
+
 
             for(ProposalMove proposal: proposals){
                 acceptCount = proposal.getAcceptCount();
