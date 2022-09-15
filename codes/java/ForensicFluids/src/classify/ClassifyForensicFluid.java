@@ -121,7 +121,7 @@ public class ClassifyForensicFluid {
         double[] unknownTypePriorParamVals = null;
 
         int unknownCount = 1;
-
+        long seed = Randomizer.getSeed();
         while((line = inputReader.readLine()) != null){
             lineElts = line.split("\t");
             currLabel = lineElts[0].trim();
@@ -187,12 +187,16 @@ public class ClassifyForensicFluid {
             }else if(currLabel.equals(UNKNOWN_TYPE_PRIOR)){
                 unknownTypePriorParamVals = DataUtils.processSeqsDouble(lineElts[1], ",");
             }else if(currLabel.equals(SEED)){
-                int seed = Integer.parseInt(lineElts[1]);
-                System.out.println("Seed: " + seed);
+                seed = Integer.parseInt(lineElts[1]);
+
                 Randomizer.setSeed(seed);
             }
         }
         inputReader.close();
+
+
+
+        System.out.println("Seed: " + seed);
 
         int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double[][] colPriors = DataUtils.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
