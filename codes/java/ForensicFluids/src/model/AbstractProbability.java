@@ -16,7 +16,7 @@ public abstract class AbstractProbability extends AbstractState {
     }
 
     public void restore(){
-        storedLogP = logP;
+        logP = storedLogP ;
     }
 
     public String log() {

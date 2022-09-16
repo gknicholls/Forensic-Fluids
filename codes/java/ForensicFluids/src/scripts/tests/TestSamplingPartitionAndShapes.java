@@ -69,21 +69,32 @@ public class TestSamplingPartitionAndShapes {
         Parameter shapeB = new Parameter("shape.b", new double[]{1.0, 1.0, 1.0, 1.0, 1.0}, 0);
 
 
-        Parameter gammaShape0 = new Parameter("gamma.shape", new double[]{100}, 0);
-        Parameter gammaScale0 = new Parameter("gamma.scale", new double[]{0.001}, 0);
+        Parameter gammaShape0a = new Parameter("gamma.shape", new double[]{0.01}, 0);
+        Parameter gammaScale0a = new Parameter("gamma.scale", new double[]{100}, 0);
+
+        Parameter gammaShape0b = new Parameter("gamma.shape", new double[]{0.01}, 0);
+        Parameter gammaScale0b = new Parameter("gamma.scale", new double[]{100}, 0);
 
 
-        ScaleMove scaleMove = new ScaleMove(shapeA, 0.75);
+        ScaleMove scaleMoveA = new ScaleMove(shapeA, 0.1);
+        ScaleMove scaleMoveB = new ScaleMove(shapeB, 0.1);
         AssignSingleRowWrapper singleRowMove = new AssignSingleRowWrapper(typeList);
-        ProposalMove[] proposalMoves = new ProposalMove[]{scaleMove, singleRowMove};
-        double[] proposalWeights = new double[]{1.0, 1.0};
+        ProposalMove[] proposalMoves = new ProposalMove[]{scaleMoveA, scaleMoveB, singleRowMove};
+        double[] proposalWeights = new double[]{1.0, 1.0, 10.0};
 
 
-        Gamma gammaPrior0 = new Gamma("gammaPrior.0", gammaShape0, gammaScale0, shapeA, 0);
-        Gamma gammaPrior1 = new Gamma("gammaPrior.1", gammaShape0, gammaScale0, shapeA, 1);
-        Gamma gammaPrior2 = new Gamma("gammaPrior.2", gammaShape0, gammaScale0, shapeA, 2);
-        Gamma gammaPrior3 = new Gamma("gammaPrior.3", gammaShape0, gammaScale0, shapeA, 3);
-        Gamma gammaPrior4 = new Gamma("gammaPrior.4", gammaShape0, gammaScale0, shapeA, 4);
+        Gamma gammaPrior0a = new Gamma("gammaPrior.a0", gammaShape0a, gammaScale0a, shapeA, 0);
+        Gamma gammaPrior1a = new Gamma("gammaPrior.a1", gammaShape0a, gammaScale0a, shapeA, 1);
+        Gamma gammaPrior2a = new Gamma("gammaPrior.a2", gammaShape0a, gammaScale0a, shapeA, 2);
+        Gamma gammaPrior3a = new Gamma("gammaPrior.a3", gammaShape0a, gammaScale0a, shapeA, 3);
+        Gamma gammaPrior4a = new Gamma("gammaPrior.a4", gammaShape0a, gammaScale0a, shapeA, 4);
+
+        Gamma gammaPrior0b = new Gamma("gammaPrior.b0", gammaShape0b, gammaScale0b, shapeB, 0);
+        Gamma gammaPrior1b = new Gamma("gammaPrior.b1", gammaShape0b, gammaScale0b, shapeB, 1);
+        Gamma gammaPrior2b = new Gamma("gammaPrior.b2", gammaShape0b, gammaScale0b, shapeB, 2);
+        Gamma gammaPrior3b = new Gamma("gammaPrior.b3", gammaShape0b, gammaScale0b, shapeB, 3);
+        Gamma gammaPrior4b = new Gamma("gammaPrior.b4", gammaShape0b, gammaScale0b, shapeB, 4);
+
         CompoundClusterPrior mdpPrior =
                 new CompoundClusterPrior("multiTypeMDP", alphaRow,
                         maxClustCount, new int[]{totalObsCount}, typeList);
@@ -93,11 +104,12 @@ public class TestSamplingPartitionAndShapes {
                 new Parameter[]{shapeB},
                 typeList);
         AbstractProbability[] probs = new AbstractProbability[]{lik, mdpPrior,
-                gammaPrior0, gammaPrior1, gammaPrior2, gammaPrior3, gammaPrior4};
-        State[] states = new State[]{subTypeList, shapeA};
+                gammaPrior0a, gammaPrior1a, gammaPrior2a, gammaPrior3a, gammaPrior4a,
+                gammaPrior0b, gammaPrior1b, gammaPrior2b, gammaPrior3b, gammaPrior4b};
+        State[] states = new State[]{shapeA, shapeB, typeList};
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_15/test_slv_single_7obs_part_shapeA_2022_07_15_v4.log";
-        MCMC estSubtype = new MCMC(probs, proposalMoves, null, states, 1000000, 100, outputFilePath);
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_09_16/test_slv_single_estBetaShapes_2022_09_16.log";
+        MCMC estSubtype = new MCMC(probs, proposalMoves, proposalWeights, states, 2000000, 1000, outputFilePath);
         estSubtype.run();
 
 

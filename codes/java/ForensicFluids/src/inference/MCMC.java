@@ -151,9 +151,9 @@ public class MCMC {
 
                 double draw = Math.log(Randomizer.nextDouble());
                 //boolean accept = false;
-                //System.out.println("mcmc2: "+ draw +" "+ logMHR);
+                //System.out.println("mcmc: "+ (stepIndex + 1) +" "+ draw +" "+ logMHR+" "+currLogPost+" "+ +propLogPost);
                 if (logMHR >= 0.0 || draw < logMHR) {
-                    //System.out.println("accepted: "+ accept+"," + currLogLik+" "+ currLogPrior+ " "+propLogLik+" "+ propLogPrior);
+                    //System.out.println("accepted: "+  currLogPost+" "+ currLogPost+ " "+propLogLik+" "+ propLogPrior);
                     //System.out.println("accept");
 
                     //accept = true;
@@ -184,6 +184,7 @@ public class MCMC {
             /*if(accepted){
                 System.out.println("accepted "+ currLogLik+" "+ currLogPrior);
             }*/
+               // System.out.println("currLogPost: "+currLogPost);
 
 
                 if (((stepIndex + 1) % logEvery) == 0) {
@@ -271,7 +272,7 @@ public class MCMC {
                 proposalWriter.println(proposal.getClass()+"\t"+
                         acceptCount+"\t"+
                         rejectCount+"\t"+
-                        acceptCount/rejectCount);
+                        acceptCount/(acceptCount+rejectCount));
             }
             proposalWriter.close();
 

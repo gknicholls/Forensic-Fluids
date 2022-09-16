@@ -59,6 +59,7 @@ public class Gamma extends AbstractProbability {
             }
         }
 
+
         return logP;
 
     }
@@ -91,6 +92,7 @@ public class Gamma extends AbstractProbability {
     }
 
     public void restore(){
+
         super.restore();
         update = false;
     }

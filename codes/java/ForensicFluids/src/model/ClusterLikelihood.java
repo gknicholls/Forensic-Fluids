@@ -268,6 +268,10 @@ public class ClusterLikelihood extends AbstractProbability {
         return(logLikelihood);
     }
 
+    public boolean isUpdated(){
+        return (alphaC.isUpdated() || betaC.isUpdated() || subtypeSets.isUpdated());
+    }
+
     public void store(){
         storedLogLikelihood = logLikelihood;
         for(int typeIndex = 0; typeIndex < storedSubtypeMkrLik.length; typeIndex++){

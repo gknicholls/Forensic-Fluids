@@ -74,7 +74,7 @@ public class TestSamplingPartsAndShapesColJ2MCMC {
 
 
         Parameter gammaShape0 = new Parameter("gamma.shape", new double[]{1}, 0);
-        Parameter gammaScale0 = new Parameter("gamma.scale", new double[]{0.1}, 0);
+        Parameter gammaScale0 = new Parameter("gamma.scale", new double[]{1}, 0);
 
 
         ScaleMove scaleMove = new ScaleMove(shapeA, 0.75);
@@ -98,10 +98,10 @@ public class TestSamplingPartsAndShapesColJ2MCMC {
                 typeList);
         AbstractProbability[] probs = new AbstractProbability[]{lik, mdpPrior,
                 gammaPrior0, gammaPrior1, gammaPrior2, gammaPrior3, gammaPrior4};
-        State[] states = new State[]{subTypeList, shapeA};
+        State[] states = new State[]{typeList, shapeA};
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_07_22/test_slv_single_7obs_part_shapeA_2022_07_22.log";
-        MCMC estSubtype = new MCMC(probs, proposalMoves, null, states, 1000000, 100, outputFilePath);
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_09_15/test_slv_single_7obs_part_shapeA_2022_07_22_v2.log";
+        MCMC estSubtype = new MCMC(probs, proposalMoves, proposalWeights, states, 1000000, 100, outputFilePath);
         estSubtype.run();
 
 

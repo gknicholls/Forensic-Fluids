@@ -73,8 +73,10 @@ public class CompoundClusterLikelihood extends AbstractProbability {
     public double getLogLikelihood(){
 
         logMultiTypeLikelihood = 0;
-        for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
-            if(typeClusters.hasUpdated(typeIndex)){
+        //for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
+            //if(typeClusters.hasUpdated(typeIndex)){
+        for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
+            if(liks[typeIndex].isUpdated()){
                 logMultiTypeLikelihoods[typeIndex] =  liks[typeIndex].getLogLikelihood();
             }
 
