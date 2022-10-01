@@ -322,14 +322,14 @@ singleBin.df$donor[!is.na(match(singleBin.df$Sample, cvf.same.donor2)) &
 
 
 
-singleBin.df$Type[match(c("VVS612-6",	"VS710-90", "VS712-3", "VS712-3"), singleBin.df$Sample)]
-# VVS612-6 is not in the data, possibly an empty profile
-cvf.same.donor3 = c("VS710-90", "VS712-3", "VS712-3")
+singleBin.df$Type[match(c("VS612-6",	"VS710-90", "VS712-3"), singleBin.df$Sample)]
+# VVS612-6 is a menstrual blood sample
+cvf.same.donor3 = c("VS710-90", "VS712-3")
 singleBin.df$donor[!is.na(match(singleBin.df$Sample, cvf.same.donor3)) & 
                      singleBin.df$Type=="Vaginal Secretion"] = 
   paste("cvf", length(cvf.diff.donor1) + 3, sep="")
 
-
+which(singleBin.df$Sample ==  "VS712-3")
 
 singleBin.df$Type[match(c("VS612-10", "VS612-10 (2)"), singleBin.df$Sample)]
 cvf.same.donor4 = c("VS612-10", "VS612-10 (2)")
@@ -426,6 +426,10 @@ singleBin.df$donor[!is.na(match(singleBin.df$Sample, cvf.same.donor14)) &
   paste("cvf", length(cvf.diff.donor1) + 16, sep="")
 
 
+singleBin.df$Type[singleBin.df$Sample =="3p"]
+singleBin.df$donor[singleBin.df$Sample == "3p" & 
+                     singleBin.df$Type == "Vaginal Secretion"] = 
+  paste("cvf", length(cvf.diff.donor1) + 17, sep="")
 
 ##########################
 
@@ -455,7 +459,7 @@ singleBin.df$donor[singleBin.df$Sample == "VS612-26 (2)" &
                      singleBin.df$Type == "Menstrual Blood"] = 
   paste("mtb", length(cvf.diff.donor1) + 2, sep="")
 
-
+# appears in both menstrual blood and cervical fluid.
 singleBin.df$Type[match(c("VS712-1", "VS712-1 (2)"), singleBin.df$Sample)]
 mtb.same.donor2 = c("VS712-1", "VS712-1 (2)")
 singleBin.df$donor[!is.na(match(singleBin.df$Sample, mtb.same.donor2)) & 
@@ -501,5 +505,18 @@ mtb.same.donor7 = c("4_1/2MB swab", "5_MB swab")
 singleBin.df$donor[!is.na(match(singleBin.df$Sample, mtb.same.donor7)) & 
                      singleBin.df$Type == "Menstrual Blood"] = 
   paste("mtb", length(mtb.diff.donor1) + 9, sep="")
+
+
+
+singleBin.df$Type[singleBin.df$Sample =="VS612-6"]
+singleBin.df$donor[singleBin.df$Sample == "VS612-6" & 
+                     singleBin.df$Type == "Menstrual Blood"] = 
+  paste("mtb", length(cvf.diff.donor1) + 10, sep="")
+
+# appears in both menstrual blood and cervical fluid.
+singleBin.df$Type[singleBin.df$Sample =="VS712-3"]
+singleBin.df$donor[singleBin.df$Sample == "VS712-3" & 
+                     singleBin.df$Type == "Menstrual Blood"] = 
+  paste("mtb", length(cvf.diff.donor1) + 11, sep="")
 
 
