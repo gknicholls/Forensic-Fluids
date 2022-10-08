@@ -519,4 +519,77 @@ singleBin.df$donor[singleBin.df$Sample == "VS712-3" &
                      singleBin.df$Type == "Menstrual Blood"] = 
   paste("mtb", length(cvf.diff.donor1) + 11, sep="")
 
+?sammon
+dist(singleBin.df[singleBin.df$Type=="Vaginal Secretion", allMkrs], )
+
+
+jaccard = function(a, b){
+  ab = a+b
+  shared0Index = which(ab==0)
+  shared2Index = which(ab==2)
+  jd = 1 - length(shared2Index)/(length(a) - length(shared0Index))
+  
+  return(jd)
+}
+
+cvfMkrVals.df = singleBin.df[singleBin.df$Type=="Vaginal Secretion", allMkrs]
+cvf.jd = matrix(nrow = nrow(cvfMkrVals.df), ncol = nrow(cvfMkrVals.df))
+for(obs1 in 1:nrow(cvfMkrVals.df)){
+  for(obs2 in obs1:nrow(cvfMkrVals.df)){
+    cvf.jd[obs1, obs2] = jaccard(cvfMkrVals.df[obs1, ], cvfMkrVals.df[obs2, ])
+    if(obs1 != obs2){
+      cvf.jd[obs2, obs1] = cvf.jd[obs1, obs2]
+    }
+  }
+  
+}
+
+jaccard.mat = function(mkrMat = NULL){
+  jd = matrix(nrow = nrow(mkrMat), ncol = nrow(mkrMat))
+  for(obs1 in 1:nrow(mkrMat)){
+    for(obs2 in obs1:nrow(mkrMat)){
+      jd[obs1, obs2] = jaccard(mkrMat[obs1, ], mkrMat[obs2, ])
+      if(obs1 != obs2){
+        jd[obs2, obs1] = jd[obs1, obs2]
+      }
+    }
+    message(obs1)
+  }
+  return(jd)
+  
+}
+
+cvf.jd.v2 = jaccard.mat(cvfMkrVals.df)
+sum(abs(cvf.jd - cvf.jd.v2))
+
+
+
+csf.jd = as.dist(cvf.jd)
+cvf.sammon = sammon(d = as.dist(cvf.jd))
+
+
+cvf.cmd = cmdscale(csf.jd, k = nrow(cvfMkrVals.df) - 1, eig = TRUE)
+plot(cvf.cmd$points[,c(1:2)], type="n")
+cvf.donor.id.num = gsub(singleBin.df$donor[singleBin.df$Type=="Vaginal Secretion"], pattern = "cvf", replace = "")
+text(labels = cvf.donor.id.num, x = cvf.cmd$points[,1], y = cvf.cmd$points[,2], cex = 0.75)
+jaccard(c(1,0,1,0,1), c(1,0,1,1,0),)
+
+
+csf.jd = as.dist(c.jd)
+
+allMkrDistr = jaccard.mat(singleBin.df[, allMkrs])
+
+kyoto = c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42")
+allMkrDistr = as.dist(allMkrDistr)
+allMkr.cmd = cmdscale(allMkrDistr, k = nrow(singleBin.df[, allMkrs]) - 1, eig = TRUE)
+pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_10_05/cmd_donor_2022_10_05_for_logbook.pdf",
+    height = 7.5, width = 7.5)
+par(lend = 2, mar = c(5,4, 1, 1) + 0.2)
+plot(allMkr.cmd$points[,c(1:2)], type="n", xlab = "PA1", ylab = "PA2")
+text(labels = as.numeric(as.factor(singleBin.df$donor)) , col = kyoto[as.numeric(as.factor(singleBin.df$Type))],
+     x = allMkr.cmd$points[,1], y = allMkr.cmd$points[,2], cex = 0.75)
+legend("topleft", 
+       c("Blood", "Menstrual Blood", "Saliva", "Semen", "Cervical Fluid"),
+       pch= 15,col = kyoto, bty="n")
+dev.off()
 
