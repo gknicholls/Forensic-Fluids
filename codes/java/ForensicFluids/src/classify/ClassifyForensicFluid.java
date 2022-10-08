@@ -187,7 +187,7 @@ public class ClassifyForensicFluid {
             }else if(currLabel.equals(UNKNOWN_TYPE_PRIOR)){
                 unknownTypePriorParamVals = DataUtils.processSeqsDouble(lineElts[1], ",");
             }else if(currLabel.equals(SEED)){
-                seed = Integer.parseInt(lineElts[1]);
+                seed = Long.parseLong(lineElts[1]);
 
                 Randomizer.setSeed(seed);
             }
@@ -219,7 +219,9 @@ public class ClassifyForensicFluid {
         probs = setUpPosterior(alphaRow, maxRowClustCount, totalObsCounts,
                 typeList, mkrGrpPartitions, colPriors, dataSets, shapeAParams, shapeBParams,
                 unknownTypePriorParamVals, unknownTypeParam);
-        states = new State[]{typeList, unknownTypeParam};
+        states = new State[]{typeList, unknownTypeParam,
+                shapeAParams[0], shapeAParams[1], shapeAParams[2], shapeAParams[3], shapeAParams[4],
+                shapeBParams[0], shapeBParams[1], shapeBParams[2], shapeBParams[3], shapeBParams[4]};
 
 
 

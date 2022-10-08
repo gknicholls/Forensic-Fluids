@@ -3,21 +3,25 @@ package scripts.tests;
 import data.CompoundMarkerData;
 import distribution.Gamma;
 import inference.*;
-import model.*;
-import state.*;
+import model.AbstractProbability;
+import model.CompoundClusterLikelihood;
+import model.CompoundClusterPrior;
+import state.Parameter;
+import state.State;
+import state.SubTypeList;
+import state.TypeList;
 import utils.Randomizer;
 
 import java.util.ArrayList;
 
 
-
-public class TestSamplingPartitionAndShapes {
+public class TestSamplingPartitionAndShapesCVF {
 
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
     public static void main(String[] args){
 
-        TestSamplingPartitionAndShapes mcmcPrior = new TestSamplingPartitionAndShapes();
+        TestSamplingPartitionAndShapesCVF mcmcPrior = new TestSamplingPartitionAndShapesCVF();
         try {
 
             String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartitionSets5.txt";
@@ -39,14 +43,14 @@ public class TestSamplingPartitionAndShapes {
         int[][][][] mkrGrpPartitions = OldSingleTypeMCMC.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double alpha5 = 0.49;
         double alpha7 = 0.375;
-        double alphaRow = 0.18;
+        double alphaRow = 0.1865;
 
         double[][] colPriors = OldSingleTypeMCMC.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
-        int totalObsCount = 81;
+        int totalObsCount = 70;
         int maxClustCount = 5;
 
-        String dataFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/slv.single.csv";
+        String dataFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/cvf.single_noAll0s.csv";
         int[][] rowInfo = new int[][]{new int[]{0, totalObsCount - 1}};
         int[][][] colInfo = new int[][][]{COL_RANGE};
         CompoundMarkerData dataSets =  new CompoundMarkerData(new String[]{dataFilePath}, rowInfo,  colInfo);
@@ -108,7 +112,7 @@ public class TestSamplingPartitionAndShapes {
                 gammaPrior0b, gammaPrior1b, gammaPrior2b, gammaPrior3b, gammaPrior4b};
         State[] states = new State[]{shapeA, shapeB, typeList};
 
-        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_09_16/test_slv_single_estBetaShapes_2022_09_16.log";
+        String outputFilePath = "/Users/chwu/Documents/research/bfc/output/2022_09_16/test_cvf_single_estBetaShapes_2022_09_16_v2.log";
         MCMC estSubtype = new MCMC(probs, proposalMoves, proposalWeights, states, 2000000, 1000, outputFilePath);
         estSubtype.run();
 

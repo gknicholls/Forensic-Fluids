@@ -269,6 +269,9 @@ public class ClusterLikelihood extends AbstractProbability {
     }
 
     public boolean isUpdated(){
+        //System.out.println("alpha: "+alphaC.isUpdated());
+        //System.out.println("beta: "+betaC.isUpdated());
+        //System.out.println("subtype: "+subtypeSets.isUpdated());
         return (alphaC.isUpdated() || betaC.isUpdated() || subtypeSets.isUpdated());
     }
 
