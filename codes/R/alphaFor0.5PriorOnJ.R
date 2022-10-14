@@ -27,3 +27,19 @@ exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J
 alpha = 0.2415
 J = 15
 exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J + 15) - lgamma(alpha + 15))
+
+
+
+
+
+J = 5
+alpha = 0.19365
+exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J + 59) - lgamma(alpha + 59))
+alpha = 0.2282
+exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J + 31) - lgamma(alpha + 31))
+alpha = 0.1805
+exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J + 80) - lgamma(alpha + 80))
+alpha = 0.189
+exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J + 65) - lgamma(alpha + 65))
+alpha = 0.178
+exp(lgamma(alpha) - lgamma(alpha/J) + lfactorial(J) - lgamma(J) + lgamma(alpha/J + 86) - lgamma(alpha + 86))
