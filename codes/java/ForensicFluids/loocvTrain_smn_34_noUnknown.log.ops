@@ -1,0 +1,24 @@
+# Seed for random number generation: 1664714747909
+# Total calculation time: 2.529 seconds.
+class inference.AssignSingleRowWrapper	129.0	871.0	0.129
+class inference.AssignBetweenTypes	0.0	0.0	NaN
+shapeA.0.0	shapeA.0.1	shapeA.0.2	shapeA.0.3	shapeA.0.4
+1.0	0.2	0.2	0.2	0.2
+shapeA.1.0	shapeA.1.1	shapeA.1.2	shapeA.1.3	shapeA.1.4
+1.0	1.0	0.2	1.0	0.2
+shapeA.2.0	shapeA.2.1	shapeA.2.2	shapeA.2.3	shapeA.2.4
+0.2	0.2	0.45	0.2	0.2
+shapeA.3.0	shapeA.3.1	shapeA.3.2	shapeA.3.3	shapeA.3.4
+0.2	0.2	0.2	0.45	0.2
+shapeA.4.0	shapeA.4.1	shapeA.4.2	shapeA.4.3	shapeA.4.4
+0.2	0.2	0.2	0.2	0.45
+shapeB.0.0	shapeB.0.1	shapeB.0.2	shapeB.0.3	shapeB.0.4
+1.0	0.8	0.8	0.8	0.8
+shapeB.1.0	shapeB.1.1	shapeB.1.2	shapeB.1.3	shapeB.1.4
+1.0	1.0	0.8	1.0	0.8
+shapeB.2.0	shapeB.2.1	shapeB.2.2	shapeB.2.3	shapeB.2.4
+0.8	0.8	0.15	0.8	0.8
+shapeB.3.0	shapeB.3.1	shapeB.3.2	shapeB.3.3	shapeB.3.4
+0.8	0.8	0.8	0.15	0.8
+shapeB.4.0	shapeB.4.1	shapeB.4.2	shapeB.4.3	shapeB.4.4
+0.8	0.8	0.8	0.8	0.15

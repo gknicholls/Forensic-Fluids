@@ -12,6 +12,7 @@ public class MCMC {
     private AbstractProbability[] probs;
     private ProposalMove[] proposalMoves;
     private State[] states;
+    private State[] constants;
     private int chainLength;
     private int logEvery;
     private String outputFilePath;
@@ -43,11 +44,23 @@ public class MCMC {
                 State[] states,
                 int chainLength,
                 int logEvery,
+                String outputFilePath) {
+        this(probs, proposalMoves, weights, states, null, chainLength, logEvery, outputFilePath);
+    }
+
+    public MCMC(AbstractProbability[] probs,
+                ProposalMove[] proposalMoves,
+                double[] weights,
+                State[] states,
+                State[] constants,
+                int chainLength,
+                int logEvery,
                 String outputFilePath){
         this.probs = probs;
         this.proposalMoves = proposalMoves;
         this.weights = weights;
         this.states = states;
+        this.constants = constants;
         this.chainLength = chainLength;
         this.logEvery = logEvery;
 
@@ -97,7 +110,10 @@ public class MCMC {
                 //labels += "\tstored." + state.getLabel();
                 //labels += "\tprop." + state.getLabel();
             }
-            labels += "\tlogHR\tlogMHR\tdraw";
+            //labels += "\tlogHR\tlogMHR\tdraw";
+            for(State constantState:constants) {
+                constantState.store();
+            }
 
 
             output.println(labels);
@@ -239,7 +255,8 @@ public class MCMC {
             output.print( "\t" + state.log());
         }
 
-        output.println("\t" + logHR + "\t" + logMHR+ "\t" + draw);
+        //output.println("\t" + logHR + "\t" + logMHR+ "\t" + draw);
+        output.println();
 
     }
 
@@ -273,6 +290,11 @@ public class MCMC {
                         acceptCount+"\t"+
                         rejectCount+"\t"+
                         acceptCount/(acceptCount+rejectCount));
+            }
+
+            for(State constantState:constants) {
+                proposalWriter.println(constantState.getLabel());
+                proposalWriter.println(constantState.log());
             }
             proposalWriter.close();
 

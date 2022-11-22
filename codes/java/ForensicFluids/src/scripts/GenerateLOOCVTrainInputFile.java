@@ -12,7 +12,9 @@ import java.util.Collections;
 public class GenerateLOOCVTrainInputFile {
     public static void main(String[] args){
         try{
-            String dataDirPath = "/Users/chwu/Documents/research/bfc/data/loocvTrain/cvf/";
+
+            String bodyFluid = "mtb";
+            String dataDirPath = "/Users/chwu/Documents/research/bfc/data/loocvTrain/" + bodyFluid + "/";
             File dataDir = new File(dataDirPath);
             File[] files = dataDir.listFiles();
             ArrayList<String> filenames = new ArrayList<String>();
@@ -27,7 +29,7 @@ public class GenerateLOOCVTrainInputFile {
 
 
 
-            String templateFilePath = "/Users/chwu/Documents/research/bfc/data/loocvTrain/cvf/loocvTrain_cvf_input_template.txt";
+            String templateFilePath = "/Users/chwu/Documents/research/bfc/data/loocvTrain/" + bodyFluid + "/loocvTrain_" + bodyFluid + "_input_template.txt";
             String trainFileName = "";
             String line = "";
             long seedAdditive_ = 0;
@@ -40,8 +42,8 @@ public class GenerateLOOCVTrainInputFile {
 
 
 
-                PrintWriter inputWriter = new PrintWriter(
-                        "/Users/chwu/Documents/research/bfc/data/loocvTrain/cvf/loocvTrain_cvf_input_"+temp[temp.length - 1]+".txt");
+                String inputFilePath = "/Users/chwu/Documents/research/bfc/data/loocvTrain/" + bodyFluid +"/loocvTrain_"+ bodyFluid +"_input_"+temp[temp.length - 1] + ".txt";
+                PrintWriter inputWriter = new PrintWriter(inputFilePath);
                 while((line = templReader.readLine()) != null){
                     if(line.contains("[seed]")){
                         long seed = System.currentTimeMillis() + seedAdditive_;

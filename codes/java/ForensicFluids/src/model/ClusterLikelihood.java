@@ -95,7 +95,7 @@ public class ClusterLikelihood extends AbstractProbability {
 
                 //s = CalculateAmplifiedCount(sample, mkrGrpIndex, eltsAllPartSet[partIndex][setIndex], subtypeSets, subtypeIndex);
                 nonZeros = CalculateAmplifiedCount(sample, mkrGrpIndex, eltsAllPartSet[partIndex][setIndex], subtypeSets, subtypeIndex);
-                c = subtypeSets.getSubTypeSetSize(subtypeIndex) * eltsAllPartSet[partIndex][setIndex].length;
+                //c = subtypeSets.getSubTypeSetSize(subtypeIndex) * eltsAllPartSet[partIndex][setIndex].length;
                 //logMarkerLik += Beta.logBeta(alphaC + s, betaC + c - s);
                 logMarkerLik += Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]);
                 //System.out.println(alphaC + " "+ s +" "+betaC+" "+c);
