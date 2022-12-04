@@ -75,8 +75,9 @@ public class ClassifyForensicFluid {
 
                 BufferedReader inputFilePathReader = new BufferedReader(new FileReader(args[1]));
                 String inputFilePath = "";
+                ClassifyForensicFluid bfc;
                 while((inputFilePath = inputFilePathReader.readLine()) != null){
-                    ClassifyForensicFluid bfc = new ClassifyForensicFluid(inputFilePath);
+                    bfc = new ClassifyForensicFluid(inputFilePath);
                     bfc.run();
                 }
             }
