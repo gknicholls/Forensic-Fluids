@@ -17,6 +17,7 @@ public class ClusterLikelihood extends AbstractProbability {
     private double[][] subtypeMkrLik;
     private double[][] storedSubtypeMkrLik;
     private SubTypeList subtypeSets;
+    private boolean updateAll;
 
     public ClusterLikelihood(String label,
                              int[][][][] eltsAllPartSetList,
@@ -35,6 +36,7 @@ public class ClusterLikelihood extends AbstractProbability {
         subtypeMkrLik = new double[subtypeSets.getSubTypeMaxCount()][sample.getMarkerGroupCount()];
         storedSubtypeMkrLik = new double[subtypeSets.getSubTypeMaxCount()][sample.getMarkerGroupCount()];
         getLogLikelihood();
+        updateAll = false;
 
     }
 
@@ -205,7 +207,10 @@ public class ClusterLikelihood extends AbstractProbability {
 
         double[] colPartLik;
         for(int mkrGrpIndex = 0; mkrGrpIndex < sample.getMarkerGroupCount(); mkrGrpIndex++){
-            if(alphaC.isUpdated(mkrGrpIndex) || betaC.isUpdated(mkrGrpIndex) || subtypeSets.isUpdated(subtypeIndex)){
+            if(updateAll ||
+                    alphaC.isUpdated(mkrGrpIndex) ||
+                    betaC.isUpdated(mkrGrpIndex) ||
+                    subtypeSets.isUpdated(subtypeIndex)){
                 colPartLik =
                         CalcIntAllPartsMkrGrpLik(
                                 eltsAllPartSetList[mkrGrpIndex],
@@ -247,6 +252,18 @@ public class ClusterLikelihood extends AbstractProbability {
         return(likelihood.getLogLikelihood());
     }
 
+    public void getSubtypeLikelihoods(double[] subtypeLikelihoods){
+
+        for(int setIndex = 0; setIndex < subtypeLikelihoods.length; setIndex++){
+            subtypeLikelihoods[setIndex] = 0;
+            for(int mkrIndex = 0; mkrIndex < subtypeMkrLik[setIndex].length; mkrIndex++){
+                subtypeLikelihoods[setIndex] =+ subtypeMkrLik[setIndex][mkrIndex];
+            }
+
+        }
+
+    }
+
 
 
     public double getLogLikelihood(){
@@ -273,6 +290,14 @@ public class ClusterLikelihood extends AbstractProbability {
         //System.out.println("beta: "+betaC.isUpdated());
         //System.out.println("subtype: "+subtypeSets.isUpdated());
         return (alphaC.isUpdated() || betaC.isUpdated() || subtypeSets.isUpdated());
+    }
+
+    public boolean isAllUpdated(){
+        return updateAll;
+    }
+
+    public void setUpdatAll(boolean update){
+        updateAll = update;
     }
 
     public void store(){

@@ -41,6 +41,10 @@ public class TypeList extends AbstractState {
         }
     }
 
+    public int getTotalCount(){
+        return totalCount;
+    }
+
     public int[] getSubTypeSetSizes(int typeIndex){
         int[] setSizes = typeList[typeIndex].getSubTypeSetSizes();
         return setSizes;

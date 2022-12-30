@@ -89,6 +89,33 @@ public class ClusterPrior extends AbstractProbability {
 
     public static double calcLogMDPDensity(double alpha,
                                            int setCountMax,
+                                           int[] setSizes,
+                                           int totalObsCount){
+
+
+        int setCount = 0;
+        for(int setIndex = 0; setIndex < setSizes.length; setIndex++){
+            if(setSizes[setIndex] > 0){
+                setCount++;
+            }
+        }
+        double frac1 = Gamma.logGamma(alpha) - setCount*Gamma.logGamma(alpha/setCountMax);
+        double frac2 = Gamma.logGamma(setCountMax + 1) - Gamma.logGamma(setCountMax - setCount + 1);
+        double frac3 = 0.0;
+        for(int setIndex = 0; setIndex < setCountMax; setIndex++){
+            if(setSizes[setIndex] > 0) {
+                frac3 += Gamma.logGamma(alpha / setCountMax + setSizes[setIndex]);
+            }
+        }
+        frac3 -= Gamma.logGamma(alpha + totalObsCount);
+        double logMDP = frac1 + frac2 + frac3;
+
+        return logMDP;
+
+    }
+
+    public static double calcLogMDPDensity(double alpha,
+                                           int setCountMax,
                                            ArrayList<Integer>[] setList,
                                            int totalObsCount){
 
@@ -186,6 +213,10 @@ public class ClusterPrior extends AbstractProbability {
 
         return mdpProb;
 
+    }
+
+    public double getAlpha(){
+        return alpha;
     }
 
 

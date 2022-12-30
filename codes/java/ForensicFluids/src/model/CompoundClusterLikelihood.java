@@ -91,6 +91,17 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         return(logMultiTypeLikelihood);
     }
 
+    public void getLogTypeLikelihoods(double[] copy){
+        System.arraycopy(logMultiTypeLikelihoods, 0,
+                copy, 0, logMultiTypeLikelihoods.length);
+    }
+
+    public void getSubtypeLikelihoods(double[][] subtypeLikelihoodLists) {
+        for(int typeIndex = 0; typeIndex < subtypeLikelihoodLists.length; typeIndex++){
+            liks[typeIndex].getSubtypeLikelihoods(subtypeLikelihoodLists[typeIndex]);
+        }
+    }
+
     public String getLabel(){
 
         String newLabel = label;
