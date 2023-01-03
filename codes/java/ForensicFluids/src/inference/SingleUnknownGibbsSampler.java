@@ -19,9 +19,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     private double[] alphaValues;
     private int[][] currSetSizeLists;
     private int[][] propSetSizeLists;
-    double[][] propLogMDPPriorValues;
-    double[][] currLogSubtypeLikelihoodLists;
-    double[][] propLogSubtypeLikelihoodLists;
+    private double[][] propLogMDPPriorValues;
+    private double[][] currLogSubtypeLikelihoodLists;
+    private double[][] propLogSubtypeLikelihoodLists;
     private int totalSubtype;
     private double[] logTypeLikelihoods;
     private double[][] logFullLikelihoods;
