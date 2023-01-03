@@ -76,8 +76,8 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
 
 
-    protected void getSetSizesForAllConfig(int[][] currSetSizeLists,
-                                         int[][] setSizeLists){
+    protected static void getSetSizesForAllConfig(int[][] currSetSizeLists,
+                                                  int[][] setSizeLists){
 
         ArrayList<Integer> currEmptySet;
 
@@ -185,7 +185,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
-    protected void calcFullLogLikelihoods(double[] logTypeLikelihoods,
+    protected static void calcFullLogLikelihoods(double[] logTypeLikelihoods,
                                      double[][] logFullLikelihoods,
                                      double[][] currLogSubtypeLikelihoodLists,
                                      double[][] propLogSubtypeLikelihoodLists){
