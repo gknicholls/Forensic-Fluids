@@ -56,6 +56,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
+    public SingleUnknownGibbsSampler() {
+
+    }
 
 
     protected void initialiseLogSubtypeLikLists(double[][] logSubtypeLikLists,
@@ -68,7 +71,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         }
     }
 
-    protected static void getCurrSetSizesAcrossType(int[][] setSizeLists, TypeList typeList){
+    public static void getCurrSetSizesAcrossType(int[][] setSizeLists, TypeList typeList){
         for(int typeIndex = 0; typeIndex < setSizeLists.length; typeIndex++){
             setSizeLists[typeIndex] = typeList.getSubTypeSetSizes(typeIndex);
         }
@@ -76,7 +79,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
 
 
-    protected static void getSetSizesForAllConfig(int[][] currSetSizeLists,
+    public static void getSetSizesForAllConfig(int[][] currSetSizeLists,
                                                   int[][] setSizeLists){
 
         ArrayList<Integer> currEmptySet;

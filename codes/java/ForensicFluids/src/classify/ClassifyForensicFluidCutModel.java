@@ -432,7 +432,8 @@ public class ClassifyForensicFluidCutModel {
     }
 
     private ProposalMove[] setUpProposalMoves(TypeList typeList, CompoundMarkerDataWithUnknown dataSets){
-        SingleUnknownGibbsSampler singleGibbs = new SingleUnknownGibbsSampler(typeList, dataSets);
+        //SingleUnknownGibbsSampler singleGibbs = new SingleUnknownGibbsSampler(typeList, dataSets);
+        SingleUnknownGibbsSampler singleGibbs = null;
         ProposalMove[] proposals = new ProposalMove[]{singleGibbs};
         return proposals;
 
