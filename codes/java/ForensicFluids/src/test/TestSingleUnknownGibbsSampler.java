@@ -23,6 +23,8 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         TypeList getTypeList();
         int[][] getExpectedCurrSetSizesAcrossType();
         int[][] getExpectedAllConfigSetSizesAcrossType();
+        double[] getCurrLogMDPPrior();
+        double[][] getExpectedLogMDPPriorForAllConfig();
 
     }
     /*protected Instance test0 = new Instance() {
@@ -59,6 +61,20 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
             };
         }
 
+        public double[] getCurrLogMDPPrior(){
+            return new double[]{-62.26213580002307, -26.748789244685437, -85.87477357715842, -41.53562408804972, -66.81806535514022};
+        }
+
+        public double[][] getExpectedLogMDPPriorForAllConfig(){
+            return new double[][]{
+                    {-285.2326938559247, -284.0643651379126, -284.1034013386967, -288.7500439300487, 0},
+                    {-283.6450896077328, -284.5990888366032, -285.9333535262773, -287.9343674346589, 0},
+                    {-285.1342346171148, -287.5239061593556, -283.8191622232595, -284.5322361798105, -289.8355410878696},
+                    {-283.5083748044323, -284.7753553314218, -287.3120885562369, -288.8751692399484, 0},
+                    {-283.9245577962586, -283.9720670273163, -287.5883514609507, -289.2488445441851, 0}
+            };
+        }
+
     };
 
 
@@ -86,6 +102,29 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
                 assertEquals(allConfigSetSizeLists[i][j], allConfigSetSizeListsExptd[i][j], 0);
             }
         }
+
+
+
+    }
+
+    public void testCalcLogMDPPriorForAllConfig(){
+        TypeList typeList = test1.getTypeList();
+        double[][] logTypeMDPPriors = new double[typeList.getTypeCount()][];
+        int[][] currSetSizeListsExptd = test1.getExpectedCurrSetSizesAcrossType();
+        int[][] allConfigSetSizeListsExptd = test1.getExpectedAllConfigSetSizesAcrossType();
+        double[] alphaValues = new double[]{0.6025, 0.725, 0.55, 0.585, 0.525};
+        double[] logMDPPriors = test1.getCurrLogMDPPrior();
+        SingleUnknownGibbsSampler.calcLogMDPPriorForAllConfig(
+                logMDPPriors, alphaValues, typeList, currSetSizeListsExptd, allConfigSetSizeListsExptd, logTypeMDPPriors);
+        double[][] logTypeMDPPriorsExpted = test1.getExpectedLogMDPPriorForAllConfig();
+
+        for(int i = 0; i < logTypeMDPPriors.length; i++){
+            for(int j = 0; j < logTypeMDPPriors[1].length; j++){
+                //System.out.println(logTypeMDPPriors[0][j]);
+                assertEquals(logTypeMDPPriors[4][j], logTypeMDPPriorsExpted[4][j], 1e-10);
+            }
+        }
+        //System.out.println(logTypeMDPPriors[3][0]);
 
 
     }

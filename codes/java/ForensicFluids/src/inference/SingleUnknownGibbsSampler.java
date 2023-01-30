@@ -113,7 +113,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         }
     }
 
-    protected static double[][] calcLogMDPPriorForAllConfig(double[] logTypeMDPPriors,
+    public static double[][] calcLogMDPPriorForAllConfig(double[] logTypeMDPPriors,
                                                           double[] alphaValues,
                                                           TypeList typeList,
                                                           int[][] currSetSizeLists,
@@ -122,6 +122,15 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         int currSetSize;
         double constant = 0;
         double newLogTypeMDP;
+        int typeTotal = 0;
+        int[] typeCounts = new int[typeList.getTypeCount()];
+        for(int typeIndex = 0; typeIndex < currSetSizeLists.length; typeIndex++){
+            for(int setIndex = 0; setIndex < currSetSizeLists[typeIndex].length; setIndex++){
+                typeCounts[typeIndex] += currSetSizeLists[typeIndex][setIndex];
+            }
+            typeCounts[typeIndex]++;
+        }
+
         for(int typeIndex = 0; typeIndex < propSetSizeLists.length; typeIndex++){
 
             logMDPPriors[typeIndex] = new double[propSetSizeLists[typeIndex].length];
@@ -135,6 +144,8 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                     constant += logTypeMDPPriors[typeIndex2];
                 }
             }
+
+
 
             for(int setIndex = 0; setIndex < propSetSizeLists[typeIndex].length; setIndex++){
 
@@ -151,7 +162,10 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                     newLogTypeMDP = ClusterPrior.calcLogMDPDensity(alphaValues[typeIndex],
                             typeList.getMaxSubTypeCount(typeIndex),
                             currSetSizeLists[typeIndex],
-                            typeList.getTotalCount());
+                            typeCounts[typeIndex]);
+
+
+
 
                     // Calculate the full log MDP across all fluid types
                     logMDPPriors[typeIndex][setIndex] = constant + newLogTypeMDP;
