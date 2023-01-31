@@ -22,6 +22,16 @@ public class TypeList extends AbstractState {
         this("typeList", typeList);
     }
 
+    public TypeList copy(){
+        SubTypeList[] typeListCopy = new SubTypeList[typeList.length];
+        for(int typeIndex = 0; typeIndex < typeListCopy.length; typeIndex++){
+            typeListCopy[typeIndex] = typeList[typeIndex].copy();
+        }
+
+        return new TypeList(label+".copy", typeListCopy);
+
+    }
+
     public int getTypeCount(){
         return typeList.length;
     }
@@ -39,6 +49,10 @@ public class TypeList extends AbstractState {
         for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
             totalCount += typeList[typeIndex].getTotalObsCount();
         }
+    }
+
+    public int getTotalCount(int typeIndex){
+        return typeList[typeIndex].getTotalObsCount();
     }
 
     public int getTotalCount(){

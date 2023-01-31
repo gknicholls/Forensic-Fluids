@@ -37,12 +37,28 @@ public class SubTypeList extends AbstractState {
         isUpdated = true;
     }
 
+    public SubTypeList copy(){
+        ArrayList<Integer>[] subtypeListCopy = (ArrayList<Integer>[]) new ArrayList[this.subtypeList.length];
+        for(int subtypeIndex = 0; subtypeIndex < subtypeListCopy.length; subtypeIndex++){
+            subtypeListCopy[subtypeIndex] = new ArrayList<Integer>();
+
+            for(int eltIndex = 0; eltIndex < subtypeList[subtypeIndex].size(); eltIndex++){
+                subtypeListCopy[subtypeIndex].add(subtypeList[subtypeIndex].get(eltIndex));
+            }
+
+        }
+        SubTypeList SubTypeListCopy = new SubTypeList(label+".copy", subtypeListCopy);
+        return SubTypeListCopy;
+    }
+
+
     public SubTypeList(ArrayList<Integer>[] subtypeList){
         this("subTypeList", subtypeList);
     }
 
 
     private void calcTotalObs(){
+        totalObsCount = 0;
         for(int setIndex = 0; setIndex < this.subtypeList.length; setIndex++){
             //System.out.println("setIndex: "+subtypeList[setIndex]);
             totalObsCount+= this.subtypeList[setIndex].size();
@@ -50,6 +66,7 @@ public class SubTypeList extends AbstractState {
     }
 
     public int getTotalObsCount(){
+        calcTotalObs();
         return totalObsCount;
     }
 

@@ -122,13 +122,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         int currSetSize;
         double constant = 0;
         double newLogTypeMDP;
-        int typeTotal = 0;
         int[] typeCounts = new int[typeList.getTypeCount()];
         for(int typeIndex = 0; typeIndex < currSetSizeLists.length; typeIndex++){
-            for(int setIndex = 0; setIndex < currSetSizeLists[typeIndex].length; setIndex++){
-                typeCounts[typeIndex] += currSetSizeLists[typeIndex][setIndex];
-            }
-            typeCounts[typeIndex]++;
+            typeCounts[typeIndex] = typeList.getTotalCount(typeIndex) + 1;
         }
 
         for(int typeIndex = 0; typeIndex < propSetSizeLists.length; typeIndex++){
@@ -180,7 +176,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
-    protected static void assignUnknownToAllPossibleSubtype(TypeList typeList,
+    public static void assignUnknownToAllPossibleSubtype(TypeList typeList,
                                                           int[][] propSetSizeLists,
                                                           int unknownObsIndex){
 
@@ -193,7 +189,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 setSize = propSetSizeLists[typeIndex][setIndex];
 
                 if(setSize > 0){
-                    // If this is a non-empty set after including the unknownn
+                    // If this is a non-empty set after including the unknown
                     typeList.addObs(typeIndex, setIndex, unknownObsIndex);
                 }
             }
@@ -343,8 +339,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
         // Modify the subtype list such that each non-empty subtype
         // represents a scenario of having the unknown added.
+        TypeList typeListCopy = typeList.copy();
         assignUnknownToAllPossibleSubtype(
-                typeList, propSetSizeLists, unknownObsIndex);
+                typeListCopy, propSetSizeLists, unknownObsIndex);
         likelihood.getSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
 
         // Calculate the full log likelihoods under each assignment scenario
