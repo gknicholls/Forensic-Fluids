@@ -130,6 +130,10 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         }
     }
 
+    public double getLogSubtypeLikelihood(int typeIndex, int setIndex) {
+        return liks[typeIndex].getLogSubtypeLikelihoods(setIndex);
+    }
+
     public String getLabel(){
 
         String newLabel = label;
