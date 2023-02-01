@@ -11,14 +11,15 @@ public class TypeListWithUnknown extends TypeList{
 
     public TypeListWithUnknown(SubTypeList[] subTypeLists, int unknownStartIndex){
         super(subTypeLists);
+        setup(unknownStartIndex);
+    }
 
+    public void setup(int unknownStartIndex){
         unknownObsCount = totalCount - unknownStartIndex;
         unknownClusterMap = new int[2][unknownObsCount];
         storedUnknownClusterMap = new int[unknownClusterMap.length][unknownObsCount];
         this.unknownStartIndex = unknownStartIndex;
         createMap();
-
-
 
     }
 
@@ -94,6 +95,17 @@ public class TypeListWithUnknown extends TypeList{
         }
 
         return rmvObs;
+
+    }
+
+    public TypeListWithUnknown copy(){
+        SubTypeList[] typeListCopy = new SubTypeList[typeList.length];
+        for(int typeIndex = 0; typeIndex < typeListCopy.length; typeIndex++){
+            typeListCopy[typeIndex] = typeList[typeIndex].copy();
+        }
+        setup(unknownStartIndex);
+
+        return new TypeListWithUnknown(typeListCopy, this.unknownStartIndex);
 
     }
 

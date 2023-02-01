@@ -252,12 +252,17 @@ public class ClusterLikelihood extends AbstractProbability {
         return(likelihood.getLogLikelihood());
     }
 
-    public void getSubtypeLikelihoods(double[] subtypeLikelihoods){
+    public void getLogSubtypeLikelihoods(double[] subtypeLikelihoods){
 
         for(int setIndex = 0; setIndex < subtypeLikelihoods.length; setIndex++){
+
             subtypeLikelihoods[setIndex] = 0;
             for(int mkrIndex = 0; mkrIndex < subtypeMkrLik[setIndex].length; mkrIndex++){
-                subtypeLikelihoods[setIndex] =+ subtypeMkrLik[setIndex][mkrIndex];
+                if(subtypeMkrLik[setIndex][mkrIndex] > 0){
+                    subtypeLikelihoods[setIndex] += Math.log(subtypeMkrLik[setIndex][mkrIndex]);
+
+                }
+
             }
 
         }

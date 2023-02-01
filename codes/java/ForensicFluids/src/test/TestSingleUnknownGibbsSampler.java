@@ -13,6 +13,7 @@ import utils.ParamUtils;
 import java.util.ArrayList;
 
 import inference.SingleUnknownGibbsSampler;
+import utils.Randomizer;
 
 public class TestSingleUnknownGibbsSampler extends TestCase {
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
@@ -27,6 +28,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
     public interface Instance {
 
         TypeList getTypeList();
+        TypeListWithUnknown getTypeListWithUnknown();
         int[][] getExpectedCurrSetSizesAcrossType();
         int[][] getExpectedAllConfigSetSizesAcrossType();
         double[] getCurrLogMDPPrior();
@@ -51,6 +53,14 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
             String clusteringStr = "[[0,1,2,3,4,5,6,7,8,9,10,11,12,14,20,32,36,37,38,42,45,48,49,50,51,52,53,54,55,56],[13,15,16,17,18,19,21,22,23,24,25,26,27,28,29,31,33,34,35,39,40,41,43,44,46,47,57],[30]] [[0,1,2,3,4,5,9,11,12,14,15,16,17,18,19,20,21,22,25,26,27,28,29,30],[6,10,13,23,24],[7,8]] [[0,2,3,4,5,6,7,8,11,12,14,15,16,18,20,21,22,23,24,25,27,29,30,31,33,34,35,36,38,39,40,41,42,43,44,46,47,48,49,51,52,58,63,64,65,66,70,72],[1,9,10,13,17,19,26,28,32,45,53,54,55,56,57,59,60,61,62,67,68,77,78],[37,50,69,71,73,74,75,76,79]] [[0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,35,36,37,38,43,45,46,47,50,51,52,54,55,56,57,58,59,60,61,62,63,64],[29,30,31,32,33,34,39,40,41,42,44,48,49,53],[9]] [[0,1,3,4,5,6,7,8,11,15,16,17,19,21,22,23,24,25,27,28,29,30,32,45,46,47,58,61,62,66,67,68,69,70,72,73,74,75,83,85],[2,9,10,12,13,14,18,20,26,34,35,36,37,38,39,40,48,49,53,54,55,57,59,63,65,71,76,77,78,79,80,81,82,84],[31,33,41,42,43,44,50,51,52,56,60,64]]";
             TypeList typeList = ParamUtils.createTypeList(
                     new int[]{58, 31, 80, 65, 86}, 5, clusteringStr);
+            return typeList;
+        }
+
+        public TypeListWithUnknown getTypeListWithUnknown() {
+            String clusteringStr = "[[0,1,2,3,4,5,6,7,8,9,10,11,12,14,20,32,36,37,38,42,45,48,49,50,51,52,53,54,55,56],[13,15,16,17,18,19,21,22,23,24,25,26,27,28,29,31,33,34,35,39,40,41,43,44,46,47,57],[30,320]] [[0,1,2,3,4,5,9,11,12,14,15,16,17,18,19,20,21,22,25,26,27,28,29,30],[6,10,13,23,24],[7,8]] [[0,2,3,4,5,6,7,8,11,12,14,15,16,18,20,21,22,23,24,25,27,29,30,31,33,34,35,36,38,39,40,41,42,43,44,46,47,48,49,51,52,58,63,64,65,66,70,72],[1,9,10,13,17,19,26,28,32,45,53,54,55,56,57,59,60,61,62,67,68,77,78],[37,50,69,71,73,74,75,76,79]] [[0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,35,36,37,38,43,45,46,47,50,51,52,54,55,56,57,58,59,60,61,62,63,64],[29,30,31,32,33,34,39,40,41,42,44,48,49,53],[9]] [[0,1,3,4,5,6,7,8,11,15,16,17,19,21,22,23,24,25,27,28,29,30,32,45,46,47,58,61,62,66,67,68,69,70,72,73,74,75,83,85],[2,9,10,12,13,14,18,20,26,34,35,36,37,38,39,40,48,49,53,54,55,57,59,63,65,71,76,77,78,79,80,81,82,84],[31,33,41,42,43,44,50,51,52,56,60,64]]";
+            String unknownPath = "/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/loocvTrain_cvf_unknown_1.csv";
+            TypeListWithUnknown typeList = ParamUtils.createTypeList(new int[]{58, 31, 80, 65, 86},
+                    5, clusteringStr, unknownPath, 0);
             return typeList;
         }
 
@@ -140,7 +150,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
             String unknownPath = "/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/loocvTrain_cvf_unknown_1.csv";
             CompoundMarkerData dataSets = DataUtils.createData(
                     trainingDataPathList,
-                    null, new int[]{58, 31, 80, 65, 86}, COL_RANGE, 1, getTypeList());
+                    unknownPath, new int[]{58, 31, 80, 65, 86}, COL_RANGE, 1, getTypeListWithUnknown());
 
             return dataSets;
         }
@@ -220,7 +230,82 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         }
     }
 
-    public void testSubLikelihood(){
+
+    public void testAssignUnknownToAllPossibleSubtypeV2(){
+        int[][][] allSubtypeExptd = test1.getExpectedAssignUnknownToAllPossibleSubtype();
+
+
+        TypeListWithUnknown typeList = test1.getTypeListWithUnknown();
+        TypeListWithUnknown typeListCopy = typeList.copy();
+        int unknownObsIndex = Randomizer.nextInt(typeList.getUnknownObsCount());
+        // Retrieve the classification information on this sample.
+        int currUnknownTypeIndex = typeList.getUnknownObsTypeIndex(unknownObsIndex);
+        int currUnknownSubtypeIndex = typeList.getUnknownObsSubTypeIndex(unknownObsIndex);
+        int currUnknownEltIndex = typeList.getUnknownObsEltIndex(
+                unknownObsIndex + typeList.getUnknownStartIndex(),
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
+
+        typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+        typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+        SingleUnknownGibbsSampler.assignUnknownToAllPossibleSubtype(
+                typeListCopy, test1.getExpectedAllConfigSetSizesAcrossType(), typeList.getTotalCount() - 1
+        );
+
+        for(int typeIndex = 0; typeIndex < typeListCopy.getTypeCount(); typeIndex++){
+            for(int setIndex = 0; setIndex < typeListCopy.getMaxSubTypeCount(typeIndex); setIndex++){
+                for(int eltIndex = 0; eltIndex < typeListCopy.getSubTypeSetSize(typeIndex, setIndex); eltIndex++){
+                    assertEquals(typeListCopy.getObs(typeIndex, setIndex, eltIndex),
+                            allSubtypeExptd[typeIndex][setIndex][eltIndex]);
+
+                }
+            }
+        }
+
+        int propUnknownEltIndex = typeListCopy.getUnknownObsEltIndex(
+                unknownObsIndex + typeListCopy.getUnknownStartIndex(),
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
+        typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex,propUnknownEltIndex);
+        for(int eltIndex = 0; eltIndex < typeListCopy.getSubTypeSetSize(currUnknownTypeIndex, currUnknownSubtypeIndex); eltIndex++){
+            System.out.print(typeListCopy.getObs(currUnknownTypeIndex, currUnknownSubtypeIndex, eltIndex)+" ");
+
+        }
+        System.out.println();
+
+        for(int eltIndex = 0; eltIndex < typeListCopy.getSubTypeSetSize(currUnknownTypeIndex, currUnknownSubtypeIndex); eltIndex++){
+            System.out.print(typeList.getObs(currUnknownTypeIndex, currUnknownSubtypeIndex, eltIndex)+" ");
+
+        }
+        System.out.println();
+    }
+
+
+
+
+    private void testCopyLikelihood(CompoundClusterLikelihood lik,
+                                    CompoundClusterLikelihood likCopy,
+                                    double[] logLiks, double[] logLiksCopy,
+                                    double[][] logSubtypeLiks, double[][] logSubtypeLiksCopy){
+        lik.getLogTypeLikelihoods(logLiks);
+        likCopy.getLogTypeLikelihoods(logLiksCopy);
+        lik.getLogSubtypeLikelihoods(logSubtypeLiks);
+        likCopy.getLogSubtypeLikelihoods(logSubtypeLiksCopy);
+
+
+        for(int typeIndex = 0; typeIndex < logLiks.length; typeIndex++){
+            assertEquals(logLiks[typeIndex], logLiksCopy[typeIndex]);
+        }
+
+        for(int typeIndex = 0; typeIndex < logSubtypeLiks.length; typeIndex++){
+            for(int setIndex = 0; setIndex < logSubtypeLiks[typeIndex].length; setIndex++){
+                assertEquals(logSubtypeLiks[typeIndex][setIndex], logSubtypeLiksCopy[typeIndex][setIndex]);
+            }
+        }
+
+
+    }
+
+
+    public void testSubLikelihoodCopy(){
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets7.txt";
         int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
@@ -238,11 +323,73 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
                 test1.getTypeList());
         //lik.getLogLikelihood();
         System.out.println(lik.getLogLikelihood());
-        double[] logLiks = new double[test1.getTypeList().getTypeCount()];
+        double[] logLiks = new double[typeList.getTypeCount()];
+        double[][] logSubtypeLiks = new double[typeList.getTypeCount()][typeList.getMaxSubTypeCount(0)];
         lik.getLogTypeLikelihoods(logLiks);
-        for(int typeIndex = 0; typeIndex < logLiks.length; typeIndex++){
-            System.out.println(logLiks[typeIndex]);
-        }
+
+        CompoundClusterLikelihood likCopy = null;
+        likCopy = SingleUnknownGibbsSampler.setLikelihoodCopy(lik, typeListCopy);
+        likCopy.getLogLikelihood();
+        double[] logLiksCopy = new double[typeList.getTypeCount()];
+        double[][] logSubtypeLiksCopy = new double[typeList.getTypeCount()][typeList.getMaxSubTypeCount(0)];
+        testCopyLikelihood(lik, likCopy, logLiks, logLiksCopy, logSubtypeLiks, logSubtypeLiksCopy);
+
+    }
+
+
+    public void testSubLikelihood(){
+        String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets5.txt";
+        String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets7.txt";
+        int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = DataUtils.getColPriors(
+                test1.getAlpha5(), test1.getAlpha7(),
+                allPartitionSets5File, allPartitionSets7File);
+
+
+
+        TypeListWithUnknown typeList = test1.getTypeListWithUnknown();
+        TypeListWithUnknown typeListCopy = typeList.copy();
+        int unknownObsIndex = Randomizer.nextInt(typeList.getUnknownObsCount());
+        // Retrieve the classification information on this sample.
+        int currUnknownTypeIndex = typeList.getUnknownObsTypeIndex(unknownObsIndex);
+        int currUnknownSubtypeIndex = typeList.getUnknownObsSubTypeIndex(unknownObsIndex);
+        int currUnknownEltIndex = typeList.getUnknownObsEltIndex(
+                unknownObsIndex + typeList.getUnknownStartIndex(),
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
+
+
+
+
+        CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood",
+                mkrGrpPartitions, colPriors, test1.getDatasets(),
+                test1.getShapeA(),
+                test1.getShapeB(),
+                test1.getTypeList());
+        lik.getLogLikelihood();
+
+
+
+
+        double[] logLiks = new double[typeList.getTypeCount()];
+        double[][] logSubtypeLiks = new double[typeList.getTypeCount()][typeList.getMaxSubTypeCount(0)];
+        lik.getLogTypeLikelihoods(logLiks);
+        lik.getLogSubtypeLikelihoods(logSubtypeLiks);
+
+        typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+        typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+        SingleUnknownGibbsSampler.assignUnknownToAllPossibleSubtype(
+                typeListCopy, test1.getExpectedAllConfigSetSizesAcrossType(), typeList.getTotalCount() - 1
+        );
+
+        CompoundClusterLikelihood likCopy = null;
+        likCopy = SingleUnknownGibbsSampler.setLikelihoodCopy(lik, typeListCopy);
+        likCopy.getLogLikelihood();
+        double[] logLiksCopy = new double[typeList.getTypeCount()];
+        double[][] logSubtypeLiksCopy = new double[typeList.getTypeCount()][typeList.getMaxSubTypeCount(0)];
+        likCopy.getLogTypeLikelihoods(logLiksCopy);
+        likCopy.getLogSubtypeLikelihoods(logSubtypeLiksCopy);
+
+
 
     }
 

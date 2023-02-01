@@ -124,9 +124,9 @@ public class CompoundClusterLikelihood extends AbstractProbability {
                 copy, 0, logMultiTypeLikelihoods.length);
     }
 
-    public void getSubtypeLikelihoods(double[][] subtypeLikelihoodLists) {
+    public void getLogSubtypeLikelihoods(double[][] subtypeLikelihoodLists) {
         for(int typeIndex = 0; typeIndex < subtypeLikelihoodLists.length; typeIndex++){
-            liks[typeIndex].getSubtypeLikelihoods(subtypeLikelihoodLists[typeIndex]);
+            liks[typeIndex].getLogSubtypeLikelihoods(subtypeLikelihoodLists[typeIndex]);
         }
     }
 
@@ -213,6 +213,8 @@ public class CompoundClusterLikelihood extends AbstractProbability {
     public void setTypeClusters(TypeList typeList){
         this.typeClusters = typeList;
     }
+
+
 
 
 }

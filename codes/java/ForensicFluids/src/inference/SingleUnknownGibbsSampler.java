@@ -4,6 +4,7 @@ package inference;
 import model.ClusterPrior;
 import model.CompoundClusterLikelihood;
 import state.TypeList;
+import state.TypeListWithUnknown;
 import utils.Randomizer;
 
 import java.util.ArrayList;
@@ -12,7 +13,8 @@ import java.util.ArrayList;
  * Obtains the next subtype assignment of a floating by Gibbs sampling
  */
 public class SingleUnknownGibbsSampler extends ProposalMove{
-    private TypeList typeList;
+    private TypeListWithUnknown typeList;
+    private TypeListWithUnknown typeListCopy;
     private CompoundClusterLikelihood likelihood;
     private CompoundClusterLikelihood likelihoodCopy;
     private double[] logMDPPriorValues;
@@ -25,9 +27,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     private int totalSubtype;
     private double[] logTypeLikelihoods;
     private double[][] logFullLikelihoods;
-    private TypeList typeListCopy;
 
-    public SingleUnknownGibbsSampler(TypeList typeList,
+
+    public SingleUnknownGibbsSampler(TypeListWithUnknown typeList,
                                      CompoundClusterLikelihood likelihood,
                                      int unknownObsIndex,
                                      double[] logMDPPriorValues,
@@ -37,7 +39,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         this.logMDPPriorValues = logMDPPriorValues;
         this.alphaValues = alphaValues;
         typeListCopy = this.typeList.copy();
-        setLikelihoodCopy();
+        likelihoodCopy = setLikelihoodCopy(this.likelihood, typeListCopy);
 
 
         currSetSizeLists = new int[typeList.getTypeCount()][];
@@ -65,15 +67,17 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
-    public void setLikelihoodCopy(){
-        likelihoodCopy = new CompoundClusterLikelihood("multitypeLikelihood");
-        likelihood.shareMkrGrpParts(likelihoodCopy);
-        likelihood.shareColPriors(likelihoodCopy);
-        likelihood.shareData(likelihoodCopy);
-        likelihood.shareAlphaC(likelihoodCopy);
-        likelihood.shareBetaC(likelihoodCopy);
-        likelihoodCopy.setTypeClusters(typeListCopy);
-        likelihoodCopy.setUp();
+    public static CompoundClusterLikelihood setLikelihoodCopy(CompoundClusterLikelihood srcLik,
+                                         TypeList typeList){
+        CompoundClusterLikelihood desLik = new CompoundClusterLikelihood(srcLik.getLabel()+".copy");
+        srcLik.shareMkrGrpParts(desLik);
+        srcLik.shareColPriors(desLik);
+        srcLik.shareData(desLik);
+        srcLik.shareAlphaC(desLik);
+        srcLik.shareBetaC(desLik);
+        desLik.setTypeClusters(typeList);
+        desLik.setUp();
+        return desLik;
     }
 
     protected void initialiseLogSubtypeLikLists(double[][] logSubtypeLikLists,
@@ -339,11 +343,28 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
 
 
+
+
     public double proposal(){
-        int unknownObsIndex = -1;
-        int currUnknownTypeIndex = -1;
-        int currUnknownSubtypeIndex = -1;
-        int currUnknownEltIndex = -1;
+
+
+        int unknownObsIndex = Randomizer.nextInt(typeList.getUnknownObsCount());
+        // Retrieve the classification information on this sample.
+        int currUnknownTypeIndex = typeList.getUnknownObsTypeIndex(unknownObsIndex);
+        int currUnknownSubtypeIndex = typeList.getUnknownObsSubTypeIndex(unknownObsIndex);
+        int currUnknownEltIndex = typeList.getUnknownObsEltIndex(
+                unknownObsIndex + typeList.getUnknownStartIndex(),
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
+
+
+        // Calculate the log subtype likelihoods in each fluid type
+        // for the current configuration of the training set.
+        likelihood.getLogSubtypeLikelihoods(currLogSubtypeLikelihoodLists);
+
+        typeList.copyLists(typeListCopy);
+        typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+
+
 
         // Initialises currSetSizeLists
         getCurrSetSizesAcrossType(currSetSizeLists, typeList);
@@ -355,22 +376,36 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         calcLogMDPPriorForAllConfig(logMDPPriorValues, alphaValues, typeList,
                 currSetSizeLists, propSetSizeLists, propLogMDPPriorValues);
 
-        // Calculate the log subtype likelihoods in each fluid type
-        // for the current configuration of the training set.
-        likelihood.getSubtypeLikelihoods(currLogSubtypeLikelihoodLists);
 
         // Modify the subtype list such that each non-empty subtype
         // represents a scenario of having the unknown added.
-        typeList.copyLists(typeListCopy);
+
         assignUnknownToAllPossibleSubtype(
                 typeListCopy, propSetSizeLists, unknownObsIndex);
 
+        int propUnknownEltIndex = typeListCopy.getUnknownObsEltIndex(
+                unknownObsIndex + typeListCopy.getUnknownStartIndex(),
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
+        typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, propUnknownEltIndex);
+
+        likelihoodCopy.getLogLikelihood();
+        likelihoodCopy.getLogSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
 
 
-        likelihoodCopy.getSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
+        swapLogSubtypeLikelihood(
+                currLogSubtypeLikelihoodLists, propLogSubtypeLikelihoodLists,
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
 
         // Calculate the full log likelihoods under each assignment scenario
-        likelihoodCopy.getLogTypeLikelihoods(logTypeLikelihoods);
+        likelihood.getLogTypeLikelihoods(logTypeLikelihoods);
+        logTypeLikelihoods[currUnknownTypeIndex] = 0;
+        for(int setIndex = 0; setIndex < currLogSubtypeLikelihoodLists[currUnknownTypeIndex].length; setIndex++){
+            logTypeLikelihoods[currUnknownTypeIndex] += currLogSubtypeLikelihoodLists[currUnknownTypeIndex][setIndex];
+        }
+
+        getLogTypeLikelihoodsLessCurrUnknown(likelihood, logTypeLikelihoods,
+                currLogSubtypeLikelihoodLists, currUnknownTypeIndex);
+
         calcFullLogLikelihoods(logTypeLikelihoods,
                 logFullLikelihoods,
                 currLogSubtypeLikelihoodLists,
@@ -385,13 +420,34 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         int subtypeIndex = sampleIndex(fullConditonals);
         int[] assignedIndexes = mapToTypeListPos(typeList, subtypeIndex);
 
-        
 
-        // typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+
+        //
         // typeList.addObs(assignedIndexes[0], assignedIndexes[1], unknownObsIndex);
         // Return to the likelihood before assigning the unknown.
 
         return 0.0;
+    }
+
+    public static void swapLogSubtypeLikelihood(double[][] logSubtypeLikelihoodLists1,
+                                                double[][] logSubtypeLikelihoodLists2,
+                                                int typeIndex,
+                                                int subtypeIndex){
+        double temp = logSubtypeLikelihoodLists1[typeIndex][subtypeIndex];
+        logSubtypeLikelihoodLists1[typeIndex][subtypeIndex]
+                = logSubtypeLikelihoodLists2[typeIndex][subtypeIndex];
+        logSubtypeLikelihoodLists2[typeIndex][subtypeIndex] = temp;
+    }
+
+    public static void getLogTypeLikelihoodsLessCurrUnknown(CompoundClusterLikelihood likelihood,
+                                               double[] logTypeLikelihoods,
+                                               double[][] logSubtypeLikelihoodLists,
+                                               int typeIndex){
+        likelihood.getLogTypeLikelihoods(logTypeLikelihoods);
+        logTypeLikelihoods[typeIndex] = 0;
+        for(int setIndex = 0; setIndex < logSubtypeLikelihoodLists[typeIndex].length; setIndex++){
+            logTypeLikelihoods[typeIndex] += logSubtypeLikelihoodLists[typeIndex][setIndex];
+        }
     }
 
 
