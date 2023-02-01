@@ -365,14 +365,13 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
                 test1.getShapeA(),
                 test1.getShapeB(),
                 test1.getTypeList());
-        lik.getLogLikelihood();
+        double totalLogLik = lik.getLogLikelihood();
 
 
 
 
         double[] logLiks = new double[typeList.getTypeCount()];
         double[][] logSubtypeLiks = new double[typeList.getTypeCount()][typeList.getMaxSubTypeCount(0)];
-        lik.getLogTypeLikelihoods(logLiks);
         lik.getLogSubtypeLikelihoods(logSubtypeLiks);
 
         typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
@@ -388,6 +387,18 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         double[][] logSubtypeLiksCopy = new double[typeList.getTypeCount()][typeList.getMaxSubTypeCount(0)];
         likCopy.getLogTypeLikelihoods(logLiksCopy);
         likCopy.getLogSubtypeLikelihoods(logSubtypeLiksCopy);
+
+
+        double[][] logFullLikelihoods = new double[logSubtypeLiks.length][];
+        for(int typeIndex = 0; typeIndex < logFullLikelihoods.length; typeIndex++){
+            logFullLikelihoods[typeIndex] = new double[logSubtypeLiks[typeIndex].length];
+        }
+        SingleUnknownGibbsSampler.prepareAndCalcFullLogLikelihoods(totalLogLik,
+                logFullLikelihoods,
+                logSubtypeLiks,
+                logSubtypeLiksCopy,
+                currUnknownTypeIndex,
+                currUnknownSubtypeIndex);
 
 
 

@@ -60,7 +60,7 @@ public class CompoundMarkerDataWithUnknown extends CompoundMarkerData{
             if(obsIndex < getUnknownStartIndex){
                 return super.getData(mkrGrpIndex, obsIndex, mkrIndex);
             }else{
-                System.out.println(mkrGrpIndex+" "+(obsIndex )+" " +getUnknownStartIndex + " "+mkrIndex);
+                //System.out.println(mkrGrpIndex+" "+(obsIndex )+" " +getUnknownStartIndex + " "+mkrIndex);
                 return unknownFluid[mkrGrpIndex][obsIndex - getUnknownStartIndex][mkrIndex];
             }
 
