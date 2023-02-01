@@ -32,6 +32,19 @@ public class TypeList extends AbstractState {
 
     }
 
+
+    public void copyLists(TypeList desTypeList){
+        int setCount;
+        for(int typeIndex = 0; typeIndex < typeList.length; typeIndex++){
+            setCount = typeList[typeIndex].getSubTypeMaxCount();
+            for(int setIndex = 0; setIndex < setCount; setIndex++){
+                typeList[typeIndex].copySet(setIndex, desTypeList.getSubTypeList(typeIndex));
+            }
+
+        }
+    }
+
+
     public int getTypeCount(){
         return typeList.length;
     }

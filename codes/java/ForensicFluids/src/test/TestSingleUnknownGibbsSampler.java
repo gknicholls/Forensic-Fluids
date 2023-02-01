@@ -1,9 +1,13 @@
 package test;
 
+import data.CompoundMarkerData;
 import inference.SingleUnknownGibbsSampler;
 import junit.framework.TestCase;
 import model.CompoundClusterLikelihood;
+import state.Parameter;
 import state.TypeList;
+import state.TypeListWithUnknown;
+import utils.DataUtils;
 import utils.ParamUtils;
 
 import java.util.ArrayList;
@@ -11,6 +15,8 @@ import java.util.ArrayList;
 import inference.SingleUnknownGibbsSampler;
 
 public class TestSingleUnknownGibbsSampler extends TestCase {
+    public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
+
     class GibbsSamplerDummy extends SingleUnknownGibbsSampler {
 
         public GibbsSamplerDummy(){
@@ -26,6 +32,11 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         double[] getCurrLogMDPPrior();
         double[][] getExpectedLogMDPPriorForAllConfig();
         int[][][] getExpectedAssignUnknownToAllPossibleSubtype();
+        double getAlpha5();
+        double getAlpha7();
+        Parameter[] getShapeA();
+        Parameter[] getShapeB();
+        CompoundMarkerData getDatasets();
 
     }
     /*protected Instance test0 = new Instance() {
@@ -37,54 +48,101 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
 
     protected Instance test1 = new Instance() {
         public TypeList getTypeList() {
-            String clusteringStr = "[[0,3,5,7,8,12,31,39],[1,2,4,6,9,10,11,13,15,21,33,36,37,38,43,45,46,49,50,51,52,53,54,55,56,57],[14,16,17,18,19,20,22,23,24,25,26,27,28,29,30,32,34,35,40,41,42,44,47,48,58]] [[0,1,2,3,4,5,9,12,14,15,16,17,18,20,21,25,26,27,28,29,30],[6,10,11,13,19,22,23,24],[7,8]] [[0,37,48,50,69,71,72,73,74,75,76,79],[1],[2,3,4,5,6,7,8,11,12,14,15,16,18,20,21,22,23,24,25,27,29,30,31,33,34,35,36,38,39,40,41,42,43,44,46,47,49,51,52,58,63,64,65,66,70],[9,10,13,17,19,26,28,32,45,53,54,55,56,57,59,60,61,62,67,68,77,78]] [[0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,35,36,37,38,43,45,46,47,50,51,52,54,55,56,57,58,59,60,61,62,63,64],[29,30,31,32,33,34,39,40,41,42,44,48,49,53],[9]] [[0,1,3,4,5,6,7,8,9,10,11,13,15,16,17,19,22,23,24,25,26,27,28,29,30,44,45,46,57,58,60,61,62,66,67,68,69,70,71,72,73,75,319],[2,12,14,18,20,21,31,32,33,34,35,36,37,38,39,40,41,42,43,47,48,49,50,51,52,53,54,55,56,59,63,64,65,76,77,78,79,80,81,82,83],[74]]";
+            String clusteringStr = "[[0,1,2,3,4,5,6,7,8,9,10,11,12,14,20,32,36,37,38,42,45,48,49,50,51,52,53,54,55,56],[13,15,16,17,18,19,21,22,23,24,25,26,27,28,29,31,33,34,35,39,40,41,43,44,46,47,57],[30]] [[0,1,2,3,4,5,9,11,12,14,15,16,17,18,19,20,21,22,25,26,27,28,29,30],[6,10,13,23,24],[7,8]] [[0,2,3,4,5,6,7,8,11,12,14,15,16,18,20,21,22,23,24,25,27,29,30,31,33,34,35,36,38,39,40,41,42,43,44,46,47,48,49,51,52,58,63,64,65,66,70,72],[1,9,10,13,17,19,26,28,32,45,53,54,55,56,57,59,60,61,62,67,68,77,78],[37,50,69,71,73,74,75,76,79]] [[0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,35,36,37,38,43,45,46,47,50,51,52,54,55,56,57,58,59,60,61,62,63,64],[29,30,31,32,33,34,39,40,41,42,44,48,49,53],[9]] [[0,1,3,4,5,6,7,8,11,15,16,17,19,21,22,23,24,25,27,28,29,30,32,45,46,47,58,61,62,66,67,68,69,70,72,73,74,75,83,85],[2,9,10,12,13,14,18,20,26,34,35,36,37,38,39,40,48,49,53,54,55,57,59,63,65,71,76,77,78,79,80,81,82,84],[31,33,41,42,43,44,50,51,52,56,60,64]]";
             TypeList typeList = ParamUtils.createTypeList(
-                    new int[]{59, 31, 80, 65, 85}, 5, clusteringStr);
+                    new int[]{58, 31, 80, 65, 86}, 5, clusteringStr);
             return typeList;
         }
+
         public int[][] getExpectedCurrSetSizesAcrossType(){
             return new int[][]{
-                    {8, 26, 25, 0, 0},
-                    {21, 8, 2, 0, 0},
-                    {12, 1, 45, 22, 0},
-                    {50, 14, 1, 0, 0},
-                    {43, 41, 1, 0, 0}
+                    {30, 27,  1, 0, 0},
+                    {24,  5,  2, 0, 0},
+                    {48, 23,  9, 0, 0},
+                    {50, 14,  1, 0, 0},
+                    {40, 34, 12, 0, 0}
             };
         }
 
         public int[][] getExpectedAllConfigSetSizesAcrossType(){
             return new int[][]{
-                    {9, 27, 26, 1, 0},
-                    {22, 9, 3, 1, 0},
-                    {13, 2, 46, 23, 1},
-                    {51, 15, 2, 1, 0},
-                    {44, 42, 2, 1, 0}
+                    {31, 28,  2, 1, 0},
+                    {25,  6,  3, 1, 0},
+                    {49, 24, 10, 1, 0},
+                    {51, 15,  2, 1, 0},
+                    {41, 35, 13, 1, 0}
             };
         }
 
         public double[] getCurrLogMDPPrior(){
-            return new double[]{-62.26213580002307, -26.748789244685437, -85.87477357715842, -41.53562408804972, -66.81806535514022};
+            return new double[]{-47.26127067791871,	-22.87807218558841,	-76.70274010726419,	-41.53562408804975,	-89.88950063110903};
         }
 
         public double[][] getExpectedLogMDPPriorForAllConfig(){
             return new double[][]{
-                    {-285.2326938559247, -284.0643651379126, -284.1034013386967, -288.7500439300487, 0},
-                    {-283.6450896077328, -284.5990888366032, -285.9333535262773, -287.9343674346589, 0},
-                    {-285.1342346171148, -287.5239061593556, -283.8191622232595, -284.5322361798105, -289.8355410878696},
-                    {-283.5083748044323, -284.7753553314218, -287.3120885562369, -288.8751692399484, 0},
-                    {-283.9245577962586, -283.9720670273163, -287.5883514609507, -289.2488445441851, 0}
+                    {-278.9327790446595, -279.0376951482387, -282.2242100334603, -283.7609433932106, 0},
+                    {-278.5402353842051, -280.0862873342446, -280.9611731511506, -282.9621870595322, 0},
+                    {-278.2672076899302, -279.5158203752669, -280.4467130882813, -284.5322361798105, 0},
+                    {-278.5361944293055, -279.8031749562952, -282.3399081811102, -283.9029888648216, 0},
+                    {-279.0361400646326, -279.1981970783448, -280.2340224890614, -284.2882888277161, 0}
             };
         }
 
         public int[][][] getExpectedAssignUnknownToAllPossibleSubtype(){
             return new int[][][]{
-                {{0,3,5,7,8,12,31,39, 321}, {1,2,4,6,9,10,11,13,15,21,33,36,37,38,43,45,46,49,50,51,52,53,54,55,56,57, 321}, {14,16,17,18,19,20,22,23,24,25,26,27,28,29,30,32,34,35,40,41,42,44,47,48,58, 321}, {321}, {}},
-                    {{0,1,2,3,4,5,9,12,14,15,16,17,18,20,21,25,26,27,28,29,30, 321}, {6,10,11,13,19,22,23,24, 321}, {7,8, 321}, {321}, {}},
-                    {{0,37,48,50,69,71,72,73,74,75,76,79, 321}, {1, 321}, {2,3,4,5,6,7,8,11,12,14,15,16,18,20,21,22,23,24,25,27,29,30,31,33,34,35,36,38,39,40,41,42,43,44,46,47,49,51,52,58,63,64,65,66,70, 321}, {9,10,13,17,19,26,28,32,45,53,54,55,56,57,59,60,61,62,67,68,77,78, 321}, {321}},
-                    {{0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,35,36,37,38,43,45,46,47,50,51,52,54,55,56,57,58,59,60,61,62,63,64, 321}, {29,30,31,32,33,34,39,40,41,42,44,48,49,53, 321}, {9, 321}, {321}, {}},
-                    {{0,1,3,4,5,6,7,8,9,10,11,13,15,16,17,19,22,23,24,25,26,27,28,29,30,44,45,46,57,58,60,61,62,66,67,68,69,70,71,72,73,75,319,321}, {2,12,14,18,20,21,31,32,33,34,35,36,37,38,39,40,41,42,43,47,48,49,50,51,52,53,54,55,56,59,63,64,65,76,77,78,79,80,81,82,83, 321}, {74, 321}, {321}, {}}
+                {{0,1,2,3,4,5,6,7,8,9,10,11,12,14,20,32,36,37,38,42,45,48,49,50,51,52,53,54,55,56, 320}, {13,15,16,17,18,19,21,22,23,24,25,26,27,28,29,31,33,34,35,39,40,41,43,44,46,47,57, 320}, {30, 320}, {320}, {}},
+                    {{0,1,2,3,4,5,9,11,12,14,15,16,17,18,19,20,21,22,25,26,27,28,29,30, 320}, {6,10,13,23,24, 320}, {7,8, 320}, {320}, {}},
+                    {{0,2,3,4,5,6,7,8,11,12,14,15,16,18,20,21,22,23,24,25,27,29,30,31,33,34,35,36,38,39,40,41,42,43,44,46,47,48,49,51,52,58,63,64,65,66,70,72, 320}, {1,9,10,13,17,19,26,28,32,45,53,54,55,56,57,59,60,61,62,67,68,77,78, 320}, {37,50,69,71,73,74,75,76,79, 320},{320}, {}},
+                    {{0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,35,36,37,38,43,45,46,47,50,51,52,54,55,56,57,58,59,60,61,62,63,64, 320}, {29,30,31,32,33,34,39,40,41,42,44,48,49,53, 320}, {9, 320}, {320}, {}},
+                    {{0,1,3,4,5,6,7,8,11,15,16,17,19,21,22,23,24,25,27,28,29,30,32,45,46,47,58,61,62,66,67,68,69,70,72,73,74,75,83,85,320}, {2,9,10,12,13,14,18,20,26,34,35,36,37,38,39,40,48,49,53,54,55,57,59,63,65,71,76,77,78,79,80,81,82,84, 320}, {31,33,41,42,43,44,50,51,52,56,60,64, 320}, {320}, {}}
 
             };
+        }
+
+        public double getAlpha5(){
+            return 0.49;
+        }
+
+        public double getAlpha7(){
+            return 0.375;
+        }
+
+        public Parameter[] getShapeA(){
+            Parameter[] shapeAParams = new Parameter[5];
+            shapeAParams[0] = new Parameter("shapeA0", new double[]{1.000, 0.200, 0.200, 0.200, 0.200}, 0.0);
+            shapeAParams[1] = new Parameter("shapeA1", new double[]{1.000, 1.000, 0.200, 1.000, 0.200}, 0.0);
+            shapeAParams[2] = new Parameter("shapeA2", new double[]{0.200, 0.200, 0.450, 0.200, 0.200}, 0.0);
+            shapeAParams[3] = new Parameter("shapeA3", new double[]{0.200, 0.200, 0.200, 0.450, 0.200}, 0.0);
+            shapeAParams[4] = new Parameter("shapeA4", new double[]{0.200, 0.200, 0.200, 0.200, 0.450}, 0.0);
+
+            return shapeAParams;
+        }
+
+
+        public Parameter[] getShapeB(){
+            Parameter[] shapeBParams = new Parameter[5];
+            shapeBParams[0] = new Parameter("shapeB0", new double[]{1.000, 0.800, 0.800, 0.800, 0.800}, 0.0);
+            shapeBParams[1] = new Parameter("shapeB1", new double[]{1.000, 1.000, 0.800, 1.000, 0.800}, 0.0);
+            shapeBParams[2] = new Parameter("shapeB2", new double[]{0.800, 0.800, 0.150, 0.800, 0.800}, 0.0);
+            shapeBParams[3] = new Parameter("shapeB3", new double[]{0.800, 0.800, 0.800, 0.150, 0.800}, 0.0);
+            shapeBParams[4] = new Parameter("shapeB4", new double[]{0.800, 0.800, 0.800, 0.800, 0.150}, 0.0);
+
+            return shapeBParams;
+        }
+
+        public CompoundMarkerData getDatasets(){
+            ArrayList<String> trainingDataPathList = new ArrayList<>();
+            trainingDataPathList.add("/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/loocvTrain_cvf_train_1.csv");
+            trainingDataPathList.add("/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/singleBin_mtb.csv");
+            trainingDataPathList.add("/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/singleBin_slv.csv");
+            trainingDataPathList.add("/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/singleBin_bld.csv");
+            trainingDataPathList.add("/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/singleBin_smn.csv");
+            String unknownPath = "/Users/chwu/Documents/research/bfc/data/loocvCut/cvf/loocvTrain_cvf_unknown_1.csv";
+            CompoundMarkerData dataSets = DataUtils.createData(
+                    trainingDataPathList,
+                    null, new int[]{58, 31, 80, 65, 86}, COL_RANGE, 1, getTypeList());
+
+            return dataSets;
         }
 
     };
@@ -121,6 +179,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
 
     public void testCalcLogMDPPriorForAllConfig(){
         TypeList typeList = test1.getTypeList();
+
         double[][] logTypeMDPPriors = new double[typeList.getTypeCount()][];
         int[][] currSetSizeListsExptd = test1.getExpectedCurrSetSizesAcrossType();
         int[][] allConfigSetSizeListsExptd = test1.getExpectedAllConfigSetSizesAcrossType();
@@ -132,7 +191,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
 
         for(int i = 0; i < logTypeMDPPriors.length; i++){
             for(int j = 0; j < logTypeMDPPriors[1].length; j++){
-                //System.out.println(logTypeMDPPriors[0][j]);
+                //System.out.println(logTypeMDPPriors[4][j]);
                 assertEquals(logTypeMDPPriors[4][j], logTypeMDPPriorsExpted[4][j], 1e-10);
             }
         }
@@ -145,7 +204,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         TypeList typeList = test1.getTypeList();
         TypeList typeListCopy = typeList.copy();
         SingleUnknownGibbsSampler.assignUnknownToAllPossibleSubtype(
-                typeListCopy, test1.getExpectedAllConfigSetSizesAcrossType(), typeList.getTotalCount() + 1
+                typeListCopy, test1.getExpectedAllConfigSetSizesAcrossType(), typeList.getTotalCount()
         );
 
 
@@ -159,6 +218,32 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
             }
 
         }
+    }
+
+    public void testSubLikelihood(){
+        String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets5.txt";
+        String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets7.txt";
+        int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
+        double[][] colPriors = DataUtils.getColPriors(
+                test1.getAlpha5(), test1.getAlpha7(),
+                allPartitionSets5File, allPartitionSets7File);
+
+        TypeList typeList = test1.getTypeList();
+        TypeList typeListCopy = typeList.copy();
+
+        CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood",
+                mkrGrpPartitions, colPriors, test1.getDatasets(),
+                test1.getShapeA(),
+                test1.getShapeB(),
+                test1.getTypeList());
+        //lik.getLogLikelihood();
+        System.out.println(lik.getLogLikelihood());
+        double[] logLiks = new double[test1.getTypeList().getTypeCount()];
+        lik.getLogTypeLikelihoods(logLiks);
+        for(int typeIndex = 0; typeIndex < logLiks.length; typeIndex++){
+            System.out.println(logLiks[typeIndex]);
+        }
+
     }
 
 

@@ -249,7 +249,7 @@ public class ClassifyForensicFluidCutModel {
                 logElts = mainChainLogLine.split("\t");
                 TypeList typeList = createTypeList(
                         totalObsCounts, maxRowClustCount, logElts[clusterIndex], null, initType);
-                CompoundMarkerData dataSets = createData(
+                CompoundMarkerData dataSets = DataUtils.createData(
                         trainingRNAProfilePathList, unknownPath, totalObsCounts, colRange, unknownCount, typeList);
 
                 proposals = setUpProposalMoves(typeList, null);
@@ -375,35 +375,7 @@ public class ClassifyForensicFluidCutModel {
         return typeList;
     }
 
-    private CompoundMarkerData createData(ArrayList<String> dataPathList,
-                                          String unknownPath, int[] totalObsCounts, int[][] colRange,
-                                          int unknownCount,
-                                          TypeList typeList) throws RuntimeException{
-        if(dataPathList.size() != totalObsCounts.length){
-            throw new RuntimeException("The number of data files does not match the number of type specific sample sizes.");
-        }
-        String[] dataPath = new String[dataPathList.size()];
-        dataPathList.toArray(dataPath);
 
-        int[][] rowInfo = new int[totalObsCounts.length][];
-        int[][][] colInfo = new int[totalObsCounts.length][][];
-        for(int typeIndex = 0; typeIndex < rowInfo.length; typeIndex++){
-            rowInfo[typeIndex] = new int[]{0, totalObsCounts[typeIndex] - 1};
-            colInfo[typeIndex] = colRange;
-        }
-
-        CompoundMarkerData dataSets;
-        if(unknownPath == null){
-            dataSets = new CompoundMarkerData(dataPath, rowInfo, colInfo);
-        }else{
-            int[] rowInfoUnknown = new int[]{0, unknownCount - 1};
-            dataSets = new CompoundMarkerDataWithUnknown(
-                    dataPath, unknownPath, rowInfo, colInfo, rowInfoUnknown, colRange, (TypeListWithUnknown) typeList);
-        }
-
-
-        return dataSets;
-    }
 
     private Parameter[] setupShapeParameters(List<String> shapeList, String label){
         String[] shapeStr = new String[shapeList.size()];

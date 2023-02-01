@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class SingleUnknownGibbsSampler extends ProposalMove{
     private TypeList typeList;
     private CompoundClusterLikelihood likelihood;
-    private int unknownObsIndex;
+    private CompoundClusterLikelihood likelihoodCopy;
     private double[] logMDPPriorValues;
     private double[] alphaValues;
     private int[][] currSetSizeLists;
@@ -25,6 +25,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     private int totalSubtype;
     private double[] logTypeLikelihoods;
     private double[][] logFullLikelihoods;
+    private TypeList typeListCopy;
 
     public SingleUnknownGibbsSampler(TypeList typeList,
                                      CompoundClusterLikelihood likelihood,
@@ -33,9 +34,11 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                                      double[] alphaValues){
         this.typeList = typeList;
         this.likelihood = likelihood;
-        this.unknownObsIndex = unknownObsIndex;
         this.logMDPPriorValues = logMDPPriorValues;
         this.alphaValues = alphaValues;
+        typeListCopy = this.typeList.copy();
+        setLikelihoodCopy();
+
 
         currSetSizeLists = new int[typeList.getTypeCount()][];
         propSetSizeLists = new int[typeList.getTypeCount()][];
@@ -56,10 +59,22 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
+
+
     public SingleUnknownGibbsSampler() {
 
     }
 
+    public void setLikelihoodCopy(){
+        likelihoodCopy = new CompoundClusterLikelihood("multitypeLikelihood");
+        likelihood.shareMkrGrpParts(likelihoodCopy);
+        likelihood.shareColPriors(likelihoodCopy);
+        likelihood.shareData(likelihoodCopy);
+        likelihood.shareAlphaC(likelihoodCopy);
+        likelihood.shareBetaC(likelihoodCopy);
+        likelihoodCopy.setTypeClusters(typeListCopy);
+        likelihoodCopy.setUp();
+    }
 
     protected void initialiseLogSubtypeLikLists(double[][] logSubtypeLikLists,
                                               TypeList typeList){
@@ -322,7 +337,14 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
 
 
+
+
     public double proposal(){
+        int unknownObsIndex = -1;
+        int currUnknownTypeIndex = -1;
+        int currUnknownSubtypeIndex = -1;
+        int currUnknownEltIndex = -1;
+
         // Initialises currSetSizeLists
         getCurrSetSizesAcrossType(currSetSizeLists, typeList);
         // Calculate the size of each subtype when a the unknown sample is added.
@@ -339,13 +361,16 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
         // Modify the subtype list such that each non-empty subtype
         // represents a scenario of having the unknown added.
-        TypeList typeListCopy = typeList.copy();
+        typeList.copyLists(typeListCopy);
         assignUnknownToAllPossibleSubtype(
                 typeListCopy, propSetSizeLists, unknownObsIndex);
-        likelihood.getSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
+
+
+
+        likelihoodCopy.getSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
 
         // Calculate the full log likelihoods under each assignment scenario
-        likelihood.getLogTypeLikelihoods(logTypeLikelihoods);
+        likelihoodCopy.getLogTypeLikelihoods(logTypeLikelihoods);
         calcFullLogLikelihoods(logTypeLikelihoods,
                 logFullLikelihoods,
                 currLogSubtypeLikelihoodLists,
@@ -360,11 +385,11 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         int subtypeIndex = sampleIndex(fullConditonals);
         int[] assignedIndexes = mapToTypeListPos(typeList, subtypeIndex);
 
-        // Return to the configuration before assigning the unknown.
-        typeList.restore();
-        typeList.addObs(assignedIndexes[0], assignedIndexes[1], unknownObsIndex);
+        
+
+        // typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
+        // typeList.addObs(assignedIndexes[0], assignedIndexes[1], unknownObsIndex);
         // Return to the likelihood before assigning the unknown.
-        likelihood.restore();
 
         return 0.0;
     }

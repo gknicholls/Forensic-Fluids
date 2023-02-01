@@ -51,6 +51,23 @@ public class SubTypeList extends AbstractState {
         return SubTypeListCopy;
     }
 
+    public void copySet(int setIndex, SubTypeList desList){
+        ArrayList<Integer> set = desList.getSet(setIndex);
+        set.clear();
+        int setSize = subtypeList[setIndex].size();
+        if(setSize == 0){
+            return;
+        }
+        for(int eltIndex = 0; eltIndex < setSize; eltIndex++){
+            set.add(subtypeList[setIndex].get(eltIndex));
+        }
+
+    }
+
+    private ArrayList<Integer> getSet(int setIndex){
+        return subtypeList[setIndex];
+    }
+
 
     public SubTypeList(ArrayList<Integer>[] subtypeList){
         this("subTypeList", subtypeList);

@@ -1,6 +1,7 @@
 package utils;
 
 import state.SubTypeList;
+import state.TypeList;
 import state.TypeListWithUnknown;
 
 import java.util.ArrayList;
@@ -87,9 +88,9 @@ public class ParamUtils {
         return typeList;
     }
 
-    public static TypeListWithUnknown createTypeList(int[] totalObsCounts,
-                                                     int maxRowClustCount,
-                                                     String clustering){
+    public static TypeList createTypeList(int[] totalObsCounts,
+                                          int maxRowClustCount,
+                                          String clustering){
 
         int totalCount = 0;
         SubTypeList[] subTypeLists = new SubTypeList[totalObsCounts.length];
@@ -130,7 +131,7 @@ public class ParamUtils {
 
         }
 
-        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, totalCount);
+        TypeList typeList = new TypeList(subTypeLists);
         return typeList;
 
     }

@@ -1,10 +1,15 @@
 package utils;
 
+import data.CompoundMarkerData;
+import data.CompoundMarkerDataWithUnknown;
 import data.SingleMarkerData;
 import model.ClusterPrior;
+import state.TypeList;
+import state.TypeListWithUnknown;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 
 public class DataUtils {
 
@@ -246,6 +251,36 @@ public class DataUtils {
             seqVals[index] = Integer.parseInt(seqValuesStr[index]);
         }
         return seqVals;
+    }
+
+    public static CompoundMarkerData createData(ArrayList<String> dataPathList,
+                                          String unknownPath, int[] totalObsCounts, int[][] colRange,
+                                          int unknownCount,
+                                          TypeList typeList) throws RuntimeException{
+        if(dataPathList.size() != totalObsCounts.length){
+            throw new RuntimeException("The number of data files does not match the number of type specific sample sizes.");
+        }
+        String[] dataPath = new String[dataPathList.size()];
+        dataPathList.toArray(dataPath);
+
+        int[][] rowInfo = new int[totalObsCounts.length][];
+        int[][][] colInfo = new int[totalObsCounts.length][][];
+        for(int typeIndex = 0; typeIndex < rowInfo.length; typeIndex++){
+            rowInfo[typeIndex] = new int[]{0, totalObsCounts[typeIndex] - 1};
+            colInfo[typeIndex] = colRange;
+        }
+
+        CompoundMarkerData dataSets;
+        if(unknownPath == null){
+            dataSets = new CompoundMarkerData(dataPath, rowInfo, colInfo);
+        }else{
+            int[] rowInfoUnknown = new int[]{0, unknownCount - 1};
+            dataSets = new CompoundMarkerDataWithUnknown(
+                    dataPath, unknownPath, rowInfo, colInfo, rowInfoUnknown, colRange, (TypeListWithUnknown) typeList);
+        }
+
+
+        return dataSets;
     }
 
 

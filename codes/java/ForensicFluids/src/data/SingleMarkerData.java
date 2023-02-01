@@ -13,6 +13,7 @@ public class SingleMarkerData {
     }
 
     public int getData(int mkrGrpIndex, int obsIndex, int mkrIndex){
+        //System.out.println(mkrGrpIndex+" "+obsIndex+" "+mkrIndex);
         return singleTypeData[mkrGrpIndex][obsIndex][mkrIndex];
     }
 

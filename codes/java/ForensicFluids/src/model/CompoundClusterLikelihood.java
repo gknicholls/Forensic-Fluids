@@ -5,11 +5,11 @@ import state.Parameter;
 import state.TypeList;
 
 public class CompoundClusterLikelihood extends AbstractProbability {
-    //private int[][][][] eltsAllPartSetList;
-    //private double[][] eltsAllPartSetPriorList;
-    //private CompoundMarkerData multiTypeSamples;
-    //private double[] alphaC;
-    //private  double[] betaC;
+    private int[][][][] eltsAllPartSetList;
+    private double[][] eltsAllPartSetPriorList;
+    private CompoundMarkerData multiTypeSamples;
+    private Parameter[] alphaC;
+    private Parameter[] betaC;
     private TypeList typeClusters;
     private ClusterLikelihood[] liks;
     private double[] logMultiTypeLikelihoods;
@@ -17,17 +17,39 @@ public class CompoundClusterLikelihood extends AbstractProbability {
     private double logMultiTypeLikelihood;
     private double storedLogMultiTypeLikelihood;
 
+    public CompoundClusterLikelihood(String label){
+        super(label);
+    }
+
+
+
+
     public CompoundClusterLikelihood(String label,
                                      int[][][][] eltsAllPartSetList,
                                      double[][] eltsAllPartSetPriorList,
                                      CompoundMarkerData multiTypeSamples,
-                                     double[][] alphaC,
-                                     double[][] betaC,
+                                     double[][] alphaCValues,
+                                     double[][] betaCValues,
                                      TypeList typeClusters){
         super(label);
-
-        //this.multiTypeSamples = multiTypeSamples;
+        this.eltsAllPartSetList = eltsAllPartSetList;
+        this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
+        this.multiTypeSamples = multiTypeSamples;
         this.typeClusters = typeClusters;
+
+        alphaC = new Parameter[alphaCValues.length];
+        betaC = new Parameter[betaCValues.length];
+        for(int typeIndex = 0; typeIndex < alphaC.length; typeIndex++){
+            alphaC[typeIndex] = new Parameter("shape.a", alphaCValues[typeIndex], 0);
+            betaC[typeIndex] = new Parameter("shape.b", betaCValues[typeIndex], 0);
+        }
+
+
+
+        setUp();
+    }
+
+    public void setUp(){
         logMultiTypeLikelihoods = new double[typeClusters.getTypeCount()];
         storedLogMultiTypeLikelihoods = new double[logMultiTypeLikelihoods.length];
 
@@ -36,13 +58,10 @@ public class CompoundClusterLikelihood extends AbstractProbability {
             liks[typeIndex] = new ClusterLikelihood(
                     eltsAllPartSetList, eltsAllPartSetPriorList,
                     multiTypeSamples.getData(typeIndex),
-                    new Parameter("shape.a", alphaC[typeIndex], 0),
-                    new Parameter("shape.b", betaC[typeIndex], 0),
+                    alphaC[typeIndex], betaC[typeIndex],
                     typeClusters.getSubTypeList(typeIndex));
         }
     }
-
-
 
     public CompoundClusterLikelihood(String label,
                                      int[][][][] eltsAllPartSetList,
@@ -53,11 +72,19 @@ public class CompoundClusterLikelihood extends AbstractProbability {
                                      TypeList typeClusters){
         super(label);
 
-
-        //this.multiTypeSamples = multiTypeSamples;
+        this.eltsAllPartSetList = eltsAllPartSetList;
+        this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
+        this.multiTypeSamples = multiTypeSamples;
+        this.alphaC = alphaC;
+        this.betaC = betaC;
         this.typeClusters = typeClusters;
-        logMultiTypeLikelihoods = new double[typeClusters.getTypeCount()];
+        setUp();
+
+
+
+        /*logMultiTypeLikelihoods = new double[typeClusters.getTypeCount()];
         storedLogMultiTypeLikelihoods = new double[logMultiTypeLikelihoods.length];
+
 
         liks = new ClusterLikelihood[typeClusters.getTypeCount()];
         for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
@@ -67,8 +94,9 @@ public class CompoundClusterLikelihood extends AbstractProbability {
                     multiTypeSamples.getData(typeIndex),
                     alphaC[typeIndex], betaC[typeIndex],
                     typeClusters.getSubTypeList(typeIndex));
-        }
+        }*/
     }
+
 
     public double getLogLikelihood(){
 
@@ -157,4 +185,34 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         }
         System.out.println();*/
     }
+
+    public void shareMkrGrpParts(CompoundClusterLikelihood desLik){
+        desLik.eltsAllPartSetList = this.eltsAllPartSetList;
+
+
+
+
+    }
+
+    public void shareColPriors(CompoundClusterLikelihood desLik) {
+        desLik.eltsAllPartSetPriorList = this.eltsAllPartSetPriorList;
+    }
+
+    public void shareData(CompoundClusterLikelihood desLik) {
+        desLik.multiTypeSamples = this.multiTypeSamples;
+    }
+
+    public void shareAlphaC(CompoundClusterLikelihood desLik) {
+        desLik.alphaC = this.alphaC;
+    }
+
+    public void shareBetaC(CompoundClusterLikelihood desLik) {
+        desLik.betaC = this.betaC;
+    }
+
+    public void setTypeClusters(TypeList typeList){
+        this.typeClusters = typeList;
+    }
+
+
 }
