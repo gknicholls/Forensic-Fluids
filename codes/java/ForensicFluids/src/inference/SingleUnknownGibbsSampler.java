@@ -25,7 +25,6 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     private double[][] currLogSubtypeLikelihoodLists;
     private double[][] propLogSubtypeLikelihoodLists;
     private int totalSubtype;
-    private double[] logTypeLikelihoods;
     private double[][] logFullLikelihoods;
 
 
@@ -56,7 +55,6 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
             totalSubtype += typeList.getMaxSubTypeCount(typeIndex);
         }
 
-        logTypeLikelihoods = new double[typeList.getTypeCount()];
 
 
     }
@@ -217,16 +215,12 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
-    protected static void calcFullLogLikelihoods(double[] logTypeLikelihoods,
+    protected static void calcFullLogLikelihoods(double totalLogLik,
                                      double[][] logFullLikelihoods,
                                      double[][] currLogSubtypeLikelihoodLists,
                                      double[][] propLogSubtypeLikelihoodLists){
 
-        //Compute the full log likelihood without the unknown type
-        double totalLik = 0.;
-        for(int typeIndex = 0; typeIndex < logFullLikelihoods.length; typeIndex++){
-            totalLik += logTypeLikelihoods[typeIndex];
-        }
+
 
         for(int typeIndex = 0; typeIndex < propLogSubtypeLikelihoodLists.length; typeIndex++){
             for(int setIndex = 0; setIndex < propLogSubtypeLikelihoodLists[typeIndex].length; setIndex++){
@@ -234,7 +228,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 // Replace the relevant "subtype likelihood without the unknown sample"
                 // with the corresponding  "subtype likelihood with the unknown sample".
                 if(propLogSubtypeLikelihoodLists[typeIndex][setIndex] != 0){
-                    logFullLikelihoods[typeIndex][setIndex] = totalLik -
+                    logFullLikelihoods[typeIndex][setIndex] = totalLogLik -
                             currLogSubtypeLikelihoodLists[typeIndex][setIndex] +
                             propLogSubtypeLikelihoodLists[typeIndex][setIndex];
                 }
@@ -388,7 +382,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 currUnknownTypeIndex, currUnknownSubtypeIndex);
         typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, propUnknownEltIndex);
 
-        likelihoodCopy.getLogLikelihood();
+        double totalLogLik = likelihoodCopy.getLogLikelihood();
         likelihoodCopy.getLogSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
 
 
@@ -397,16 +391,14 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 currUnknownTypeIndex, currUnknownSubtypeIndex);
 
         // Calculate the full log likelihoods under each assignment scenario
-        likelihood.getLogTypeLikelihoods(logTypeLikelihoods);
-        logTypeLikelihoods[currUnknownTypeIndex] = 0;
-        for(int setIndex = 0; setIndex < currLogSubtypeLikelihoodLists[currUnknownTypeIndex].length; setIndex++){
-            logTypeLikelihoods[currUnknownTypeIndex] += currLogSubtypeLikelihoodLists[currUnknownTypeIndex][setIndex];
-        }
+        //likelihood.getLogTypeLikelihoods(logTypeLikelihoods);
 
-        getLogTypeLikelihoodsLessCurrUnknown(likelihood, logTypeLikelihoods,
-                currLogSubtypeLikelihoodLists, currUnknownTypeIndex);
 
-        calcFullLogLikelihoods(logTypeLikelihoods,
+        totalLogLik = getTotalLogTypeLikelihoodLessCurrUnknown(totalLogLik,
+                currLogSubtypeLikelihoodLists, propLogSubtypeLikelihoodLists,
+                currUnknownTypeIndex, currUnknownSubtypeIndex);
+
+        calcFullLogLikelihoods(totalLogLik,
                 logFullLikelihoods,
                 currLogSubtypeLikelihoodLists,
                 propLogSubtypeLikelihoodLists);
@@ -439,15 +431,13 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         logSubtypeLikelihoodLists2[typeIndex][subtypeIndex] = temp;
     }
 
-    public static void getLogTypeLikelihoodsLessCurrUnknown(CompoundClusterLikelihood likelihood,
-                                               double[] logTypeLikelihoods,
-                                               double[][] logSubtypeLikelihoodLists,
-                                               int typeIndex){
-        likelihood.getLogTypeLikelihoods(logTypeLikelihoods);
-        logTypeLikelihoods[typeIndex] = 0;
-        for(int setIndex = 0; setIndex < logSubtypeLikelihoodLists[typeIndex].length; setIndex++){
-            logTypeLikelihoods[typeIndex] += logSubtypeLikelihoodLists[typeIndex][setIndex];
-        }
+    public static double getTotalLogTypeLikelihoodLessCurrUnknown(double totalLogLik,
+                                                                double[][] beReplaced,
+                                                                double[][] replace,
+                                                                int typeIndex,
+                                                                int subtypeIndex){
+        return totalLogLik - beReplaced[typeIndex][subtypeIndex] + replace[typeIndex][subtypeIndex];
+
     }
 
 
