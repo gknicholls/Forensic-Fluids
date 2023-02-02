@@ -241,7 +241,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
-    protected static void getFullConditionalPosteriorProb(double[] fullConditonals,
+    public static void getFullConditionalPosteriorProb(double[] fullConditonals,
                                                         double[][] propLogSubtypeLikelihoodLists,
                                                         double[][] propLogMDPPriorValues){
         int counter = 0;
@@ -260,24 +260,29 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                     min = fullConditonals[counter];
                 }
 
+
+
                 counter++;
             }
 
         }
+
 
         // Get the posterior up to a normalising constant
         double total = 0.0;
         for(int index = 0; index < fullConditonals.length; index++){
             if(fullConditonals[index] != 0){
                 // Scale by the minimum to avoid under flow
-                fullConditonals[index] =- min;
+                fullConditonals[index] -= min;
                 // Exponentiate the log full conditional (after scaling by the minimum)
                 fullConditonals[index] = Math.exp(fullConditonals[index]);
                 // Update the normalising constant.
-                total =+ fullConditonals[index];
+                total += fullConditonals[index];
             }
 
         }
+
+
 
         // Normalise the full conditionals.
         for(int index = 0; index < fullConditonals.length; index++){
@@ -287,16 +292,25 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     }
 
-    protected static int sampleIndex(double[] probs){
+    public static int[] sampleRandomSubtype(double[] probs, TypeList typeList){
+        // Randomly sample from Unif(0, 1)
+        double sample = Randomizer.nextDouble();
+        int sampledIndex = sampleIndex(probs, sample);
+        return mapToTypeListPos(typeList, sampledIndex);
+
+    }
+
+    public static int sampleIndex(double[] probs, double sample){
 
         // Calculate the cumulative probabilities
         double[] cumProbs = new double[probs.length];
+        cumProbs[0] = probs[0];
         for(int index = 1; index < probs.length; index++){
-            cumProbs[index] = probs[index - 1] + probs[index];
+            cumProbs[index] = cumProbs[index - 1] + probs[index];
+
         }
 
-        // Randomly sample from Unif(0, 1)
-        double sample = Randomizer.nextDouble();
+
 
         int sampledIndex = -1;
         for(int index = 0; index < probs.length; index++){
@@ -311,12 +325,12 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         return sampledIndex;
     }
 
-    protected static int[] mapToTypeListPos(TypeList typeList, int index){
+    public static int[] mapToTypeListPos(TypeList typeList, int index){
 
         int assignedTypeIndex = -1;
         int assignedSubtypeIndex = -1;
         int temp = -1;
-
+        
         for(int typeIndex = 0; typeIndex < typeList.getTypeCount(); typeIndex++){
             // Check whether the modified index exceeds the subtype indexes in the current type.
             temp = index - typeList.getMaxSubTypeCount(typeIndex);
@@ -325,6 +339,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 assignedTypeIndex = typeIndex;
                 // the current index value indicates the subtype position
                 assignedSubtypeIndex = index;
+                break;
             }else{
                 // update the index value
                 index = temp;
@@ -336,13 +351,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
 
 
-
-
-
-
-
     public double proposal(){
-
 
         int unknownObsIndex = Randomizer.nextInt(typeList.getUnknownObsCount());
         // Retrieve the classification information on this sample.
@@ -352,20 +361,13 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 unknownObsIndex + typeList.getUnknownStartIndex(),
                 currUnknownTypeIndex, currUnknownSubtypeIndex);
 
-
-
         // Calculate the log subtype likelihoods in each fluid type
         // for the current configuration of the training set.
         double totalLogLik = likelihood.getLogLikelihood();
         likelihood.getLogSubtypeLikelihoods(currLogSubtypeLikelihoodLists);
 
-
-
         typeList.copyLists(typeListCopy);
-        typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
-
-
-
+        int obs = typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
 
         // Initialises currSetSizeLists
         getCurrSetSizesAcrossType(currSetSizeLists, typeList);
@@ -407,14 +409,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 propLogSubtypeLikelihoodLists, propLogMDPPriorValues);
 
         // Obtain the new type and subtype indexes.
-        int subtypeIndex = sampleIndex(fullConditonals);
-        int[] assignedIndexes = mapToTypeListPos(typeList, subtypeIndex);
+        int[] assignedIndexes = sampleRandomSubtype(fullConditonals, typeList);
 
-
-
-        //
-        // typeList.addObs(assignedIndexes[0], assignedIndexes[1], unknownObsIndex);
-        // Return to the likelihood before assigning the unknown.
+        typeList.addObs(assignedIndexes[0], assignedIndexes[1], obs);
 
         return 0.0;
     }
