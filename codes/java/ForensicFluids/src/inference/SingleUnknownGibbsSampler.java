@@ -30,7 +30,6 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     public SingleUnknownGibbsSampler(TypeListWithUnknown typeList,
                                      CompoundClusterLikelihood likelihood,
-                                     int unknownObsIndex,
                                      double[] logMDPPriorValues,
                                      double[] alphaValues){
         this.typeList = typeList;
@@ -330,7 +329,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         int assignedTypeIndex = -1;
         int assignedSubtypeIndex = -1;
         int temp = -1;
-        
+
         for(int typeIndex = 0; typeIndex < typeList.getTypeCount(); typeIndex++){
             // Check whether the modified index exceeds the subtype indexes in the current type.
             temp = index - typeList.getMaxSubTypeCount(typeIndex);

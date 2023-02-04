@@ -233,6 +233,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         int[][] currSetSizeListsExptd = test1.getExpectedCurrSetSizesAcrossType();
         for(int i = 0; i < currSetSizeLists.length; i++){
             for(int j = 0; j < currSetSizeLists[i].length; j++){
+                //
                 assertEquals(currSetSizeLists[i][j], currSetSizeListsExptd[i][j], 0);
             }
 
@@ -261,16 +262,13 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         double[] logMDPPriors = test1.getCurrLogMDPPrior();
         SingleUnknownGibbsSampler.calcLogMDPPriorForAllConfig(
                 logMDPPriors, alphaValues, typeList, currSetSizeListsExptd, allConfigSetSizeListsExptd, logTypeMDPPriors);
-        double[][] logTypeMDPPriorsExpted = test1.getExpectedLogMDPPriorForAllConfig();
+        double[][] logTypeMDPPriorsExptd = test1.getExpectedLogMDPPriorForAllConfig();
 
         for(int i = 0; i < logTypeMDPPriors.length; i++){
             for(int j = 0; j < logTypeMDPPriors[1].length; j++){
-                //System.out.println(logTypeMDPPriors[4][j]);
-                assertEquals(logTypeMDPPriors[4][j], logTypeMDPPriorsExpted[4][j], 1e-10);
+                assertEquals(logTypeMDPPriors[4][j], logTypeMDPPriorsExptd[4][j], 1e-10);
             }
         }
-        //System.out.println(logTypeMDPPriors[3][0]);
-
 
     }
 
@@ -399,7 +397,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
     }
 
 
-    public void testSubLikelihood(){
+    public void testFullLikelihood(){
         String allPartitionSets5File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets5.txt";
         String allPartitionSets7File = "/Users/chwu/Documents/research/bfc/data/loocvTrain/smn_2/allPartitionSets7.txt";
         int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
@@ -417,9 +415,6 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         int currUnknownEltIndex = typeList.getUnknownObsEltIndex(
                 unknownObsIndex + typeList.getUnknownStartIndex(),
                 currUnknownTypeIndex, currUnknownSubtypeIndex);
-
-
-
 
         CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood",
                 mkrGrpPartitions, colPriors, test1.getDatasets(),
@@ -488,7 +483,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         }
     }
 
-    public void testSampleIndex(){
+    public void testSampleSubtype(){
         double[] fullConditonals = test1.getExpectedFullConditionals();
         double[] quantile = test1.getRandomDouble();
         int[] sampleIndexExptd = test1.getFullConditionalIndexes();
