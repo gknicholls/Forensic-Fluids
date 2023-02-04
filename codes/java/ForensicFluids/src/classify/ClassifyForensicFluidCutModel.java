@@ -245,30 +245,25 @@ public class ClassifyForensicFluidCutModel {
             String mainChainLogLine = mainChainReader.readLine();
             int clusterIndex = findLogColumnIndex(mainChainLogLine, clusterName, "\t");
             String[] logElts;
-            while ((mainChainLogLine = mainChainLogLine) != null) {
+            while ((mainChainLogLine = mainChainReader.readLine()) != null) {
                 logElts = mainChainLogLine.split("\t");
 
                 //Create the TypeList for the clustering of the training data of the current posterior sample.
                 TypeListWithUnknown typeList = createTypeList(
                         totalObsCounts, maxRowClustCount, logElts[clusterIndex], unknownPath, unknownCount, initType);
 
-
-
                 CompoundMarkerDataWithUnknown dataSets = (CompoundMarkerDataWithUnknown)DataUtils.createData(
                         trainingRNAProfilePathList, unknownPath, totalObsCounts, colRange, unknownCount, typeList);
 
                 unknownTypePriorParamVals = setUpUnknownTypePrior(unknownTypePriorParamVals, typeList);
 
-
                 UnlabelledTypeWrapperParameter unknownTypeParam =
-                        new UnlabelledTypeWrapperParameter("unknownType", (TypeListWithUnknown) typeList);
-
+                        new UnlabelledTypeWrapperParameter("unknownType", typeList);
 
                 probs = setUpPosterior(alphaRow, maxRowClustCount, totalObsCounts,
                         typeList, mkrGrpPartitions, colPriors, dataSets, shapeAParams, shapeBParams,
                         unknownTypePriorParamVals, unknownTypeParam);
                 states = new State[]{typeList, unknownTypeParam};
-
 
                 proposals = setUpProposalMoves(typeList, (CompoundClusterLikelihood) probs[2], alphaRow);
 
