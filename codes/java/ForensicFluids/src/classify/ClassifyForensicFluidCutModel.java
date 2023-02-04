@@ -249,7 +249,7 @@ public class ClassifyForensicFluidCutModel {
                 logElts = mainChainLogLine.split("\t");
 
                 //Create the TypeList for the clustering of the training data of the current posterior sample.
-                TypeList typeList = createTypeList(
+                TypeListWithUnknown typeList = createTypeList(
                         totalObsCounts, maxRowClustCount, logElts[clusterIndex], unknownPath, unknownCount, initType);
 
 
@@ -269,8 +269,8 @@ public class ClassifyForensicFluidCutModel {
                         unknownTypePriorParamVals, unknownTypeParam);
                 states = new State[]{typeList, unknownTypeParam};
 
-                // to do
-                //proposals = setUpProposalMoves(typeList, likelihood, logMDPPriorValues, alphaRow);
+
+                proposals = setUpProposalMoves(typeList, (CompoundClusterLikelihood) probs[2], alphaRow);
 
                 constants = new State[]{shapeAParams[0], shapeAParams[1], shapeAParams[2], shapeAParams[3], shapeAParams[4],
                         shapeBParams[0], shapeBParams[1], shapeBParams[2], shapeBParams[3], shapeBParams[4]};
@@ -408,10 +408,9 @@ public class ClassifyForensicFluidCutModel {
 
     private ProposalMove[] setUpProposalMoves(TypeListWithUnknown typeList,
                                               CompoundClusterLikelihood likelihood,
-                                              double[] logMDPPriorValues,
                                               double[] alphaValues){
         SingleUnknownGibbsSampler singleGibbs = new SingleUnknownGibbsSampler(
-                typeList, likelihood, logMDPPriorValues, alphaValues);
+                typeList, likelihood, alphaValues);
         ProposalMove[] proposals = new ProposalMove[]{singleGibbs};
         return proposals;
 

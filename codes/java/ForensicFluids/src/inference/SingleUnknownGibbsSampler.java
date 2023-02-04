@@ -30,11 +30,10 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
 
     public SingleUnknownGibbsSampler(TypeListWithUnknown typeList,
                                      CompoundClusterLikelihood likelihood,
-                                     double[] logMDPPriorValues,
                                      double[] alphaValues){
         this.typeList = typeList;
         this.likelihood = likelihood;
-        this.logMDPPriorValues = logMDPPriorValues;
+        this.logMDPPriorValues = new double[typeList.getTypeCount()];
         this.alphaValues = alphaValues;
         typeListCopy = this.typeList.copy();
         likelihoodCopy = setLikelihoodCopy(this.likelihood, typeListCopy);
@@ -129,20 +128,35 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         }
     }
 
-    public static double[][] calcLogMDPPriorForAllConfig(double[] logTypeMDPPriors,
-                                                          double[] alphaValues,
+    public static double[][] calcLogMDPPriorForAllConfig(double[] alphaValues,
                                                           TypeList typeList,
                                                           int[][] currSetSizeLists,
                                                           int[][] propSetSizeLists,
                                                           double[][] logMDPPriors){
         int currSetSize;
-        double constant = 0;
         double newLogTypeMDP;
         int[] typeCounts = new int[typeList.getTypeCount()];
         for(int typeIndex = 0; typeIndex < currSetSizeLists.length; typeIndex++){
             typeCounts[typeIndex] = typeList.getTotalCount(typeIndex) + 1;
         }
 
+        double[] logTypeMDPPriors = new double[typeList.getTypeCount()];
+
+        int typeObsCount;
+        double totalLogTypeMDPPrior = 0;
+        for(int typeIndex = 0; typeIndex < logTypeMDPPriors.length; typeIndex++){
+            typeObsCount = 0;
+            for(int setIndex = 0; setIndex < currSetSizeLists[typeIndex].length; setIndex++){
+                typeObsCount += currSetSizeLists[typeIndex][setIndex];
+            }
+            logTypeMDPPriors[typeIndex] = ClusterPrior.calcLogMDPDensity(alphaValues[typeIndex],
+                    typeList.getMaxSubTypeCount(typeIndex),
+                    currSetSizeLists[typeIndex],
+                    typeObsCount);
+            totalLogTypeMDPPrior += logTypeMDPPriors[typeIndex];
+        }
+
+        double constant;
         for(int typeIndex = 0; typeIndex < propSetSizeLists.length; typeIndex++){
 
             logMDPPriors[typeIndex] = new double[propSetSizeLists[typeIndex].length];
@@ -150,14 +164,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
             // Since independent MDP is applied to each fluid type,
             // except the type encompasses the subtype to which the unknown type is added,
             // the MDP prior for each fluid is not affected.
-            constant = 0;
-            for(int typeIndex2 = 0; typeIndex2 < propSetSizeLists.length; typeIndex2++){
-                if(typeIndex != typeIndex2){
-                    constant += logTypeMDPPriors[typeIndex2];
-                }
-            }
-
-
+            constant = totalLogTypeMDPPrior - logTypeMDPPriors[typeIndex];
 
             for(int setIndex = 0; setIndex < propSetSizeLists[typeIndex].length; setIndex++){
 
@@ -175,9 +182,6 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                             typeList.getMaxSubTypeCount(typeIndex),
                             currSetSizeLists[typeIndex],
                             typeCounts[typeIndex]);
-
-
-
 
                     // Calculate the full log MDP across all fluid types
                     logMDPPriors[typeIndex][setIndex] = constant + newLogTypeMDP;
@@ -373,9 +377,13 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         // Calculate the size of each subtype when a the unknown sample is added.
         getSetSizesForAllConfig(currSetSizeLists, propSetSizeLists);
 
+
+
+
+
         // For each scenario of adding the unknown sample,
         // calculate the log MDP prior.
-        calcLogMDPPriorForAllConfig(logMDPPriorValues, alphaValues, typeList,
+        calcLogMDPPriorForAllConfig(alphaValues, typeList,
                 currSetSizeLists, propSetSizeLists, propLogMDPPriorValues);
 
 

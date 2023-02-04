@@ -31,7 +31,6 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         TypeListWithUnknown getTypeListWithUnknown();
         int[][] getExpectedCurrSetSizesAcrossType();
         int[][] getExpectedAllConfigSetSizesAcrossType();
-        double[] getCurrLogMDPPrior();
         double[][] getExpectedLogMDPPriorForAllConfig();
         int[][][] getExpectedAssignUnknownToAllPossibleSubtype();
         double getAlpha5();
@@ -90,9 +89,6 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
             };
         }
 
-        public double[] getCurrLogMDPPrior(){
-            return new double[]{-47.26127067791871,	-22.87807218558841,	-76.70274010726419,	-41.53562408804975,	-89.88950063110903};
-        }
 
         public double[][] getExpectedLogMDPPriorForAllConfig(){
             return new double[][]{
@@ -259,9 +255,8 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         int[][] currSetSizeListsExptd = test1.getExpectedCurrSetSizesAcrossType();
         int[][] allConfigSetSizeListsExptd = test1.getExpectedAllConfigSetSizesAcrossType();
         double[] alphaValues = new double[]{0.6025, 0.725, 0.55, 0.585, 0.525};
-        double[] logMDPPriors = test1.getCurrLogMDPPrior();
         SingleUnknownGibbsSampler.calcLogMDPPriorForAllConfig(
-                logMDPPriors, alphaValues, typeList, currSetSizeListsExptd, allConfigSetSizeListsExptd, logTypeMDPPriors);
+                alphaValues, typeList, currSetSizeListsExptd, allConfigSetSizeListsExptd, logTypeMDPPriors);
         double[][] logTypeMDPPriorsExptd = test1.getExpectedLogMDPPriorForAllConfig();
 
         for(int i = 0; i < logTypeMDPPriors.length; i++){
