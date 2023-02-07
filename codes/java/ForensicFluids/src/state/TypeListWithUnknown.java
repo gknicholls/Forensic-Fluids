@@ -15,6 +15,7 @@ public class TypeListWithUnknown extends TypeList{
     }
 
     public void setup(int unknownStartIndex){
+
         unknownObsCount = totalCount - unknownStartIndex;
         unknownClusterMap = new int[2][unknownObsCount];
         storedUnknownClusterMap = new int[unknownClusterMap.length][unknownObsCount];
@@ -70,6 +71,12 @@ public class TypeListWithUnknown extends TypeList{
 
         //createMap();
         if(obs >= unknownStartIndex){
+            //System.out.println("typeIndex: "+typeIndex);
+            //System.out.println("subtypeIndex: "+subtypeIndex);
+            //System.out.println("obs: "+obs);
+            //System.out.println("unknownClusterMap:"+unknownClusterMap.length + " " +
+            //        unknownClusterMap[0].length + " " +
+            //        unknownClusterMap[1].length);
             unknownClusterMap[TYPE_POS][obs - unknownStartIndex] = typeIndex;
             unknownClusterMap[SUBTYPE_POS][obs - unknownStartIndex] = subtypeIndex;
         }else{

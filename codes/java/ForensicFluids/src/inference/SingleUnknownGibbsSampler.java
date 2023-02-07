@@ -1,6 +1,7 @@
 package inference;
 
 
+import distribution.Multinomial;
 import model.ClusterPrior;
 import model.CompoundClusterLikelihood;
 import state.TypeList;
@@ -26,15 +27,19 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     private double[][] propLogSubtypeLikelihoodLists;
     private int totalSubtype;
     private double[][] logFullLikelihoods;
+    private double[] typeLogPrior;
 
 
     public SingleUnknownGibbsSampler(TypeListWithUnknown typeList,
                                      CompoundClusterLikelihood likelihood,
+                                     Multinomial typePrior,
                                      double[] alphaValues){
         this.typeList = typeList;
         this.likelihood = likelihood;
         this.logMDPPriorValues = new double[typeList.getTypeCount()];
         this.alphaValues = alphaValues;
+        typeLogPrior = new double[typeList.getTypeCount()];
+        typePrior.getLogProbs(typeLogPrior);
         typeListCopy = this.typeList.copy();
         likelihoodCopy = setLikelihoodCopy(this.likelihood, typeListCopy);
 
@@ -43,9 +48,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         propSetSizeLists = new int[typeList.getTypeCount()][];
         propLogMDPPriorValues = new double[typeList.getTypeCount()][];
 
-        initialiseLogSubtypeLikLists(currLogSubtypeLikelihoodLists, typeList);
-        initialiseLogSubtypeLikLists(propLogSubtypeLikelihoodLists, typeList);
-        initialiseLogSubtypeLikLists(logFullLikelihoods, typeList);
+        currLogSubtypeLikelihoodLists = initialiseLogSubtypeLikLists(typeList);
+        propLogSubtypeLikelihoodLists = initialiseLogSubtypeLikLists(typeList);
+        logFullLikelihoods = initialiseLogSubtypeLikLists(typeList);
 
 
         totalSubtype = 0;
@@ -76,14 +81,14 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         return desLik;
     }
 
-    protected void initialiseLogSubtypeLikLists(double[][] logSubtypeLikLists,
-                                              TypeList typeList){
-        logSubtypeLikLists = new double[typeList.getTypeCount()][];
+    protected double[][] initialiseLogSubtypeLikLists(TypeList typeList){
+        double[][] logSubtypeLikLists = new double[typeList.getTypeCount()][];
         int maxSetCount;
         for(int typeIndex = 0; typeIndex < logSubtypeLikLists.length; typeIndex++){
             maxSetCount = typeList.getMaxSubTypeCount(typeIndex);
             logSubtypeLikLists[typeIndex] = new double[maxSetCount];
         }
+        return logSubtypeLikLists;
     }
 
     public static void getCurrSetSizesAcrossType(int[][] setSizeLists, TypeList typeList){
@@ -298,7 +303,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     public static int[] sampleRandomSubtype(double[] probs, TypeList typeList){
         // Randomly sample from Unif(0, 1)
         double sample = Randomizer.nextDouble();
+        //System.out.println("sample: "+sample);
         int sampledIndex = sampleIndex(probs, sample);
+        //System.out.println("sampleIndex: "+sampledIndex);
         return mapToTypeListPos(typeList, sampledIndex);
 
     }
@@ -367,6 +374,8 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         // Calculate the log subtype likelihoods in each fluid type
         // for the current configuration of the training set.
         double totalLogLik = likelihood.getLogLikelihood();
+        //System.out.println("totalLogLik: "+totalLogLik);
+        //System.out.println("currLogSubtypeLikelihoodLists: "+currLogSubtypeLikelihoodLists);
         likelihood.getLogSubtypeLikelihoods(currLogSubtypeLikelihoodLists);
 
         typeList.copyLists(typeListCopy);
@@ -413,14 +422,36 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         // Calculate full conditionals
         double[] fullConditonals = new double[totalSubtype];
         getFullConditionalPosteriorProb(fullConditonals,
-                propLogSubtypeLikelihoodLists, propLogMDPPriorValues);
+                logFullLikelihoods, propLogMDPPriorValues);
 
         // Obtain the new type and subtype indexes.
         int[] assignedIndexes = sampleRandomSubtype(fullConditonals, typeList);
-
         typeList.addObs(assignedIndexes[0], assignedIndexes[1], obs);
 
-        return 0.0;
+        double logFwd = logFullLikelihoods[assignedIndexes[0]][assignedIndexes[1]] +
+                propLogMDPPriorValues[assignedIndexes[0]][assignedIndexes[1]] +
+                typeLogPrior[assignedIndexes[0]];
+        double logBwd = logFullLikelihoods[currUnknownTypeIndex][currUnknownSubtypeIndex] +
+                propLogMDPPriorValues[currUnknownTypeIndex][currUnknownSubtypeIndex]+
+                typeLogPrior[currUnknownTypeIndex];
+        /*
+        for(int index = 0; index < fullConditonals.length; index++){
+            System.out.print(fullConditonals[index]+" ");
+        }
+        System.out.println();
+
+        System.out.println(assignedIndexes[0] +" "+ assignedIndexes[1]);
+
+        System.out.println("logFwd: "+logFwd);
+        System.out.println("logFwd: "+logFullLikelihoods[assignedIndexes[0]][assignedIndexes[1]]);
+        System.out.println("logFwd: "+propLogMDPPriorValues[assignedIndexes[0]][assignedIndexes[1]]);
+        System.out.println(currUnknownTypeIndex+" "+currUnknownSubtypeIndex);
+        System.out.println("logBwd: "+logBwd);
+        System.out.println("logFwd: "+logFullLikelihoods[currUnknownTypeIndex][currUnknownSubtypeIndex]);
+        System.out.println("logFwd: "+propLogMDPPriorValues[currUnknownTypeIndex][currUnknownSubtypeIndex]);
+        System.out.println(logBwd - logFwd);*/
+        //return logBwd - logFwd;
+        return Double.POSITIVE_INFINITY;
     }
 
     private static void swapLogSubtypeLikelihood(double[][] logSubtypeLikelihoodLists1,

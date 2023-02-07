@@ -8,6 +8,9 @@ public class Multinomial extends AbstractProbability {
 
     private double[] logProbs;
     private Parameter parameter;
+
+
+
     public Multinomial(String label,
                        Parameter parameter,
                        double[] probs){
@@ -19,6 +22,10 @@ public class Multinomial extends AbstractProbability {
             logProbs[probIndex] = Math.log(probs[probIndex]);
         }
 
+    }
+
+    public void getLogProbs(double[] copy){
+        System.arraycopy(logProbs, 0, copy, 0, copy.length);
     }
 
     private void checkProbs(double[] probs){
@@ -41,6 +48,7 @@ public class Multinomial extends AbstractProbability {
         return logP;
 
     }
+
 
 
 

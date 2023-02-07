@@ -5,6 +5,7 @@ import model.AbstractProbability;
 import utils.Randomizer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
@@ -168,6 +169,7 @@ public class MCMC {
                 double draw = Math.log(Randomizer.nextDouble());
                 //boolean accept = false;
                 //System.out.println("mcmc: "+ (stepIndex + 1) +" "+ draw +" "+ logMHR+" "+currLogPost+" "+ +propLogPost);
+                //System.out.println("mcmc: "+ (propLogPost - currLogPost));
                 if (logMHR >= 0.0 || draw < logMHR) {
                     //System.out.println("accepted: "+  currLogPost+" "+ currLogPost+ " "+propLogLik+" "+ propLogPrior);
                     //System.out.println("accept");
@@ -204,6 +206,153 @@ public class MCMC {
 
 
                 if (((stepIndex + 1) % logEvery) == 0) {
+                    log(output, currLogPost, probs, stepIndex + 1, states, logHR, logMHR, draw);
+                }
+
+
+            }
+            output.close();
+
+            double endTime = System.currentTimeMillis();
+
+            proposalPerformance(outputFilePath+".ops", proposalMoves, endTime - startTime);
+        }catch(Exception e){
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+
+    public void run(boolean append){
+        try {
+            double startTime = System.currentTimeMillis();
+
+            File outputFile = new File(outputFilePath);
+            if(outputFile.exists() && !append){
+                throw new RuntimeException("File already exists" +outputFilePath);
+            }
+
+            PrintStream output = new PrintStream(new FileOutputStream(outputFilePath, true));
+
+            //double currLogLik = likelihood.getLogLikelihood();
+            //double currLogPrior = prior.getLogLikelihood();
+            //double currLogPost = currLogLik + currLogPrior;
+            double currLogPost = 0;
+            for(int probsIndex = 0; probsIndex < probs.length; probsIndex++){
+                currLogPost += probs[probsIndex].getLogLikelihood();
+            }
+            double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
+
+            if(!append){
+                String labels = "STATE\tlog.posterior";
+                for(AbstractProbability prob:probs){
+                    labels += "\t"+prob.getLabel();
+                }
+                for(State state:states){
+                    labels += "\t" + state.getLabel();
+                    //labels += "\tstored." + state.getLabel();
+                    //labels += "\tprop." + state.getLabel();
+                }
+                output.println(labels);
+            }
+
+
+            //labels += "\tlogHR\tlogMHR\tdraw";
+            for(State constantState:constants) {
+                constantState.store();
+            }
+
+
+
+            //log(output, currLogPost, probs, 0, states, 0, 0, 0);
+            for (int stepIndex = 0; stepIndex < chainLength; stepIndex++) {
+                //System.out.println(stepIndex);
+                //store();
+                for(State state:states) {
+                    state.store();
+                }
+
+
+                for(AbstractProbability prob:probs){
+                    prob.store();
+                }
+                //likelihood.store();
+                //prior.store();
+
+                /*String[] storedLog = new String[states.length];
+                for(int stateIndex = 0; stateIndex < states.length; stateIndex++){
+                    storedLog[stateIndex] =  states[stateIndex].logStored();
+                }*/
+                //String storedClust = state.logStored();
+
+                int currProposalIndex;
+                if(weights == null){
+                    currProposalIndex = stepIndex%proposalMoves.length;
+                }else{
+                    currProposalIndex = getMoveIndex(stepIndex);
+                }
+
+                //System.out.println("mcmc: "+stepIndex+" "+proposalMoves.length+" "+currProposalIndex);
+                logHR = proposalMoves[currProposalIndex].proposal();
+
+                //propLogLik = likelihood.getLogLikelihood();
+                //propLogPrior = prior.getLogLikelihood();
+                //propLogPost = propLogLik + propLogPrior;
+
+                propLogPost = 0;
+                for(int probsIndex = 0; probsIndex < probs.length; probsIndex++){
+                    propLogPost += probs[probsIndex].getLogLikelihood();
+                }
+                logMHR = propLogPost - currLogPost + logHR;
+
+                /*String[] propLog = new String[states.length];
+                for(int stateIndex = 0; stateIndex < states.length; stateIndex++){
+                    propLog[stateIndex] =  states[stateIndex].logStored();
+                }*/
+                //String propClust = state.log();
+
+
+                double draw = Math.log(Randomizer.nextDouble());
+                //boolean accept = false;
+                //System.out.println("mcmc: "+ (stepIndex + 1) +" "+ draw +" "+ logMHR+" "+currLogPost+" "+ +propLogPost);
+                //System.out.println("mcmc: "+ (propLogPost - currLogPost));
+                if (logMHR >= 0.0 || draw < logMHR) {
+                    //System.out.println("accepted: "+  currLogPost+" "+ currLogPost+ " "+propLogLik+" "+ propLogPrior);
+                    //System.out.println("accept");
+
+                    //accept = true;
+
+                    currLogPost = propLogPost;
+                    //currLogPrior = propLogPrior;
+                    //currLogLik = propLogLik;
+                    proposalMoves[currProposalIndex].countAccept(ProposalMove.ACCEPT);
+                } else {
+                    //System.out.println("reject1");
+                    for(State state:states){
+                        state.restore();
+                    }
+                    //System.out.println("between");
+
+
+                    //System.out.println(probs.length);
+                    for(int probIndex = 0; probIndex < probs.length; probIndex++){
+                        //System.out.println(probs[probIndex].getClass());
+                        probs[probIndex].restore();
+                    }
+                    //System.out.println("reject2");
+                    proposalMoves[currProposalIndex].countAccept(ProposalMove.REJECT);
+
+
+                }
+
+            /*if(accepted){
+                System.out.println("accepted "+ currLogLik+" "+ currLogPrior);
+            }*/
+                // System.out.println("currLogPost: "+currLogPost);
+
+
+                if ((stepIndex + 1)  == chainLength) {
                     log(output, currLogPost, probs, stepIndex + 1, states, logHR, logMHR, draw);
                 }
 

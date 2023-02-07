@@ -244,41 +244,52 @@ public class ClassifyForensicFluidCutModel {
             BufferedReader mainChainReader = new BufferedReader(new FileReader(mainChainPath));
             String mainChainLogLine = mainChainReader.readLine();
             int clusterIndex = findLogColumnIndex(mainChainLogLine, clusterName, "\t");
+            int stateNameIndex = findLogColumnIndex(mainChainLogLine, "STATE", "\t");
             String[] logElts;
+            boolean append = false;
             while ((mainChainLogLine = mainChainReader.readLine()) != null) {
+
                 logElts = mainChainLogLine.split("\t");
 
-                //Create the TypeList for the clustering of the training data of the current posterior sample.
-                TypeListWithUnknown typeList = createTypeList(
-                        totalObsCounts, maxRowClustCount, logElts[clusterIndex], unknownPath, unknownCount, initType);
+                if(Integer.parseInt(logElts[stateNameIndex]) > 5000000) {
 
-                CompoundMarkerDataWithUnknown dataSets = (CompoundMarkerDataWithUnknown)DataUtils.createData(
-                        trainingRNAProfilePathList, unknownPath, totalObsCounts, colRange, unknownCount, typeList);
 
-                unknownTypePriorParamVals = setUpUnknownTypePrior(unknownTypePriorParamVals, typeList);
+                    //Create the TypeList for the clustering of the training data of the current posterior sample.
+                    TypeListWithUnknown typeList = createTypeList(
+                            totalObsCounts, maxRowClustCount, logElts[clusterIndex], unknownPath, unknownCount, initType);
 
-                UnlabelledTypeWrapperParameter unknownTypeParam =
-                        new UnlabelledTypeWrapperParameter("unknownType", typeList);
 
-                probs = setUpPosterior(alphaRow, maxRowClustCount, totalObsCounts,
-                        typeList, mkrGrpPartitions, colPriors, dataSets, shapeAParams, shapeBParams,
-                        unknownTypePriorParamVals, unknownTypeParam);
-                states = new State[]{typeList, unknownTypeParam};
+                    CompoundMarkerDataWithUnknown dataSets = (CompoundMarkerDataWithUnknown) DataUtils.createData(
+                            trainingRNAProfilePathList, unknownPath, totalObsCounts, colRange, unknownCount, typeList);
 
-                proposals = setUpProposalMoves(typeList, (CompoundClusterLikelihood) probs[2], alphaRow);
+                    unknownTypePriorParamVals = setUpUnknownTypePrior(unknownTypePriorParamVals, typeList);
 
-                constants = new State[]{shapeAParams[0], shapeAParams[1], shapeAParams[2], shapeAParams[3], shapeAParams[4],
-                        shapeBParams[0], shapeBParams[1], shapeBParams[2], shapeBParams[3], shapeBParams[4]};
+                    UnlabelledTypeWrapperParameter unknownTypeParam =
+                            new UnlabelledTypeWrapperParameter("unknownType", typeList);
+
+                    probs = setUpPosterior(alphaRow, maxRowClustCount, totalObsCounts,
+                            typeList, mkrGrpPartitions, colPriors, dataSets, shapeAParams, shapeBParams,
+                            unknownTypePriorParamVals, unknownTypeParam);
+                    states = new State[]{typeList, unknownTypeParam};
+
+                    proposals = setUpProposalMoves(typeList, (CompoundClusterLikelihood) probs[2], (Multinomial) probs[0], alphaRow);
+
+                    constants = new State[]{shapeAParams[0], shapeAParams[1], shapeAParams[2], shapeAParams[3], shapeAParams[4],
+                            shapeBParams[0], shapeBParams[1], shapeBParams[2], shapeBParams[3], shapeBParams[4]};
+
+                    MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
+
+                    estSubtype.run(append);
+                    append = true;
+                }
 
 
             }
 
-            MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
 
-            estSubtype.run();
 
         }catch (Exception e){
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
         executor.shutdown();
         executor.shutdownNow();
@@ -301,35 +312,34 @@ public class ClassifyForensicFluidCutModel {
                                                String unknownPath,
                                                int unknownCount,
                                                int initType){
-
-        int totalCount = 0;
-        SubTypeList[] subTypeLists = new SubTypeList[totalObsCounts.length];
-        for (int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++) {
-            totalCount += totalObsCounts[typeIndex];
-        }
+        //System.out.println("unknownCount: "+unknownCount);
 
         int initialBF[] = new int[unknownCount];
+        //System.out.println("unknownPath: "+unknownPath);
 
-        if(unknownPath != null){
+        if(unknownPath == null){
+            throw new RuntimeException("unknownPath cannot be null.");
+        }else{
             if(initType > -1){
                 for(int pathIndex = 0; pathIndex < initialBF.length; pathIndex++){
                     initialBF[pathIndex] = initType;
                 }
             }else{
                 for(int pathIndex = 0; pathIndex < initialBF.length; pathIndex++){
-                    initialBF[pathIndex] = Randomizer.nextInt(subTypeLists.length);
+                    initialBF[pathIndex] = Randomizer.nextInt(totalObsCounts.length);
                 }
             }
         }
 
+        ArrayList<Integer>[][] subtypeParts =
+                (ArrayList<Integer>[][]) new ArrayList[totalObsCounts.length][maxRowClustCount];
         String[] typeClustStr = clustering.split(" ");
         String currTypeClustStr;
-        for (int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++) {
+        for (int typeIndex = 0; typeIndex < totalObsCounts.length; typeIndex++) {
 
             // Create J sets within each type, where J maxRowClustCount.
-            ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxRowClustCount];
             for (int setIndex = 0; setIndex < subtypeParts.length; setIndex++) {
-                subtypeParts[setIndex] = new ArrayList<>();
+                subtypeParts[typeIndex][setIndex] = new ArrayList<>();
 
             }
 
@@ -341,34 +351,50 @@ public class ClassifyForensicFluidCutModel {
                 obsSetStr = setsStr[setIndex].substring(1, setsStr[setIndex].length() - 1).split(",");
 
                 for(int obsIndex = 0; obsIndex < obsSetStr.length; obsIndex++){
-                    subtypeParts[setIndex].add(Integer.parseInt(obsSetStr[obsIndex]));
+                    subtypeParts[typeIndex][setIndex].add(Integer.parseInt(obsSetStr[obsIndex]));
                 }
 
             }
 
-            subTypeLists[typeIndex] = new SubTypeList(subtypeParts);
+            //subTypeLists[typeIndex] = new SubTypeList(subtypeParts);
 
         }
-        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, totalCount);
+
 
         int[] setSizes;
-        ArrayList<Integer>[] nonEmpty =  (ArrayList<Integer>[]) new ArrayList[typeList.getTypeCount()];
+        ArrayList<Integer>[] nonEmpty =  (ArrayList<Integer>[]) new ArrayList[subtypeParts.length];
         for(int typeIndex = 0; typeIndex < nonEmpty.length; typeIndex++){
-            setSizes = typeList.getSubTypeSetSizes(typeIndex);
-            for(int setIndex = 0; setIndex < setSizes.length; setIndex++){
-                if(setSizes[setIndex] > 0){
+            nonEmpty[typeIndex] = new ArrayList<>();
+            for(int setIndex = 0; setIndex < subtypeParts[typeIndex].length; setIndex++){
+                if(subtypeParts[typeIndex][setIndex].size() > 0){
                     nonEmpty[typeIndex].add(setIndex);
                 }
 
             }
         }
 
+        int totalCount = 0;
+
+        for (int typeIndex = 0; typeIndex < totalObsCounts.length; typeIndex++) {
+            totalCount += totalObsCounts[typeIndex];
+        }
+
+
         int initSubtype;
         for(int pathIndex = 0; pathIndex < unknownCount; pathIndex++){
             initSubtype = Randomizer.nextInt(nonEmpty[initialBF[pathIndex]].size());
-            typeList.addObs(initialBF[pathIndex], initSubtype, totalCount + pathIndex);
+            //System.out.println("add unknown: " + unknownCount + " " + (totalCount + pathIndex));
+            subtypeParts[initialBF[pathIndex]][initSubtype].add(totalCount + pathIndex);
+            //typeList.addObs(initialBF[pathIndex], initSubtype, totalCount + pathIndex);
 
         }
+
+        SubTypeList[] subTypeLists = new SubTypeList[totalObsCounts.length];
+        for(int typeIndex = 0; typeIndex < totalObsCounts.length; typeIndex++){
+            subTypeLists[typeIndex] = new SubTypeList(subtypeParts[typeIndex]);
+        }
+
+        TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, totalCount);
 
         return typeList;
     }
@@ -403,9 +429,10 @@ public class ClassifyForensicFluidCutModel {
 
     private ProposalMove[] setUpProposalMoves(TypeListWithUnknown typeList,
                                               CompoundClusterLikelihood likelihood,
+                                              Multinomial typePrior,
                                               double[] alphaValues){
         SingleUnknownGibbsSampler singleGibbs = new SingleUnknownGibbsSampler(
-                typeList, likelihood, alphaValues);
+                typeList, likelihood, typePrior, alphaValues);
         ProposalMove[] proposals = new ProposalMove[]{singleGibbs};
         return proposals;
 

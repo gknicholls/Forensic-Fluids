@@ -462,15 +462,15 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
 
     public void testGetFullConditionalPosteriorProb(){
         double[][] logAllConfigLogMDPPriors = test1.getExpectedLogMDPPriorForAllConfig();
-        double[][] logAllConfigLogLikPriors = test1.getExpectedAllConfigFullLikelihood();
+        double[][] logAllConfigLogLik = test1.getExpectedAllConfigFullLikelihood();
         int count = 0;
-        for(int typeIndex = 0; typeIndex < logAllConfigLogLikPriors.length; typeIndex++){
-            count += logAllConfigLogLikPriors[typeIndex].length;
+        for(int typeIndex = 0; typeIndex < logAllConfigLogLik.length; typeIndex++){
+            count += logAllConfigLogLik[typeIndex].length;
         }
 
         double[] fullConditonals = new double[count];
         SingleUnknownGibbsSampler.getFullConditionalPosteriorProb(fullConditonals,
-                logAllConfigLogLikPriors, logAllConfigLogMDPPriors);
+                logAllConfigLogLik, logAllConfigLogMDPPriors);
 
         double[] fullConditonalsExptd = test1.getExpectedFullConditionals();
         for(int index = 0; index < fullConditonals.length; index++){
