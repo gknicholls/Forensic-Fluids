@@ -224,7 +224,7 @@ public class MCMC {
     }
 
 
-    public void run(boolean append){
+    public void run(boolean append, int stateNum){
         try {
             double startTime = System.currentTimeMillis();
 
@@ -353,7 +353,7 @@ public class MCMC {
 
 
                 if ((stepIndex + 1)  == chainLength) {
-                    log(output, currLogPost, probs, stepIndex + 1, states, logHR, logMHR, draw);
+                    log(output, currLogPost, probs, stateNum, states, logHR, logMHR, draw);
                 }
 
 

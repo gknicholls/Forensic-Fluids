@@ -47,6 +47,7 @@ public class ClassifyForensicFluidCutModel {
     public static String SEED = "seed";
     public static String MAIN_CHAIN_PATH = "mainChain";
     public static String CLUSTER_NAME = "clusterName";
+    public static String BURNIN = "burnin";
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
 
@@ -73,6 +74,7 @@ public class ClassifyForensicFluidCutModel {
     private ArrayList<String> trainingRNAProfilePathList;
     private double[] unknownTypePriorParamVals;
     private double[] alphaRow;
+    private int burnin;
 
     static public int threadCount = 1;
     public static ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -223,6 +225,9 @@ public class ClassifyForensicFluidCutModel {
                 mainChainPath = lineElts[1].trim();
             }else if(currLabel.equals(CLUSTER_NAME)){
                 clusterName = lineElts[1].trim();
+            }else if(currLabel.equals(BURNIN)){
+                burnin = Integer.parseInt(lineElts[1].trim());
+
             }
         }
         inputReader.close();
@@ -247,11 +252,12 @@ public class ClassifyForensicFluidCutModel {
             int stateNameIndex = findLogColumnIndex(mainChainLogLine, "STATE", "\t");
             String[] logElts;
             boolean append = false;
+            int stepNum;
             while ((mainChainLogLine = mainChainReader.readLine()) != null) {
 
                 logElts = mainChainLogLine.split("\t");
-
-                if(Integer.parseInt(logElts[stateNameIndex]) > 5000000) {
+                stepNum = Integer.parseInt(logElts[stateNameIndex]);
+                if((stepNum - burnin) >= 0) {
 
 
                     //Create the TypeList for the clustering of the training data of the current posterior sample.
@@ -279,7 +285,7 @@ public class ClassifyForensicFluidCutModel {
 
                     MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
 
-                    estSubtype.run(append);
+                    estSubtype.run(append, stepNum - burnin);
                     append = true;
                 }
 

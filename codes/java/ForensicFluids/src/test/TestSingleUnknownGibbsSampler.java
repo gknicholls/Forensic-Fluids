@@ -43,6 +43,7 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
         double[] getRandomDouble();
         int[] getFullConditionalIndexes();
         int[][] getExpectedSubtype();
+        double[] getLogTypePrior();
 
 
     }
@@ -194,24 +195,28 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
 
         public double[] getExpectedFullConditionals(){
             return new double[]{
-                    9.2772650415389069e-01, 4.3425978225453872e-05, 7.1342891072773362e-02, 5.5979720207877733e-04, 0,
-                    1.4155162447618443e-04, 1.7471331432471658e-08, 9.3764200870802489e-10, 5.1330299896687038e-05, 0,
-                    2.1076649570033012e-12, 1.1468034571407139e-05, 1.7582970491677872e-14, 1.8493793305683823e-05, 0,
-                    1.5007621273512924e-16, 7.7062078800867822e-08, 1.5989392721772316e-08, 3.4698015454055061e-05, 0,
-                    1.8005170156129873e-08, 1.4051973665406910e-08, 1.7104119648769804e-07, 6.9525264416999278e-05, 0
+                    9.2676894738513493e-01, 4.3381155921462939e-05, 7.1269254211108343e-02, 5.5921940506901090e-04, 0,
+                    4.2421656413524914e-04, 5.2359894975265993e-08, 2.8100226528301974e-09, 1.5383195734265914e-04, 0,
+                    8.4219580874179668e-12, 4.5824791167365746e-05, 7.0259288622307337e-14, 7.3898819440112814e-05, 0,
+                    7.4960655474080288e-16, 3.8491269427910541e-07, 7.9864446017965353e-08, 1.7331100876567538e-04, 0,
+                    1.2590610231422507e-07, 9.8262289036528931e-08, 1.1960525892389820e-06, 4.8617452538375893e-04, 0
             };
         }
 
         public double[] getRandomDouble(){
-            return new double[]{0.99990, 0.92775, 0.99975, 0.99950, 0.50000, 0.99999};
+            return new double[]{0.99950, 0.92775, 0.99925, 0.99900, 0.50000, 0.99990};
         }
 
         public int[] getFullConditionalIndexes(){
-            return new int[]{18, 1, 5, 3, 0, 23};
+            return new int[]{18, 2, 11, 5, 0, 23};
         }
 
         public int[][] getExpectedSubtype(){
-            return new int[][]{{3,3}, {0, 1}, {1, 0}, {0, 3}, {0, 0}, {4, 3}};
+            return new int[][]{{3,3}, {0, 2}, {2, 1}, {1, 0}, {0, 0}, {4, 3}};
+        }
+
+        public double[] getLogTypePrior(){
+            return new double[]{-2.9957322735539909, -1.8971199848858813, -1.6094379124341003, -1.3862943611198906, -1.0498221244986778};
         }
 
 
@@ -468,12 +473,16 @@ public class TestSingleUnknownGibbsSampler extends TestCase {
             count += logAllConfigLogLik[typeIndex].length;
         }
 
+        int[][] allConfigSetSizesAcrossType = test1.getExpectedAllConfigSetSizesAcrossType();
         double[] fullConditonals = new double[count];
         SingleUnknownGibbsSampler.getFullConditionalPosteriorProb(fullConditonals,
-                logAllConfigLogLik, logAllConfigLogMDPPriors);
+                logAllConfigLogLik, logAllConfigLogMDPPriors,
+                test1.getLogTypePrior(), allConfigSetSizesAcrossType);
+
 
         double[] fullConditonalsExptd = test1.getExpectedFullConditionals();
         for(int index = 0; index < fullConditonals.length; index++){
+            //System.out.println(fullConditonals[index]+ " "+fullConditonalsExptd[index]);
             assertEquals(fullConditonals[index], fullConditonalsExptd[index], 1e-10);
         }
     }
