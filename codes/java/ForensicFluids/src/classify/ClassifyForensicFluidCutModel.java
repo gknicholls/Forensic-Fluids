@@ -285,8 +285,14 @@ public class ClassifyForensicFluidCutModel {
 
                     MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
 
-                    estSubtype.run(append, stepNum - burnin);
-                    append = true;
+                    if(unknownCount > 1){
+                        estSubtype.run(false, 0);
+                        append = true;
+                    }else{
+                        estSubtype.run(append, stepNum - burnin);
+                        append = true;
+                    }
+
                 }
 
 
@@ -335,6 +341,10 @@ public class ClassifyForensicFluidCutModel {
                     initialBF[pathIndex] = Randomizer.nextInt(totalObsCounts.length);
                 }
             }
+        }
+
+        for(int pathIndex = 0; pathIndex < initialBF.length; pathIndex++){
+            System.out.println("Unknown sample "+(pathIndex + 1) +" initial type: " + initialBF[pathIndex] );
         }
 
         ArrayList<Integer>[][] subtypeParts =
