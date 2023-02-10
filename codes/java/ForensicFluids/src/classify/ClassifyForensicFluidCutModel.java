@@ -285,11 +285,12 @@ public class ClassifyForensicFluidCutModel {
 
                     MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
 
+                    System.out.println("unknownCount: "+unknownCount);
                     if(unknownCount > 1){
-                        estSubtype.run(false, 0);
+                        estSubtype.run(append, stepNum, true);
                         append = true;
                     }else{
-                        estSubtype.run(append, stepNum - burnin);
+                        estSubtype.run(append, stepNum - burnin, false);
                         append = true;
                     }
 

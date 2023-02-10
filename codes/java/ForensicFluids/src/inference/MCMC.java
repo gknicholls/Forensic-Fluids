@@ -224,16 +224,29 @@ public class MCMC {
     }
 
 
-    public void run(boolean append, int stateNum){
+    public void run(boolean append, int stateNum, boolean multiUnknown){
         try {
             double startTime = System.currentTimeMillis();
-
-            File outputFile = new File(outputFilePath);
-            if(outputFile.exists() && !append){
-                throw new RuntimeException("File already exists" +outputFilePath);
+            File outputFile;
+            PrintStream output;
+            String currOutputFilePath;
+            if(multiUnknown){
+                currOutputFilePath = outputFilePath+"_"+stateNum+".log";
+                outputFile = new File(currOutputFilePath);
+                //output = new PrintStream(new FileOutputStream(outputFile));
+            }else{
+                currOutputFilePath = outputFilePath;
+                outputFile = new File(outputFilePath);
+                //output = new PrintStream(new FileOutputStream(outputFilePath, true));
             }
 
-            PrintStream output = new PrintStream(new FileOutputStream(outputFilePath, true));
+            if(outputFile.exists() && !append){
+                throw new RuntimeException("File already exists" + currOutputFilePath);
+            }
+
+            output = new PrintStream(new FileOutputStream(currOutputFilePath, !multiUnknown));
+
+
 
             //double currLogLik = likelihood.getLogLikelihood();
             //double currLogPrior = prior.getLogLikelihood();
@@ -244,7 +257,7 @@ public class MCMC {
             }
             double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
 
-            if(!append){
+            if(!append || multiUnknown ){
                 String labels = "STATE\tlog.posterior";
                 for(AbstractProbability prob:probs){
                     labels += "\t"+prob.getLabel();
@@ -351,8 +364,11 @@ public class MCMC {
             }*/
                 // System.out.println("currLogPost: "+currLogPost);
 
-
-                if ((stepIndex + 1)  == chainLength) {
+                if(multiUnknown){
+                    if (((stepIndex + 1) % logEvery) == 0) {
+                        log(output, currLogPost, probs, stepIndex + 1, states, logHR, logMHR, draw);
+                    }
+                }else if((stepIndex + 1)  == chainLength) {
                     log(output, currLogPost, probs, stateNum, states, logHR, logMHR, draw);
                 }
 
@@ -362,7 +378,8 @@ public class MCMC {
 
             double endTime = System.currentTimeMillis();
 
-            proposalPerformance(outputFilePath+".ops", proposalMoves, endTime - startTime);
+            proposalPerformance(currOutputFilePath.replace(".log", ".ops"), proposalMoves, endTime - startTime);
+
         }catch(Exception e){
             throw new RuntimeException(e);
         }

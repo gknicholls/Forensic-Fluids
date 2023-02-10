@@ -456,8 +456,8 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         System.out.println("logFwd: "+logFullLikelihoods[currUnknownTypeIndex][currUnknownSubtypeIndex]);
         System.out.println("logFwd: "+propLogMDPPriorValues[currUnknownTypeIndex][currUnknownSubtypeIndex]);
         System.out.println(logBwd - logFwd);*/
-        //return logBwd - logFwd;
-        return Double.POSITIVE_INFINITY;
+        return logBwd - logFwd;
+        //return Double.POSITIVE_INFINITY;
     }
 
     private static void swapLogSubtypeLikelihood(double[][] logSubtypeLikelihoodLists1,
