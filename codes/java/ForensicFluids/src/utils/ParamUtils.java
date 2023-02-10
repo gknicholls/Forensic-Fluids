@@ -21,10 +21,7 @@ public class ParamUtils {
             totalCount += totalObsCounts[typeIndex];
         }
 
-        int initialBF = initType;
-        if(unknownPath != null && initialBF == -1){
-            initialBF = Randomizer.nextInt(subTypeLists.length);
-        }
+
         int unknownCount = 0;
         try {
 
@@ -36,32 +33,43 @@ public class ParamUtils {
         }catch(Exception e){
             new RuntimeException(e);
         }
-        //System.out.println("unknownCount1: "+unknownCount);
+        int[] initialBF = new int[unknownCount];
+        if(unknownPath != null ){
+            for(int unknownIndex = 0; unknownIndex < initialBF.length; unknownIndex++){
+                initialBF[unknownIndex] = (initType > -1)? initType:Randomizer.nextInt(subTypeLists.length);
+            }
+        }
+        //System.out.println("unknownCount1: " + unknownCount);
+
         if(clustering == null) {
+            ArrayList<Integer>[][] subtypeParts = (ArrayList<Integer>[][]) new ArrayList[subTypeLists.length][maxRowClustCount];
             for (int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++) {
 
 
-                ArrayList<Integer>[] subtypeParts = (ArrayList<Integer>[]) new ArrayList[maxRowClustCount];
+
                 for (int setIndex = 0; setIndex < subtypeParts.length; setIndex++) {
-                    subtypeParts[setIndex] = new ArrayList<>();
+                    subtypeParts[typeIndex][setIndex] = new ArrayList<>();
 
                 }
 
                 for (int obsIndex = 0; obsIndex < totalObsCounts[typeIndex]; obsIndex++) {
-                    subtypeParts[0].add(obsIndex);
-                }
-
-                if (unknownPath != null && typeIndex == initialBF) {
-                    for(int unknownIndex = 0; unknownIndex < unknownCount; unknownIndex++){
-                        subtypeParts[initialBF].add(totalCount+unknownIndex);
-                    }
-
+                    subtypeParts[typeIndex][0].add(obsIndex);
                 }
 
 
-                subTypeLists[typeIndex] = new SubTypeList(subtypeParts);
 
             }
+
+            for(int unknownIndex = 0; unknownIndex < unknownCount; unknownIndex++){
+
+                subtypeParts[initialBF[unknownIndex]][0].add(totalCount + unknownIndex);
+
+            }
+
+            for(int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++){
+                subTypeLists[typeIndex] = new SubTypeList(subtypeParts[typeIndex]);
+            }
+
         }else{
             String[] typeClustStr = clustering.split(" ");
             String currTypeClustStr;
