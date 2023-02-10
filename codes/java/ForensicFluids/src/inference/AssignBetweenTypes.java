@@ -20,6 +20,7 @@ public class AssignBetweenTypes extends ProposalMove{
 
     public double proposal(){
         // Randomly select an unknown fluid sample
+        //System.out.println("unknownCount:"+ typeList.getUnknownObsCount());
         int unknownObsIndex = Randomizer.nextInt(typeList.getUnknownObsCount());
         // Retrieve the classification information on this sample.
         int currTypeIndex = typeList.getUnknownObsTypeIndex(unknownObsIndex);

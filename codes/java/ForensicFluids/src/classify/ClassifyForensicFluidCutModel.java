@@ -49,6 +49,7 @@ public class ClassifyForensicFluidCutModel {
     public static String CLUSTER_NAME = "clusterName";
     public static String BURNIN = "burnin";
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
+    public static String SINGLE_OUTPUT = "singleOutput";
 
 
     private AbstractProbability[] probs;
@@ -75,6 +76,7 @@ public class ClassifyForensicFluidCutModel {
     private double[] unknownTypePriorParamVals;
     private double[] alphaRow;
     private int burnin;
+    private boolean separateOutput;
 
     static public int threadCount = 1;
     public static ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -228,9 +230,12 @@ public class ClassifyForensicFluidCutModel {
             }else if(currLabel.equals(BURNIN)){
                 burnin = Integer.parseInt(lineElts[1].trim());
 
+            }else if(currLabel.equals(SINGLE_OUTPUT)){
+                separateOutput = !Boolean.parseBoolean(SINGLE_OUTPUT);
             }
         }
         inputReader.close();
+        separateOutput = separateOutput || unknownCount > 1;
 
 
 
@@ -285,8 +290,8 @@ public class ClassifyForensicFluidCutModel {
 
                     MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
 
-                    System.out.println("unknownCount: "+unknownCount);
-                    if(unknownCount > 1){
+                    System.out.println("separateOutput: "+separateOutput);
+                    if(separateOutput){
                         estSubtype.run(append, stepNum, true);
                         append = true;
                     }else{

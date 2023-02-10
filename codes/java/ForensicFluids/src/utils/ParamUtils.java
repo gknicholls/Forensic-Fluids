@@ -4,6 +4,8 @@ import state.SubTypeList;
 import state.TypeList;
 import state.TypeListWithUnknown;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 
 public class ParamUtils {
@@ -20,9 +22,21 @@ public class ParamUtils {
         }
 
         int initialBF = initType;
-        if(unknownPath != null &&initialBF == -1){
-            Randomizer.nextInt(subTypeLists.length);
+        if(unknownPath != null && initialBF == -1){
+            initialBF = Randomizer.nextInt(subTypeLists.length);
         }
+        int unknownCount = 0;
+        try {
+
+            BufferedReader unknownReader = new BufferedReader(new FileReader(unknownPath));
+            String unknownLine = unknownReader.readLine();
+            while ((unknownLine = unknownReader.readLine()) != null) {
+                unknownCount++;
+            }
+        }catch(Exception e){
+            new RuntimeException(e);
+        }
+        //System.out.println("unknownCount1: "+unknownCount);
         if(clustering == null) {
             for (int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++) {
 
@@ -38,7 +52,10 @@ public class ParamUtils {
                 }
 
                 if (unknownPath != null && typeIndex == initialBF) {
-                    subtypeParts[0].add(totalCount);
+                    for(int unknownIndex = 0; unknownIndex < unknownCount; unknownIndex++){
+                        subtypeParts[initialBF].add(totalCount+unknownIndex);
+                    }
+
                 }
 
 
