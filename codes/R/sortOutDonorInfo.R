@@ -559,6 +559,25 @@ jaccard.mat = function(mkrMat = NULL){
   
 }
 
+
+cvfMkrs = c("CYP", "HBD1", "Lcris", "Lgas", "MUC4")
+mtbMkrs = c("Hs202072", "LEFTY2", "MMP10", "MMP11", "MMP7", "MSX1", "SFRP4")
+slvMkrs = c("HTN3", "MUC7", "PRB4", "SMR3B", "STATH")
+bldMkrs = c("ALAS2", "GlycoA", "HBB", "PF4", "SPTB")
+smnMkrs = c("MSMB", "PRM1", "PRM2", "SEMG1", "TGM4")
+allMkrs = c(cvfMkrs, mtbMkrs, slvMkrs, bldMkrs, smnMkrs)
+mkrList = list("cvf" = cvfMkrs, 
+               "mtb" = mtbMkrs, 
+               "slv" = slvMkrs, 
+               "bld" = bldMkrs, 
+               "smn" = smnMkrs)
+
+cvf.df = single.df[single.df$Type=="Vaginal Secretion", allMkrs]
+mtb.df = single.df[single.df$Type=="Menstrual Blood", allMkrs]
+slv.df = single.df[single.df$Type=="Saliva", allMkrs]
+bld.df = single.df[single.df$Type=="Blood", allMkrs]
+smn.df = single.df[single.df$Type=="Semen", allMkrs]
+
 cvf.jd.v2 = jaccard.mat(cvfMkrVals.df)
 sum(abs(cvf.jd - cvf.jd.v2))
 
@@ -593,3 +612,37 @@ legend("topleft",
        pch= 15,col = kyoto, bty="n")
 dev.off()
 
+
+par(lend = 2, mar = c(5,4, 1, 1) + 0.2)
+plot(allMkr.cmd$points[,c(1:2)], type="n", xlab = "PA1", ylab = "PA2")
+text(labels = 1:nrow(singleBin.df[singleBin.df$Type=="Vaginal Secretion",]) , 
+     col = kyoto[5],
+     x = allMkr.cmd$points[singleBin.df$Type=="Vaginal Secretion", 1], 
+     y = allMkr.cmd$points[singleBin.df$Type=="Vaginal Secretion", 2])
+text(labels = 1:nrow(singleBin.df[singleBin.df$Type=="Saliva",]) , 
+     col = kyoto[3],
+     x = allMkr.cmd$points[singleBin.df$Type=="Saliva", 1], 
+     y = allMkr.cmd$points[singleBin.df$Type=="Saliva", 2])
+text(labels = 1:nrow(singleBin.df[singleBin.df$Type=="Semen",]) , 
+     col = kyoto[4],
+     x = allMkr.cmd$points[singleBin.df$Type=="Semen", 1], 
+     y = allMkr.cmd$points[singleBin.df$Type=="Semen", 2])
+
+points(x = allMkr.cmd$points[singleBin.df$Type=="Semen", 1][76], 
+       y = allMkr.cmd$points[singleBin.df$Type=="Semen", 2][76], pch = 4)
+
+points(x = allMkr.cmd$points[singleBin.df$Type=="Semen", 1][8], 
+       y = allMkr.cmd$points[singleBin.df$Type=="Semen", 2][8], pch = 4)
+
+points(x = allMkr.cmd$points[singleBin.df$Type=="Semen", 1][1], col = 2,
+       y = allMkr.cmd$points[singleBin.df$Type=="Semen", 2][1], pch = 4)
+
+legend("topleft", 
+       c("Blood", "Menstrual Blood", "Saliva", "Semen", "Cervical Fluid"),
+       pch= 15,col = kyoto, bty="n")
+
+
+singleBin.df[which(as.numeric(as.factor(singleBin.df$donor))==102), allMkrs]
+singleBin.df[which(as.numeric(as.factor(singleBin.df$donor))==117), allMkrs]
+singleBin.df[which(as.numeric(as.factor(singleBin.df$donor))==129), allMkrs]
+singleBin.df[which(as.numeric(as.factor(singleBin.df$donor))==130), allMkrs]

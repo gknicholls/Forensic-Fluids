@@ -1,4 +1,4 @@
-singleBin.df = read.csv(file = "/Users/chwu/Downloads/forensic_data/mRNA_single_2019_binary.csv",
+singleBin.df = read.csv(file = "/Users/chwu/Documents/research/bfc/data/forensic_data/mRNA_single_2019_binary.csv",
                         header = T)
 allMkrs = names(singleBin.df)[-c(1, 2)]
 allPattern = apply(singleBin.df[,allMkrs], 1, paste, collapse = "")
@@ -65,4 +65,22 @@ for(typeIndex in 1:length(uniquePatternByTypeList)){
   
   
 }
+
+
+typeLabel = c("bld", "mtb", "slv", "smn", "cvf")
+names(typeLabel) = names(uniquePatternByTypeList)
+uniquePatternPosList = list()
+for(typeIndex in 1:length(uniquePatternByTypeList)){
+  typeBin.df = singleBin.df[which(singleBin.df$Type ==
+                                    names(uniquePatternByTypeList)[[typeIndex]]), allMkrs]
+  uniquePatternPosList[[typeLabel[typeIndex]]] = match(uniquePatternByTypeList[[typeIndex]], 
+                           patternByTypeList[[typeIndex]])
+  
+  
+  
+}
+
+save(uniquePatternPosList,
+     file = "/Users/chwu/Documents/research/bfc/data/loocvTrain/uniquePatternPosList.RData")
+
 
