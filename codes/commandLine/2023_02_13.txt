@@ -1,0 +1,21 @@
+array=( 37 52 23 59 33 5 22 16 28 )
+for i in "${array[@]}"
+do
+	java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel "loocvCut_side_cvf_input_$i.txt"
+done
+
+
+array=( 15 17 18 6 26 10 9 )
+for i in "${array[@]}"
+do
+	java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel "loocvCut_side_mtb_input_$i.txt"
+done
+
+
+java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel loocvCut_side_slv_input_2.txt
+java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel loocvCut_side_bld_input_10.txt
+
+java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel loocvCut_side_smn_input_8.txt
+java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel loocvCut_side_smn_input_76.txt
+
+java -cp /Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/java/ForensicFluids/build/jar/ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel loocvCut_side_smn_input_sub_8.txt
