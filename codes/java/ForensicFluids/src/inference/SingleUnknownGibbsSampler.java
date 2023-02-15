@@ -28,6 +28,9 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
     private int totalSubtype;
     private double[][] logFullLikelihoods;
     private double[] logTypePrior;
+    private int currType, propType;
+    private int currSubtype, propSubtype;
+    double[] fullConditonals;
 
 
     public SingleUnknownGibbsSampler(TypeListWithUnknown typeList,
@@ -239,7 +242,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                     logFullLikelihoods[typeIndex][setIndex] = totalLogLik -
                             currLogSubtypeLikelihoodLists[typeIndex][setIndex] +
                             propLogSubtypeLikelihoodLists[typeIndex][setIndex];
-                    //System.out.println(totalLogLik+" "+currLogSubtypeLikelihoodLists[typeIndex][setIndex]+" "+
+                    //System.out.println("flag: " + totalLogLik+" "+currLogSubtypeLikelihoodLists[typeIndex][setIndex]+" "+
                     //        propLogSubtypeLikelihoodLists[typeIndex][setIndex]);
                 }
 
@@ -384,6 +387,14 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         //System.out.println("currLogSubtypeLikelihoodLists: "+currLogSubtypeLikelihoodLists);
         likelihood.getLogSubtypeLikelihoods(currLogSubtypeLikelihoodLists);
 
+        /*for(int typeIndex = 0; typeIndex < currLogSubtypeLikelihoodLists.length; typeIndex++){
+            for(int setIndex = 0; setIndex < currLogSubtypeLikelihoodLists[typeIndex].length; setIndex++){
+                System.out.print(currLogSubtypeLikelihoodLists[typeIndex][setIndex]+" ");
+            }
+            System.out.println();
+
+        }*/
+
         typeList.copyLists(typeListCopy);
         int obs = typeList.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, currUnknownEltIndex);
 
@@ -412,12 +423,25 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 unknownObsIndex + typeListCopy.getUnknownStartIndex(),
                 currUnknownTypeIndex, currUnknownSubtypeIndex);
         typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, propUnknownEltIndex);
+        // System.out.println("flag 2: "+currUnknownTypeIndex +" "+ currUnknownSubtypeIndex + " "+ propUnknownEltIndex);
 
 
+        likelihoodCopy.setUpdateAll(true);
         likelihoodCopy.getLogLikelihood();
         likelihoodCopy.getLogSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
 
+        /*System.out.println("flag 3 "+propLogSubtypeLikelihoodLists[currUnknownTypeIndex][currUnknownSubtypeIndex]);
+
+        for(int typeIndex = 0; typeIndex < propLogSubtypeLikelihoodLists.length; typeIndex++){
+            for(int setIndex = 0; setIndex < propLogSubtypeLikelihoodLists[typeIndex].length; setIndex++){
+                System.out.print(propLogSubtypeLikelihoodLists[typeIndex][setIndex]+" ");
+            }
+            System.out.println();
+
+        }*/
+
         //Calculate full logLikelikehoods for each scenario
+        //System.out.println("totalLogLik: "+totalLogLik);
         prepareAndCalcFullLogLikelihoods(totalLogLik,
                 logFullLikelihoods,
                 currLogSubtypeLikelihoodLists,
@@ -426,7 +450,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                 currUnknownSubtypeIndex);
 
         // Calculate full conditionals
-        double[] fullConditonals = new double[totalSubtype];
+        fullConditonals = new double[totalSubtype];
         getFullConditionalPosteriorProb(fullConditonals,
                 logFullLikelihoods, propLogMDPPriorValues, logTypePrior, propSetSizeLists);
 
@@ -440,6 +464,11 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         double logBwd = logFullLikelihoods[currUnknownTypeIndex][currUnknownSubtypeIndex] +
                 propLogMDPPriorValues[currUnknownTypeIndex][currUnknownSubtypeIndex]+
                 logTypePrior[currUnknownTypeIndex];
+        currType = currUnknownTypeIndex;
+        propType = assignedIndexes[0];
+        currSubtype = currUnknownSubtypeIndex;
+        propSubtype = assignedIndexes[1];
+
         /*
         for(int index = 0; index < fullConditonals.length; index++){
             System.out.print(fullConditonals[index]+" ");
@@ -460,6 +489,33 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         //return Double.POSITIVE_INFINITY;
     }
 
+    public void printCalculations(){
+        System.out.println(currType+" "+currSubtype+" "+propType+ " "+propSubtype);
+        int counter = 0;
+        for(int typeIndex = 0; typeIndex < typeList.getTypeCount(); typeIndex++){
+            for(int setIndex = 0; setIndex < typeList.getMaxSubTypeCount(typeIndex); setIndex++){
+                System.out.print(fullConditonals[counter++] +" ");
+
+            }
+            System.out.println();
+        }
+
+        for(int typeIndex = 0; typeIndex < typeList.getTypeCount(); typeIndex++){
+            for(int setIndex = 0; setIndex < typeList.getMaxSubTypeCount(typeIndex); setIndex++){
+                System.out.println(typeIndex + " " + setIndex +" " + logFullLikelihoods[typeIndex][setIndex] +" "+
+                        propLogMDPPriorValues[typeIndex][setIndex] +" "+
+                        logTypePrior[typeIndex]);
+
+            }
+            System.out.println();
+        }
+        System.out.println(typeListCopy.log());
+
+
+
+
+    }
+
     private static void swapLogSubtypeLikelihood(double[][] logSubtypeLikelihoodLists1,
                                                 double[][] logSubtypeLikelihoodLists2,
                                                 int typeIndex,
@@ -476,6 +532,7 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
                                                                 double[][] replace,
                                                                 int typeIndex,
                                                                 int subtypeIndex){
+
         return totalLogLik - beReplaced[typeIndex][subtypeIndex] + replace[typeIndex][subtypeIndex];
 
     }

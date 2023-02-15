@@ -269,14 +269,14 @@ public class ClusterLikelihood extends AbstractProbability {
         for(int setIndex = 0; setIndex < subtypeLikelihoods.length; setIndex++){
 
             subtypeLikelihoods[setIndex] = 0;
-            for(int mkrIndex = 0; mkrIndex < subtypeMkrLik[setIndex].length; mkrIndex++){
-                if(subtypeMkrLik[setIndex][mkrIndex] > 0){
-                    subtypeLikelihoods[setIndex] += Math.log(subtypeMkrLik[setIndex][mkrIndex]);
+            if(subtypeSets.getSubTypeSetSize(setIndex) > 0 ){
+                for(int mkrIndex = 0; mkrIndex < subtypeMkrLik[setIndex].length; mkrIndex++){
+                    if(subtypeMkrLik[setIndex][mkrIndex] > 0){
+                        subtypeLikelihoods[setIndex] += Math.log(subtypeMkrLik[setIndex][mkrIndex]);
 
+                    }
                 }
-
             }
-
         }
 
     }
@@ -289,6 +289,7 @@ public class ClusterLikelihood extends AbstractProbability {
         for(int subtypeIndex = 0; subtypeIndex < subtypeSets.getSubTypeMaxCount(); subtypeIndex++){
             //System.out.println(subtypeIndex);
             //if(subtypeSets[subtypeIndex].size() > 0){
+            //System.out.print(subtypeSets.getSubTypeSetSize(subtypeIndex)+" ");
             if(subtypeSets.getSubTypeSetSize(subtypeIndex) > 0){
 
                 //logLikelihood += calcLogSubtypeLikelihood(eltsAllPartSetList,
@@ -313,7 +314,7 @@ public class ClusterLikelihood extends AbstractProbability {
         return updateAll;
     }
 
-    public void setUpdatAll(boolean update){
+    public void setUpdateAll(boolean update){
         updateAll = update;
     }
 
@@ -325,6 +326,7 @@ public class ClusterLikelihood extends AbstractProbability {
                     subtypeMkrLik[typeIndex].length);
         }
         //System.out.println("stored-lik"+storedLogLikelihood);
+        updateAll = false;
 
     }
 

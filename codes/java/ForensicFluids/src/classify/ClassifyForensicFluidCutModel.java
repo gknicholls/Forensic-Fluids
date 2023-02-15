@@ -250,6 +250,8 @@ public class ClassifyForensicFluidCutModel {
 
     public void run(){
         executor = Executors.newFixedThreadPool(threadCount);
+        constants = new State[]{shapeAParams[0], shapeAParams[1], shapeAParams[2], shapeAParams[3], shapeAParams[4],
+                shapeBParams[0], shapeBParams[1], shapeBParams[2], shapeBParams[3], shapeBParams[4]};
         try {
             BufferedReader mainChainReader = new BufferedReader(new FileReader(mainChainPath));
             String mainChainLogLine = mainChainReader.readLine();
@@ -285,12 +287,11 @@ public class ClassifyForensicFluidCutModel {
 
                     proposals = setUpProposalMoves(typeList, (CompoundClusterLikelihood) probs[2], (Multinomial) probs[0], alphaRow);
 
-                    constants = new State[]{shapeAParams[0], shapeAParams[1], shapeAParams[2], shapeAParams[3], shapeAParams[4],
-                            shapeBParams[0], shapeBParams[1], shapeBParams[2], shapeBParams[3], shapeBParams[4]};
+
 
                     MCMC estSubtype = new MCMC(probs, proposals, weights, states, constants, chainLength, logEvery, outputFilePath);
 
-                    System.out.println("separateOutput: "+separateOutput);
+                    //System.out.println("separateOutput: "+separateOutput);
                     if(separateOutput){
                         estSubtype.run(append, stepNum, true);
                         append = true;
@@ -349,9 +350,9 @@ public class ClassifyForensicFluidCutModel {
             }
         }
 
-        for(int pathIndex = 0; pathIndex < initialBF.length; pathIndex++){
+        /*for(int pathIndex = 0; pathIndex < initialBF.length; pathIndex++){
             System.out.println("Unknown sample "+(pathIndex + 1) +" initial type: " + initialBF[pathIndex] );
-        }
+        }*/
 
         ArrayList<Integer>[][] subtypeParts =
                 (ArrayList<Integer>[][]) new ArrayList[totalObsCounts.length][maxRowClustCount];
@@ -407,6 +408,7 @@ public class ClassifyForensicFluidCutModel {
             initSubtype = Randomizer.nextInt(nonEmpty[initialBF[pathIndex]].size());
             //System.out.println("add unknown: " + unknownCount + " " + (totalCount + pathIndex));
             subtypeParts[initialBF[pathIndex]][initSubtype].add(totalCount + pathIndex);
+            //subtypeParts[initialBF[pathIndex]][initSubtype].add(totalCount + pathIndex);
             //typeList.addObs(initialBF[pathIndex], initSubtype, totalCount + pathIndex);
 
         }

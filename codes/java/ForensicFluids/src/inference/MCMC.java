@@ -252,8 +252,10 @@ public class MCMC {
             //double currLogPrior = prior.getLogLikelihood();
             //double currLogPost = currLogLik + currLogPrior;
             double currLogPost = 0;
+            String currLogPostStr = "";
             for(int probsIndex = 0; probsIndex < probs.length; probsIndex++){
                 currLogPost += probs[probsIndex].getLogLikelihood();
+                currLogPostStr = currLogPostStr + probs[probsIndex].getLogLikelihood()+" ";
             }
             double logHR, propLogLik, propLogPrior, propLogPost, logMHR;
 
@@ -271,6 +273,7 @@ public class MCMC {
             }
 
 
+
             //labels += "\tlogHR\tlogMHR\tdraw";
             for(State constantState:constants) {
                 constantState.store();
@@ -278,7 +281,9 @@ public class MCMC {
 
 
 
-            //log(output, currLogPost, probs, 0, states, 0, 0, 0);
+            if(multiUnknown){
+                log(output, currLogPost, probs, 0, states, 0, 0, 0);
+            }
             for (int stepIndex = 0; stepIndex < chainLength; stepIndex++) {
                 //System.out.println(stepIndex);
                 //store();
@@ -314,10 +319,18 @@ public class MCMC {
                 //propLogPost = propLogLik + propLogPrior;
 
                 propLogPost = 0;
+                String propLogPostStr = "";
                 for(int probsIndex = 0; probsIndex < probs.length; probsIndex++){
                     propLogPost += probs[probsIndex].getLogLikelihood();
+                    propLogPostStr = propLogPostStr + probs[probsIndex].getLogLikelihood()+" ";
                 }
                 logMHR = propLogPost - currLogPost + logHR;
+
+                /*if(logMHR < 0){
+                    System.out.println((propLogPost - currLogPost) + " " + logHR+" "+Math.abs(logMHR));
+                    ((SingleUnknownGibbsSampler)proposalMoves[0]).printCalculations();
+                    throw new RuntimeException("");
+                }*/
 
                 /*String[] propLog = new String[states.length];
                 for(int stateIndex = 0; stateIndex < states.length; stateIndex++){
@@ -330,6 +343,17 @@ public class MCMC {
                 //boolean accept = false;
                 //System.out.println("mcmc: "+ (stepIndex + 1) +" "+ draw +" "+ logMHR+" "+currLogPost+" "+ +propLogPost);
                 //System.out.println("mcmc: "+ (propLogPost - currLogPost));
+
+                if(Math.abs(logMHR) < 1e-10){
+                    logMHR = 0;
+                }else{
+                    System.out.println(propLogPostStr);
+                    System.out.println(currLogPostStr);
+                    System.out.println((propLogPost - currLogPost) + " " + logHR+" "+Math.abs(logMHR));
+                    ((SingleUnknownGibbsSampler)proposalMoves[0]).printCalculations();
+
+                    throw new RuntimeException();
+                }
                 if (logMHR >= 0.0 || draw < logMHR) {
                     //System.out.println("accepted: "+  currLogPost+" "+ currLogPost+ " "+propLogLik+" "+ propLogPrior);
                     //System.out.println("accept");
@@ -337,6 +361,7 @@ public class MCMC {
                     //accept = true;
 
                     currLogPost = propLogPost;
+                    currLogPostStr = propLogPostStr;
                     //currLogPrior = propLogPrior;
                     //currLogLik = propLogLik;
                     proposalMoves[currProposalIndex].countAccept(ProposalMove.ACCEPT);

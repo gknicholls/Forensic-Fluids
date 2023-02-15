@@ -104,9 +104,11 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         //for(int typeIndex = 0; typeIndex < typeClusters.getTypeCount(); typeIndex++){
             //if(typeClusters.hasUpdated(typeIndex)){
         for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
+            //print("type: "+typeIndex+" ");
             if(liks[typeIndex].isUpdated()){
                 logMultiTypeLikelihoods[typeIndex] =  liks[typeIndex].getLogLikelihood();
             }
+            //System.out.println();
 
             //System.out.println("type log-lik"+ logMultiTypeLikelihoods[typeIndex]);
             logMultiTypeLikelihood += logMultiTypeLikelihoods[typeIndex];
@@ -142,6 +144,13 @@ public class CompoundClusterLikelihood extends AbstractProbability {
         }
 
         return newLabel;
+    }
+
+    public void setUpdateAll(boolean updateAll){
+        for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
+            liks[typeIndex].setUpdateAll(updateAll);
+        }
+
     }
 
     public String log(){
