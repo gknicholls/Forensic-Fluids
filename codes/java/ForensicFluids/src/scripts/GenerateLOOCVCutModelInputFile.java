@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class GenerateCutModelInputFile {
+public class GenerateLOOCVCutModelInputFile {
     public static void main(String[] args){
         try{
 

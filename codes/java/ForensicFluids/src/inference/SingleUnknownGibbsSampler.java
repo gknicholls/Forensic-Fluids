@@ -4,6 +4,7 @@ package inference;
 import distribution.Multinomial;
 import model.ClusterPrior;
 import model.CompoundClusterLikelihood;
+import state.SubTypeList;
 import state.TypeList;
 import state.TypeListWithUnknown;
 import utils.Randomizer;
@@ -419,16 +420,39 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
         assignUnknownToAllPossibleSubtype(
                 typeListCopy, propSetSizeLists, unknownObsIndex + typeList.getUnknownStartIndex());
 
-        int propUnknownEltIndex = typeListCopy.getUnknownObsEltIndex(
-                unknownObsIndex + typeListCopy.getUnknownStartIndex(),
+        int propUnknownEltIndex = typeListCopy.getUnknownObsEltIndex(unknownObsIndex + typeListCopy.getUnknownStartIndex(),
                 currUnknownTypeIndex, currUnknownSubtypeIndex);
+        //System.out.println("flag 1: "+(unknownObsIndex + typeListCopy.getUnknownStartIndex()) +" "
+        //        //        + currUnknownTypeIndex + " "+ currUnknownSubtypeIndex);
+        //        //System.out.println("flag 2: "+currUnknownTypeIndex +" "+ currUnknownSubtypeIndex + " "+ propUnknownEltIndex);
+        //        //System.out.println("flag 3: "+typeListCopy.log());
+        //int propUnknownSubtypeIndex = currUnknownSubtypeIndex;
+        if(propUnknownEltIndex== -1){
+            for(int subtypeIndex = 0; subtypeIndex < propSetSizeLists[currUnknownTypeIndex].length; subtypeIndex++){
+                if(propSetSizeLists[currUnknownTypeIndex][subtypeIndex] == 1){
+
+                    propUnknownEltIndex = typeListCopy.getUnknownObsEltIndex(
+                            unknownObsIndex + typeListCopy.getUnknownStartIndex(),
+                            currUnknownTypeIndex, subtypeIndex);
+
+                    currLogSubtypeLikelihoodLists[currUnknownTypeIndex][subtypeIndex] =
+                            currLogSubtypeLikelihoodLists[currUnknownTypeIndex][currUnknownSubtypeIndex];
+                    currLogSubtypeLikelihoodLists[currUnknownTypeIndex][currUnknownSubtypeIndex] = 0;
+                    currUnknownSubtypeIndex = subtypeIndex;
+                    break;
+                }
+            }
+        }
+        //System.out.println("flag 2: "+currUnknownTypeIndex +" "+ currUnknownSubtypeIndex + " "+ propUnknownEltIndex);
         typeListCopy.removeObs(currUnknownTypeIndex, currUnknownSubtypeIndex, propUnknownEltIndex);
-        // System.out.println("flag 2: "+currUnknownTypeIndex +" "+ currUnknownSubtypeIndex + " "+ propUnknownEltIndex);
+
 
 
         likelihoodCopy.setUpdateAll(true);
         likelihoodCopy.getLogLikelihood();
         likelihoodCopy.getLogSubtypeLikelihoods(propLogSubtypeLikelihoodLists);
+
+
 
         /*System.out.println("flag 3 "+propLogSubtypeLikelihoodLists[currUnknownTypeIndex][currUnknownSubtypeIndex]);
 
@@ -504,11 +528,15 @@ public class SingleUnknownGibbsSampler extends ProposalMove{
             for(int setIndex = 0; setIndex < typeList.getMaxSubTypeCount(typeIndex); setIndex++){
                 System.out.println(typeIndex + " " + setIndex +" " + logFullLikelihoods[typeIndex][setIndex] +" "+
                         propLogMDPPriorValues[typeIndex][setIndex] +" "+
-                        logTypePrior[typeIndex]);
+                        logTypePrior[typeIndex]+" "+
+                        currLogSubtypeLikelihoodLists[typeIndex][setIndex] +" " +
+                        propLogSubtypeLikelihoodLists[typeIndex][setIndex] +" ");
 
             }
             System.out.println();
         }
+
+
         System.out.println(typeListCopy.log());
 
 

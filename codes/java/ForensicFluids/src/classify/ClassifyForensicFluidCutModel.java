@@ -235,7 +235,7 @@ public class ClassifyForensicFluidCutModel {
             }
         }
         inputReader.close();
-        separateOutput = separateOutput || unknownCount > 1;
+        separateOutput = separateOutput;
 
 
 

@@ -88,7 +88,7 @@ public class MCMC {
 
             File outputFile = new File(outputFilePath);
             if(outputFile.exists()){
-                throw new RuntimeException("File already exists" +outputFilePath);
+                throw new RuntimeException("File already exists: " +outputFilePath);
             }
 
             PrintStream output = new PrintStream(outputFilePath);

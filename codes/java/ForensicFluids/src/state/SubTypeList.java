@@ -221,7 +221,7 @@ public class SubTypeList extends AbstractState {
                     copy.add(subtypeList[subtypeIndex].get(i));
                 }
                 //Collections.copy(copy, subtypeList[subtypeIndex]);
-                Collections.sort(copy);
+                //Collections.sort(copy);
                 for(int eltIndex = 0; eltIndex < copy.size(); eltIndex++){
                     setStr += copy.get(eltIndex);
                     if(eltIndex < (copy.size() - 1)){
@@ -237,7 +237,7 @@ public class SubTypeList extends AbstractState {
 
         }
 
-        Collections.sort(setStrList);
+        //Collections.sort(setStrList);
         String setsStr = "[";
         for(int setIndex = 0; setIndex < setStrList.size(); setIndex++){
             if(setIndex >0){
