@@ -47,7 +47,7 @@ public class ParamUtils {
 
 
 
-                for (int setIndex = 0; setIndex < subtypeParts.length; setIndex++) {
+                for (int setIndex = 0; setIndex < subtypeParts[typeIndex].length; setIndex++) {
                     subtypeParts[typeIndex][setIndex] = new ArrayList<>();
 
                 }
