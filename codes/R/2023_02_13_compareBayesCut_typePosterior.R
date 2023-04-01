@@ -29,26 +29,26 @@ loocvBayesLogPaths <- c("/Users/chwu/Documents/research/bfc/paper/analysis/Bayes
   "/Users/chwu/Documents/research/bfc/paper/analysis/Bayes/smn/loocvTrain_smn_76.log")
 
 
-loocvCutLogPaths <- c("/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_37.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_52.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_23.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_59.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_33.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_5.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_22.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_16.log",
-                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_12/loocvCut_side_cvf_28.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_15.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_17.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_18.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_6.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_26.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_10.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_mtb_9.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_slv_2.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_bld_10.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_smn_8.log",
-                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_13/loocvCut_side_smn_76.log")
+loocvCutLogPaths <- c("/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_37.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_52.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_23.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_59.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_33.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_5.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_22.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_16.log",
+                      "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_cvf_28.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_15.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_17.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_18.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_6.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_26.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_10.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_mtb_9.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_slv_2.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_bld_10.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_smn_8.log",
+                        "/Users/chwu/Documents/research/bfc/analysis/2023_02_14/loocvCut_side_smn_76.log")
 
 
 bayesCutComparePostMat<- matrix(nrow = 2*length(loocvBayesLogPaths ), ncol = 5)

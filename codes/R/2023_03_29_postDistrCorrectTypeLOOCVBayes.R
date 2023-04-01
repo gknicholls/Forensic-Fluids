@@ -1,16 +1,56 @@
+
+drawPostModeTable = function(postModeMat  = NULL){
+  
+  par(mar = c(0, 0, 0, 0)+0.5)
+  plot(1,1, xlim = c(0, 6), ylim = c(0, 6.5),
+       xaxt = "n", yaxt = "n", axes=F, type = "n")
+  for(i in 0:6){
+    if(i == 0 | i==6){
+      lines(x = c(i, i), y = c(0,6.5))
+    }else if(i == 1){
+      lines(x = c(i-0.025, i - 0.025), y = c(0,6.5))
+      lines(x = c(i+0.025, i + 0.025), y = c(0,6.5))
+    }else{
+      lines(x = c(i, i), y = c(0, 6))
+    }
+    
+  }
+  for(i in 0:5){
+    lines(x = c(0, 6), y = c(i, i))
+  }
+  
+  lines(x = c(0, 6), y = c(6.5, 6.5))
+  lines(x = c(1+0.025, 6), y = c(6, 6))
+  typeLabel = c("Cervical\nfluid", "Menstrual\nblood", "Saliva", "Blood", "Semen")
+  
+  text(x = 0.5, y = 5.75, label = "True\nType", cex = 0.9, font=2)
+  text(x = 3.5, y = 6.25, label = "Posterior mode", cex = 0.9, font=2)
+  for(typeIndex in 1:length(typeLabel)){
+    text(x = 0.5, y = 5.5 - typeIndex, label = typeLabel[typeIndex], cex = 0.8, font=2)
+    text(x = typeIndex + 0.5, y = 5.5, label = typeLabel[typeIndex], cex = 0.8, font=2)
+  }
+  
+  for(i in 1:nrow(postModeMat)){
+    for(j in 1:ncol(postModeMat)){
+      text(x = j + 0.5, y = 5 - i + 0.5, label = postModeMat[i, j])
+    }
+    
+  }
+}
+
 getTypeDistr<-function(postTypeVar){
   counts<-sapply(c(0:4), 
-         function(type, post.type){
-           length(which(post.type == type))
-         }, post.type = postTypeVar)
+                 function(type, post.type){
+                   length(which(post.type == type))
+                 }, post.type = postTypeVar)
   return(counts/length(postTypeVar))
 }
 
 
-calcTypeDistrFromLog<-function(typeFolderPath = NULL, logFileName = NULL){
+calcTypeDistrFromLog<-function(typeFolderPath = NULL, logFileName = NULL, burnin = 0.1){
   currLogFilePath = paste(typeFolderPath, logFileName, sep="")
   log.df = read.table(file = currLogFilePath, header = T, as.is = T, sep = "\t")
-  log.df = log.df[-c(1:round(nrow(log.df)/10)),]
+  log.df = log.df[-c(1:ceiling(nrow(log.df)*burnin)),]
   return(getTypeDistr(log.df$unknownType.0))
 }
 
@@ -85,8 +125,6 @@ slvUniquePatternIndex <- gsub(rownames(slvBayesLOOCV.typePostDistr), pattern = "
 slvUniquePatternIndex <- as.numeric(gsub(slvUniquePatternIndex, pattern = ".log", replace = ""))
 slvBayesLOOCV.typePostDistr.sample<-slvBayesLOOCV.typePostDistr[match(slvUniquePattern, slvUniquePattern[slvUniquePatternIndex]),]
 table(apply(slvBayesLOOCV.typePostDistr.sample, 1, which.max))
-# 3 
-# 80
 
 summary(slvBayesLOOCV.typePostDistr.sample[,3]/(1-slvBayesLOOCV.typePostDistr.sample[,3]))
 
@@ -112,8 +150,6 @@ bldUniquePatternIndex <- gsub(rownames(bldBayesLOOCV.typePostDistr), pattern = "
 bldUniquePatternIndex <- as.numeric(gsub(bldUniquePatternIndex, pattern = ".log", replace = ""))
 bldBayesLOOCV.typePostDistr.sample<-bldBayesLOOCV.typePostDistr[match(bldUniquePattern, bldUniquePattern[bldUniquePatternIndex]),]
 table(apply(bldBayesLOOCV.typePostDistr.sample, 1, which.max))
-# 4 
-# 65
 
 summary(bldBayesLOOCV.typePostDistr.sample[,4]/(1-bldBayesLOOCV.typePostDistr.sample[,4]))
 
@@ -138,9 +174,6 @@ smnUniquePatternIndex <- gsub(rownames(smnBayesLOOCV.typePostDistr), pattern = "
 smnUniquePatternIndex <- as.numeric(gsub(smnUniquePatternIndex, pattern = ".log", replace = ""))
 smnBayesLOOCV.typePostDistr.sample<-smnBayesLOOCV.typePostDistr[match(smnUniquePattern, smnUniquePattern[smnUniquePatternIndex]),]
 table(apply(smnBayesLOOCV.typePostDistr.sample, 1, which.max))
-# 5 
-# 86
-
 
 summary(smnBayesLOOCV.typePostDistr.sample[,5]/(1-smnBayesLOOCV.typePostDistr.sample[,5]))
 
@@ -149,31 +182,39 @@ smnBayesLOOCV.typePostOdds <- smnBayesLOOCV.typePostDistr.sample[,5]/(1-smnBayes
 table(cut(smnBayesLOOCV.typePostOdds, c(0, 0.01, 0.1, 1, 10, 100, 1000, 10000, Inf)))
 signif(table(cut(smnBayesLOOCV.typePostOdds, c(0, 0.01, 0.1, 1, 10, 100, 1000, 10000, Inf)))/nrow(smnBayesLOOCV.typePostDistr.sample),3)
 
-loocvBayesPostDistr<-rbind(cvfBayesLOOCV.typePostDistr.sample,
-mtbBayesLOOCV.typePostDistr.sample,
-slvBayesLOOCV.typePostDistr.sample,
-bldBayesLOOCV.typePostDistr.sample,
-smnBayesLOOCV.typePostDistr.sample)
-colnames(loocvBayesPostDistr) = paste(typeLabel, "PostProb", sep = "")
-loocvBayesPostDistrData  = cbind(loocvBayesPostDistr, 
-      rep(typeLabel, c(nrow(cvfBayesLOOCV.typePostDistr.sample), 
-                       nrow(mtbBayesLOOCV.typePostDistr.sample),
-                       nrow(slvBayesLOOCV.typePostDistr.sample),
-                       nrow(bldBayesLOOCV.typePostDistr.sample),
-                       nrow(smnBayesLOOCV.typePostDistr.sample))))
-data2019Bin.df = read.csv(file = "/Users/chwu/Documents/research/bfc/data/forensic_data/mRNA_single_2019_binary.csv",
-                          header = T, as.is = T)
-loocvBayesCalibr.df = data.frame(sampleID = c(data2019Bin.df$Sample[data2019Bin.df$Type=="Vaginal Secretion"],
-                                              data2019Bin.df$Sample[data2019Bin.df$Type=="Menstrual Blood"],
-                                              data2019Bin.df$Sample[data2019Bin.df$Type=="Saliva"],
-                                              data2019Bin.df$Sample[data2019Bin.df$Type=="Blood"],
-                                              data2019Bin.df$Sample[data2019Bin.df$Type=="Semen"]),
-                                 trueType = rep(typeLabel, c(nrow(cvfBayesLOOCV.typePostDistr.sample), 
-                                                         nrow(mtbBayesLOOCV.typePostDistr.sample),
-                                                         nrow(slvBayesLOOCV.typePostDistr.sample),
-                                                         nrow(bldBayesLOOCV.typePostDistr.sample),
-                                                         nrow(smnBayesLOOCV.typePostDistr.sample))),
-                                 loocvBayesPostDistr)
-write.csv(loocvBayesCalibr.df,
-          file = "/Users/chwu/Documents/research/bfc/paper/analysis/calibration/loocvBayesCalibr.csv",
-          quote = F, row.names = F)
+boldText = function(text){substitute(paste(bold(text))) }
+
+pdf(file = "/Users/chwu/Documents/research/bfc/paper/plot/postDistrCorrectTypeLOOCVBayes_v3.pdf",
+    height = 6.5, width = 6)
+par(mfrow = c(3, 2), mar = c(4.5, 4, 1.5, 2) + 0.2)
+hist(cvfBayesLOOCV.typePostDistr.sample[,1],
+     main = "", nclass = 20, las = 1,
+     xlab = "Posterior probability of the correct type\nfor profiles from cervical fluid",
+     ylab = "Number of profiles")
+hist(mtbBayesLOOCV.typePostDistr.sample[,2],
+     main = "", nclass = 20, las = 1,
+     xlab = "Posterior probability of the correct type\nfor profiles from menstrual blood ",
+     ylab = "Number of profiles")
+hist(slvBayesLOOCV.typePostDistr.sample[,3],
+     main = "", nclass = 20, las = 1,
+     xlab = "Posterior probability of the correct type\nfor profiles from saliva",
+     ylab = "Number of profiles")
+hist(bldBayesLOOCV.typePostDistr.sample[,4],
+     main = "", nclass = 20, las = 1,
+     xlab = "Posterior probability of the correct type\nfor profiles from blood",
+     ylab = "Number of profiles")
+hist(smnBayesLOOCV.typePostDistr.sample[,5],
+     main = "", nclass = 20, las = 1,
+     xlab = "Posterior probability of the correct type\nfor profiles from semen",
+     ylab = "Number of profiles")
+par(mar = c(0, 0, 0, 0)+0.5)
+loocvBayesPostMode = matrix(c(50, 9, 0, 0, 0, 
+                              8, 23, 0, 0, 0,
+                              0, 0, 80, 0, 0, 
+                              0, 0, 0, 65, 0,
+                              0, 0, 0, 0, 86),
+                            byrow = T, nrow = 5)
+drawPostModeTable(loocvBayesPostMode)
+dev.off()
+
+
