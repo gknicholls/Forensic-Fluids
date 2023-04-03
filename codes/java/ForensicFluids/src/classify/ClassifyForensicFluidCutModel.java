@@ -235,7 +235,7 @@ public class ClassifyForensicFluidCutModel {
             }
         }
         inputReader.close();
-        separateOutput = separateOutput;
+        //separateOutput = separateOutput;
 
 
 
@@ -361,7 +361,7 @@ public class ClassifyForensicFluidCutModel {
         for (int typeIndex = 0; typeIndex < totalObsCounts.length; typeIndex++) {
 
             // Create J sets within each type, where J maxRowClustCount.
-            for (int setIndex = 0; setIndex < subtypeParts.length; setIndex++) {
+            for (int setIndex = 0; setIndex < subtypeParts[typeIndex].length; setIndex++) {
                 subtypeParts[typeIndex][setIndex] = new ArrayList<>();
 
             }
