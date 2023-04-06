@@ -137,6 +137,134 @@ mtext("(b)", adj=-0.225, line=0.5)
 dev.off()
 
 
+
+pdf(file = "/Users/chwu/Documents/research/bfc/paper/plot/bayesVsCutCorrectTypePostrDistr.pdf",
+    width = 12, height = 4.7)
+axisProbs  = c(0.01, 0.1, 0.5, 0.9, 0.99, 0.999, 0.9999)
+axisProbPos  = c(log(axisProbs/(1 - axisProbs)), 11.5)
+axisProbLabel  = c(axisProbs , 1.0)
+par(mfrow = c(2, 2), mar = c(4, 5, 1.5, 1) + 0.2, las = 1)
+logitTestTypePostBayes = log(test.type.post.bayes[cbind(1:46,exptdType)]/(1 - test.type.post.bayes[cbind(1:46,exptdType)]))
+logitTestTypePostBayes[logitTestTypePostBayes==Inf] = 11.5
+logitTestTypePostCut = log(test.type.post.cut[cbind(1:46,exptdType)]/(1 - test.type.post.cut[cbind(1:46,exptdType)]))
+logitTestTypePostCut[logitTestTypePostCut==Inf] = 11.5
+
+plot(x = logitTestTypePostBayes, y = logitTestTypePostCut,
+     # col =  c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42")[exptdType], 
+     pch = 4, lwd = 1.25, 
+     xlim = c(-4.5, 12), ylim = c(-4.5, 12), 
+     xlab = expression("Bayes:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]), 
+     ylab = "", 
+     xaxt = "n", yaxt="n")
+mtext(expression("Cut:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]),
+      side = 2, line = 3.5, las = 3)
+axis(side = 1, label = axisProbLabel, at = axisProbPos)
+axis(side = 2, label = axisProbLabel, at = axisProbPos)
+abline(a = 0, b = 1, col ="#00000077", lwd = 2)
+# abline(v = 0, col ="#00000077", lty = "dashed")
+# abline(h = 0, col ="#00000077", lty = "dashed")
+abline(v = log(1/10), col ="#000000CC", lty = "dotted")
+abline(h = log(1/10), col ="#000000CC", lty = "dotted")
+
+# or at a certain position
+axis.break(axis=1, breakpos=10.5)
+axis.break(axis=2, breakpos=10.5)
+
+mtext("(a)", adj=-0.225, line=0.5)
+# legend(x = 6, y = 3,
+#        legend = c("CVF", "MTB", "SLV", "BLD", "SMN"), pch = 4, bty = "n",
+#        col = c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42"))
+logitTestTypePostBayesJoint = log(testJointBayesTypePostDistr[cbind(1:46,exptdType)]/
+                                    (1 - testJointBayesTypePostDistr[cbind(1:46,exptdType)]))
+logitTestTypePostBayesJoint[logitTestTypePostBayesJoint == Inf] = 11.5
+logitTestTypePostCutJoint = log(testJointCutTypePostDistr[cbind(1:46, exptdType)]/
+                                  (1 - testJointCutTypePostDistr[cbind(1:46,exptdType)]))
+logitTestTypePostCutJoint[logitTestTypePostCutJoint==Inf] = 11.5
+
+plot(x = logitTestTypePostBayesJoint, y = logitTestTypePostCutJoint,
+     # col =  c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42")[exptdType], 
+     pch = 4, lwd = 1.25,
+     xlab = expression("Bayes:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]), 
+     ylab = "",
+     xlim = c(-4.5, 12), ylim = c(-4.5, 12), 
+     xaxt = "n", yaxt="n")
+mtext(expression("Cut:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]),
+      side = 2, line = 3.5, las = 3)
+axis(side = 1, label = axisProbLabel, at = axisProbPos)
+axis(side = 2, label = axisProbLabel, at = axisProbPos)
+abline(a = 0, b = 1, col ="#00000077", lwd = 2)
+# abline(v = 0, col ="#00000077", lty = "dashed")
+# abline(h = 0, col ="#00000077", lty = "dashed")
+abline(v = log(1/10), col ="#000000CC", lty = "dotted")
+abline(h = log(1/10), col ="#000000CC", lty = "dotted")
+axis.break(axis=1, breakpos=10.5)
+axis.break(axis=2, breakpos=10.5)
+mtext("(b)", adj=-0.225, line=0.5)
+
+
+
+
+plot(x = logitTestTypePostBayes, y = logitTestTypePostBayesJoint,
+     # col =  c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42")[exptdType], 
+     pch = 4, lwd = 1.25, 
+     xlim = c(-4.5, 12), ylim = c(-4.5, 12), 
+     xlab = expression("Bayes:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]), 
+     ylab = "", 
+     xaxt = "n", yaxt="n")
+mtext(expression("Bayes:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]),
+      side = 2, line = 3.5, las = 3)
+axis(side = 1, label = axisProbLabel, at = axisProbPos)
+axis(side = 2, label = axisProbLabel, at = axisProbPos)
+abline(a = 0, b = 1, col ="#00000077", lwd = 2)
+# abline(v = 0, col ="#00000077", lty = "dashed")
+# abline(h = 0, col ="#00000077", lty = "dashed")
+abline(v = log(1/10), col ="#000000CC", lty = "dotted")
+abline(h = log(1/10), col ="#000000CC", lty = "dotted")
+
+# or at a certain position
+axis.break(axis=1, breakpos=10.5)
+axis.break(axis=2, breakpos=10.5)
+
+mtext("(a)", adj=-0.225, line=0.5)
+# legend(x = 6, y = 3,
+#        legend = c("CVF", "MTB", "SLV", "BLD", "SMN"), pch = 4, bty = "n",
+#        col = c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42"))
+logitTestTypePostBayesJoint = log(testJointBayesTypePostDistr[cbind(1:46,exptdType)]/
+                                    (1 - testJointBayesTypePostDistr[cbind(1:46,exptdType)]))
+logitTestTypePostBayesJoint[logitTestTypePostBayesJoint == Inf] = 11.5
+logitTestTypePostCutJoint = log(testJointCutTypePostDistr[cbind(1:46, exptdType)]/
+                                  (1 - testJointCutTypePostDistr[cbind(1:46,exptdType)]))
+logitTestTypePostCutJoint[logitTestTypePostCutJoint==Inf] = 11.5
+
+plot(x = logitTestTypePostCut, y = logitTestTypePostCutJoint,
+     # col =  c("#6D2727", "#EB4D28", "#EC972D", "#34B795", "#093E42")[exptdType], 
+     pch = 4, lwd = 1.25,
+     xlab = expression("Cut:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]), 
+     ylab = "",
+     xlim = c(-4.5, 12), ylim = c(-4.5, 12), 
+     xaxt = "n", yaxt="n")
+mtext(expression("Cut:"~italic(J)[italic(f)]~"= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)]),
+      side = 2, line = 3.5, las = 3)
+axis(side = 1, label = axisProbLabel, at = axisProbPos)
+axis(side = 2, label = axisProbLabel, at = axisProbPos)
+abline(a = 0, b = 1, col ="#00000077", lwd = 2)
+# abline(v = 0, col ="#00000077", lty = "dashed")
+# abline(h = 0, col ="#00000077", lty = "dashed")
+abline(v = log(1/10), col ="#000000CC", lty = "dotted")
+abline(h = log(1/10), col ="#000000CC", lty = "dotted")
+axis.break(axis=1, breakpos=10.5)
+axis.break(axis=2, breakpos=10.5)
+mtext("(b)", adj=-0.225, line=0.5)
+dev.off()
+
+
+
+
+
+
+
+
+
 pdf(file = "/Users/chwu/Documents/research/bfc/paper/plot/cutPostProbCorrectTypeQQ.pdf",
    width = 7.5, height = )
 par(mfrow = c(2, 2), mar = c(4, 4, 1.5, 1) + 0.2, las = 1)

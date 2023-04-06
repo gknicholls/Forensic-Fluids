@@ -270,7 +270,7 @@ for(aIndex in c(1, 7)){
        xlab = xLabVec[aIndex], ylab = "",
        xaxt = "n", yaxt = "n", 
        xlim = c(-4.5, 12), ylim = c(-3.5, 12))
-  mtext(yLabVec[aIndex], side = 2, line = 3.5, las = 3, cex = 0.65)
+  mtext(yLabVec[aIndex], side = 2, line = 3.5, las = 3)
   axis(side = 1, label = axisProbLabel, at = axisProbPos)
   axis(side = 2, label = axisProbLabel, at = axisProbPos)
   abline(0, 1, col = "#00000077")
@@ -280,7 +280,7 @@ for(aIndex in c(1, 7)){
   abline(h = log(1/10), col ="#000000CC", lty = "dotted")
   axis.break(axis = 1, breakpos=10.5)
   axis.break(axis = 2, breakpos=10.5)
-  mtext(panelLabels2[aIndex], adj=-0.21, line= 0.6, cex = 0.8)
+  mtext(panelLabels2[aIndex], adj=-0.21, line= 0.6)
   
   
 }
@@ -398,16 +398,95 @@ dev.off()
 postOddsRange<-t(apply(postOdds, 1, range))
 
 table(apply(log10(postOddsRange), 1, diff)>1 & postOddsRange[,1] < 100)
+rowJ1ColJ1TestTypeBayesPostMode
+
+rowJ1ColJ1TestTypeBayesPostMode = table(typeLabel[exptdType], 
+      typeLabel[apply(rowJ1ColJ1TestTypePostDistr, 1, which.max)])
+rowJ1ColJ1TestTypeBayesPostMode
+# cvf mtb slv smn
+# bld   2   0   0   0
+# cvf  22   2   0   0
+# slv   0   0  10   0
+# smn   0   0   0  10
+rowJ1ColJ1TestTypeBayesPostMode[typeLabel[-2], typeLabel[-4]]
+# cvf mtb slv smn
+# cvf  22   2   0   0
+# slv   0   0  10   0
+# bld   2   0   0   0
+# smn   0   0   0  10
+
+rowJ1ColJMaxTestTypeBayesPostMode = table(typeLabel[exptdType], 
+      typeLabel[apply(rowJ1ColJMaxTestTypePostDistr, 1, which.max)])
+rowJ1ColJMaxTestTypeBayesPostMode 
+# bld cvf slv smn
+# bld   2   0   0   0
+# cvf   0  24   0   0
+# slv   0   1   9   0
+# smn   0   0   0  10
+rowJ1ColJMaxTestTypeBayesPostMode[typeLabel[-2], typeLabel[-2]]
+# cvf slv bld smn
+# cvf  24   0   0   0
+# slv   1   9   0   0
+# bld   0   0   2   0
+# smn   0   0   0  10
+
+rowJ10ColJMaxTestTypeBayesPostMode = table(typeLabel[exptdType], 
+      typeLabel[apply(rowJ10ColJMaxTestTypePostDistr, 1, which.max)])
+rowJ10ColJMaxTestTypeBayesPostMode
+# bld cvf mtb slv smn
+# bld   2   0   0   0   0
+# cvf   0  23   1   0   0
+# slv   0   0   0  10   0
+# smn   0   0   0   0  10
+rowJ10ColJMaxTestTypeBayesPostMode[typeLabel[-2], typeLabel]
+# cvf mtb slv bld smn
+# cvf  23   1   0   0   0
+# slv   0   0  10   0   0
+# bld   0   0   0   2   0
+# smn   0   0   0   0  10
+
+rowJ15ColJMaxTestTypeBayesPostMode = table(typeLabel[exptdType], 
+      typeLabel[apply(rowJ15ColJMaxTestTypePostDistr, 1, which.max)])
+rowJ15ColJMaxTestTypeBayesPostMode
+# bld cvf mtb slv smn
+# bld   2   0   0   0   0
+# cvf   0  23   1   0   0
+# slv   0   0   0  10   0
+# smn   0   0   0   0  10
+rowJ15ColJMaxTestTypeBayesPostMode[typeLabel[-2], typeLabel]
+# cvf mtb slv bld smn
+# cvf  23   1   0   0   0
+# slv   0   0  10   0   0
+# bld   0   0   0   2   0
+# smn   0   0   0   0  10
 
 
-table(typeLabel[exptdType], 
-      typeLabel[apply(rowJ1ColJ1TestTypePostDistr, 1, which.max)])[typeLabel[-2], typeLabel[-4]]
+rowJ10ColJMaxTestTypeCutPostMode = table(typeLabel[exptdType], 
+                                           typeLabel[apply(rowJ10ColJMaxTestTypeCutPostDistr, 1, which.max)])
+rowJ10ColJMaxTestTypeCutPostMode
+# bld cvf mtb slv smn
+# bld   2   0   0   0   0
+# cvf   0  22   2   0   0
+# slv   0   0   0  10   0
+# smn   0   0   0   0  10
+rowJ10ColJMaxTestTypeCutPostMode[typeLabel[-2], typeLabel]
+# cvf mtb slv bld smn
+# cvf  22   2   0   0   0
+# slv   0   0  10   0   0
+# bld   0   0   0   2   0
+# smn   0   0   0   0  10
 
-table(typeLabel[exptdType], 
-      typeLabel[apply(rowJ1ColJMaxTestTypePostDistr, 1, which.max)])[typeLabel[-2], typeLabel[-2]]
-
-table(typeLabel[exptdType], 
-      typeLabel[apply(rowJ10ColJMaxTestTypePostDistr, 1, which.max)])[typeLabel[-2], typeLabel]
-
-table(typeLabel[exptdType], 
-      typeLabel[apply(rowJ15ColJMaxTestTypePostDistr, 1, which.max)])[typeLabel[-2], typeLabel]
+rowJ15ColJMaxTestTypeCutPostMode = table(typeLabel[exptdType], 
+                                         typeLabel[apply(rowJ15ColJMaxTestTypeCutPostDistr, 1, which.max)])
+rowJ15ColJMaxTestTypeCutPostMode
+# bld cvf mtb slv smn
+# bld   2   0   0   0   0
+# cvf   0  23   1   0   0
+# slv   0   0   0  10   0
+# smn   0   0   0   0  10
+rowJ15ColJMaxTestTypeCutPostMode[typeLabel[-2], typeLabel]
+# cvf mtb slv bld smn
+# cvf  23   1   0   0   0
+# slv   0   0  10   0   0
+# bld   0   0   0   2   0
+# smn   0   0   0   0  10
