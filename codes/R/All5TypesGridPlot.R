@@ -103,9 +103,9 @@ apply(as.matrix(singleBinList[[5]]), 1, table)
   orderByCluster4 = order(singleBinClustList[[4]]$cluster)
   orderByCluster5 = order(singleBinClustList[[5]]$cluster)
   
-pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_09_27/markProfile5Types.pdf",
+pdf(file = "/Users/chwu/Documents/research/bfc/paper/plot/markerProfile5Types.pdf",
     height = 7.5, width = 5)
-  par(xpd = F, mar = c(1, 4, 1, 1) + 0.2)
+  par(xpd = F, mar = c(1, 3, 3, 1) + 0.2, mfrow = c(1,1))
   image(cbind(t(singleBinList1[[5]][orderByCluster5,]),
               t(singleBinList1[[4]][orderByCluster4,]),
               t(singleBinList1[[3]][orderByCluster3,]),
@@ -115,7 +115,7 @@ pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_09_27/markProfile5Type
         axes = FALSE,
         main = "")
   box(which = "plot",lty = "solid")
-  grid(nx = 27 , ny = nrow(singleBinPerType.mat) , lty = "solid", lwd = 0.25)
+  grid(nx = 27 , ny = nrow(single.df ) , lty = "solid", lwd = 0.25)
   abline (v =4.5 /26); 
   abline (v =11.5 / 26) ; 
   abline (v =16.5 / 26) ; 
@@ -130,6 +130,13 @@ pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_09_27/markProfile5Type
   text(label = "Saliva", x = -0.1, y = (150.5 + 80/2)/320, srt = 90)
   text(label = "Menstrual\nBlood", x = -0.1, y = (230.5 + 31/2)/320, srt = 90)
   text(label = "Cervical\nFluid", x = -0.1, y = (261.5 + 59/2)/320, srt = 90)
+  
+  text(label = "Marker Group", x = 0.5, y = 1.07)
+  text(label = "CVF", x = 4.5/2/26, y = 1.025)
+  text(label = "MTB", x = (4.5 + 7/2)/26, y = 1.025)
+  text(label = "SLV", x = (11.5 + 5/2)/26, y = 1.025)
+  text(label = "BLD", x = (16.5 + 5/2)/26, y = 1.025)
+  text(label = "SMN", x = (21.5 + 5/2)/26, y = 1.025)
 dev.off()
 
 
@@ -140,7 +147,7 @@ image(cbind(t(singleBinList1[[2]][orderByCluster2,]),
       axes = FALSE,
       main = "")
 box(which = "plot",lty = "solid")
-grid(nx = 27 , ny = nrow(singleBinPerType.mat) , lty = "solid", lwd = 0.25)
+grid(nx = 27 , ny = nrow(single.df) , lty = "solid", lwd = 0.25)
 abline (v =4.5 /26); 
 abline (v =11.5 / 26) ; 
 abline (v =16.5 / 26) ; 

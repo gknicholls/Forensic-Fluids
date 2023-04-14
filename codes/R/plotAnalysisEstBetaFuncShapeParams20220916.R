@@ -1,3 +1,5 @@
+library(TeachingDemos)
+
 abPostDistr = function(data.df = NULL, fluidType = NULL){
   priorDensV6.2 = dgamma(x = 10^c(c(-1000:10)/10), shape=0.01, rate = 0.01)
   bfLabels = c("CVF", "MTB", "SLV", "BLD", "SMN")
@@ -135,6 +137,7 @@ cvf.df[which(rowSums(cvf.df)==0),]
 
 estBetaAB.cvf.df = read.table(file = "/Users/chwu/Documents/research/bfc/output/2022_09_16/test_cvf_single_estBetaShapes_2022_09_16.log",
                              as.is = T, header = T)
+dim(estBetaAB.cvf.df)
 
 pdf(file = "/Users/chwu/Documents/research/bfc/plots/2022_09_16/cvf_post_trace_2022_09_16.pdf",
     height = 4.5, width = 10)
