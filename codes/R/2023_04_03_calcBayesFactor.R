@@ -37,11 +37,11 @@ trainLoocvBayesBFList[[2]][c(13,16)]
 #         72         75 
 # 0.01965163 0.03768506
 trainLoocvBayes.df[trainLoocvBayes.df$trueType=="cvf", 3:7][c(17,41),]
-cvfPostProb mtbPostProb slvPostProb bldPostProb smnPostProb
+# cvfPostProb mtbPostProb slvPostProb bldPostProb smnPostProb
 # 17  0.02333333   0.9766667           0           0           0
 # 41  0.01911111   0.9808889           0           0           0
 trainLoocvBayes.df[trainLoocvBayes.df$trueType=="mtb", 3:7][c(13,16),]
-cvfPostProb mtbPostProb slvPostProb bldPostProb smnPostProb
+# cvfPostProb mtbPostProb slvPostProb bldPostProb smnPostProb
 # 72   0.9951111 0.004888889           0           0           0
 # 75   0.9906667 0.009333333           0           0           0
 

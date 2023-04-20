@@ -1,7 +1,6 @@
 # Draw the table for posterior modes
 drawPostModeTable = function(postModeMat  = NULL){
   
-  par(mar = c(0, 0, 0, 0)+0.5)
   plot(1,1, xlim = c(0, 6), ylim = c(0, 6.5),
        xaxt = "n", yaxt = "n", axes=F, type = "n")
   for(i in 0:6){
@@ -301,37 +300,44 @@ which(log10(smnBayesLOOCV.typeBF) < -2)
 
 boldText = function(text){substitute(paste(bold(text))) }
 
+
 pdf(file = "/Users/chwu/Documents/research/bfc/paper/plot/postDistrCorrectTypeLOOCVBayes_v3.pdf",
     height = 6.5, width = 6)
-par(mfrow = c(3, 2), mar = c(4.5, 4, 1.5, 2) + 0.2)
+par(mfrow = c(3, 2), mar = c(4.5, 5, 1.5, 2) + 0.2)
 hist(cvfBayesLOOCV.typePostDistr.sample[,1],
-     main = "", nclass = 20, las = 1,
-     xlab = "Posterior probability of the correct type\nfor profiles from cervical fluid",
+     main = "", nclass = 50, las = 1, col = "#505050", border = NA,
+     xlab = "Posterior probability of the correct type\nfor profiles from cervical fluid samples",
      ylab = "Number of profiles")
+mtext("(a)", adj = -0.35, line = 0.1, cex = 0.8)
 hist(mtbBayesLOOCV.typePostDistr.sample[,2],
-     main = "", nclass = 20, las = 1,
-     xlab = "Posterior probability of the correct type\nfor profiles from menstrual blood ",
+     main = "", nclass = 50, las = 1, col = "#505050", border = NA,
+     xlab = "Posterior probability of the correct type\nfor profiles from menstrual blood  samples",
      ylab = "Number of profiles")
+mtext("(b)", adj = -0.35, line = 0.1, cex = 0.8)
 hist(slvBayesLOOCV.typePostDistr.sample[,3],
-     main = "", nclass = 20, las = 1,
-     xlab = "Posterior probability of the correct type\nfor profiles from saliva",
+     main = "", nclass = 20, las = 1, xlim = c(0, 1), border = NA, col = "#505050",
+     xlab = "Posterior probability of the correct type\nfor profiles from saliva samples",
      ylab = "Number of profiles")
+mtext("(c)", adj = -0.35, line = 0.1, cex = 0.8)
 hist(bldBayesLOOCV.typePostDistr.sample[,4],
-     main = "", nclass = 20, las = 1,
-     xlab = "Posterior probability of the correct type\nfor profiles from blood",
+     main = "", nclass = 5, las = 1, xlim = c(0, 1), border = NA, col = "#505050",
+     xlab = "Posterior probability of the correct type\nfor profiles from blood samples",
      ylab = "Number of profiles")
+mtext("(d)", adj = -0.35, line = 0.1, cex = 0.8)
 hist(smnBayesLOOCV.typePostDistr.sample[,5],
-     main = "", nclass = 20, las = 1,
-     xlab = "Posterior probability of the correct type\nfor profiles from semen",
+     main = "", nclass = 20, las = 1, xlim = c(0, 1), border = NA, col = "#505050",
+     xlab = "Posterior probability of the correct type\nfor profiles from semen samples",
      ylab = "Number of profiles")
-par(mar = c(0, 0, 0, 0)+0.5)
+mtext("(e)", adj = -0.35, line = 0.1, cex = 0.8)
 loocvBayesPostMode = matrix(c(50, 9, 0, 0, 0, 
                               8, 23, 0, 0, 0,
                               0, 0, 80, 0, 0, 
                               0, 0, 0, 65, 0,
                               0, 0, 0, 0, 86),
                             byrow = T, nrow = 5)
+par(mar = c(0, 0.5, 1.5, 0) + 0.2)
 drawPostModeTable(loocvBayesPostMode)
+mtext("(f)", adj = -0.015, line = 0.1, cex = 0.8)
 dev.off()
 
 
