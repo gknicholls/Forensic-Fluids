@@ -1,4 +1,5 @@
 # Forensic Fluids
  
-Software for our research on labeling body fluid samples in a forensic setting  
-Geoff Nicholls & Jessie Wu
+This repository contains the codes for the methodology presented in Wu, C. H., Roeder, A. D., & Nicholls, G. K. (2023). Biclustering random matrix partitions with an application to classification of forensic body fluids. arXiv preprint arXiv:2306.15622.
+
+The relevant codes can be found in the folder codes/java
