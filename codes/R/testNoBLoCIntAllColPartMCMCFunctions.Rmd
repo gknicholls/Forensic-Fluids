@@ -1,0 +1,1829 @@
+---
+title: Test the likelihood calculation integrated across all partiions within a marker
+  group for a given subtype
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+# Preliminaries
+
+```{r setwd}
+setwd("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/codes/R/")
+
+```
+
+
+```{r load_lib}
+library(salso)
+source("forensicFunctions.R")
+load(file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allPartSets10.RData")
+```
+
+```{r load_data}
+load("/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/allParts5And7EltsMatsAndSets.rda")
+
+singleTypeFilePath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/data/data.csv"
+single.df = read.csv(singleTypeFilePath, header = TRUE) # whole single sample data
+slv.df = single.df[single.df$Sample == 3,] # saliva
+dim(slv.df)
+
+sample.df = slv.df[,-1] # single sample data, delete the index column
+dim(sample.df)
+```
+
+```{r func}
+checkAbsDiff = function(threshold = 1e-10, expected = NULL, answer = NULL, print = T){
+  test = abs(expected - answer)
+  if(print){
+    message(paste("Absolute difference", signif(test, 5), sep = ": "))
+    message(paste("Test passed", test < threshold, sep = ": "))
+  }else{
+    return(test < threshold)
+  }
+  
+}
+
+checkAbsRelativeDiff = function(threshold = 1e-10, expected = NULL, answer = NULL, rel = NULL, print = T){
+  test = abs(expected - answer)/rel
+  if(print){
+    message(paste("Absolute relative difference", signif(test, 5), sep = ": "))
+    message(paste("Test passed", test < threshold, sep = ": "))
+  }else{
+    return(test < threshold)
+  }
+  
+}
+
+
+calcNoBLoCLogSubTypeLik = function(eltsAllPartSetList = NULL, 
+                             eltsAllPartSetPriorList = NULL,
+                             sample = NULL, mkrList = NULL, alphaC = NULL, betaC = NULL){
+  
+  logSubTypeLik = 0
+  
+  ## Iterate through each marker group
+  for(mkrGrpIndex in 1:length(mkrList)){
+    
+    ## Get the prior for column partitions within a marker group.
+    colPartPriorVec = eltsAllPartSetPriorList[[mkrGrpIndex]]
+    ## Calculate the likelihoods across all column partitions within a marker group
+    
+    profileLiks = matrix(nrow = nrow(sample), ncol = length(colPartPriorVec))
+    for(patIndex in 1:nrow(sample)){
+      profileLiks[patIndex, ] = calcLikIntAllPart(eltsAllPartSet = eltsAllPartSetList[[mkrGrpIndex]], 
+                                      sample = sample[patIndex, mkrList[[mkrGrpIndex]]],
+                                      alphaC = alphaC[mkrGrpIndex], 
+                                      betaC = betaC[mkrGrpIndex])
+      
+      ## Calculate the log integrated posterior 
+      ## for a given marker group for a subtype.
+      
+      
+      
+    }
+    colPartLikVec = apply(profileLiks, 2, prod)
+    logSubTypeLik = logSubTypeLik + 
+        log(sum(colPartPriorVec * colPartLikVec))
+    
+  }
+  
+  return(logSubTypeLik)
+}
+
+function(eltsAllPartSetList = NULL, 
+                          eltsAllPartSetPriorList = NULL, 
+                          sample = NULL, 
+                          subtypeList = NULL, 
+                          mkrList = NULL, 
+                          alphaC = NULL, 
+                          betaC = NULL){
+  
+  logSubTypeLik = 0
+  
+  ## Iterate through each subtype
+  for(subtypeIndex in 1:length(subtypeList)){
+    
+    if(length(subtypeList[[subtypeIndex]]) > 0){
+      
+      ## Calculate the log subtype likelihood if the subtype is not empty.
+      logSubTypeLik = logSubTypeLik + 
+        calcLogSubTypeLik(eltsAllPartSetList = eltsAllPartSetList, 
+                          eltsAllPartSetPriorList = eltsAllPartSetPriorList,
+                          sample = sample[subtypeList[[subtypeIndex]], ],
+                          mkrList = mkrList,
+                          alphaC = alphaC, 
+                          betaC = betaC)
+    }
+    
+  }
+  
+  return(logSubTypeLik)
+}
+
+calcNoBLoCLogTypeLik = function(eltsAllPartSetList = NULL, 
+                          eltsAllPartSetPriorList = NULL, 
+                          sample = NULL, 
+                          subtypeList = NULL, 
+                          mkrList = NULL, 
+                          alphaC = NULL, 
+                          betaC = NULL){
+  
+  logTypeLik = 0
+  
+  ## Iterate through each subtype
+  for(subtypeIndex in 1:length(subtypeList)){
+    
+    if(length(subtypeList[[subtypeIndex]]) > 0){
+      
+      ## Calculate the log subtype likelihood if the subtype is not empty.
+      logTypeLik = logTypeLik + 
+        calcNoBLoCLogSubTypeLik(eltsAllPartSetList = eltsAllPartSetList, 
+                                eltsAllPartSetPriorList = eltsAllPartSetPriorList,
+                                sample = sample[subtypeList[[subtypeIndex]], ],
+                                mkrList = mkrList,
+                                alphaC = alphaC, 
+                                betaC = betaC)
+    }
+    
+  }
+  
+  return(logTypeLik)
+}
+```
+
+# Partition with three elements
+
+```{r ex1_enum_part}
+elts3AllPartMat = enumerate.partitions(3)
+# [,1] [,2] [,3]
+# [1,]    1    1    1
+# [2,]    1    1    2
+# [3,]    1    2    1
+# [4,]    1    2    2
+# [5,]    1    2    3
+
+elts3AllPartSet = apply(elts3AllPartMat, 1, 
+                        function(z){
+                          setCount = max(z)
+                          sets = list()
+                          for(setIndex in 1:setCount){
+                            sets[[setIndex]] = sort(which(z == setIndex))
+                          }
+                          
+                          return(sets)
+                          
+                        })
+
+```
+
+```{r ex1_row_sampling}
+set.seed(222)
+kmeansClust3Index = c(1, 3, 1, 2, 2, 2, 2, 2, 2, 
+                      3, 3, 2, 3, 2, 3, 2, 2, 1, 
+                      3, 2, 3, 1, 2, 2, 2, 2, 2, 
+                      3, 2, 3, 2, 1, 2, 3, 2, 1, 
+                      2, 1, 1, 2, 2, 2, 2, 2, 2, 
+                      2, 3, 2, 2, 1, 1, 1, 2, 2, 
+                      3, 3, 3, 3, 3, 2, 3, 3, 3, 
+                      3, 2, 2, 2, 2, 3, 3, 1, 2, 
+                      1, 1, 1, 1, 1, 1, 3, 3, 1)
+slvClust1ExIndx = sample(which(kmeansClust3Index==1), 2)
+# 180 183 
+#  75  78
+slvClust2ExIndx = sample(which(kmeansClust3Index==2), 5)
+# 146 147 145 121 122 
+#  41  42  40  16  17 
+slvClust3ExIndx = sample(which(kmeansClust3Index==3), 3)
+# 185 162 126 
+#  80  57  21
+
+rowExIndx = c(slvClust1ExIndx, slvClust2ExIndx, slvClust3ExIndx)
+sample.df[rowExIndx ,1:5]
+```
+
+```{r ex1_col_sampling}
+colExIndx = c(1,2,5)
+slvEx1.df = sample.df[rowExIndx, c("CYP", "HBD1", "MUC4")]
+slvEx1.df
+slvEx1AllPat = apply(slvEx1.df, 1, paste, collapse = "")
+slvEx1.patW = as.numeric(table(sort(apply(slvEx1.df, 1, paste, collapse = ""))))
+slvEx1AllPatIndex = match(slvEx1AllPat, unique(sort(slvEx1AllPat)))
+```
+
+## Test \texttt{calcLikIntAllPart} Function
+
+### Partition 1
+
+Partition: (1, 1, 1)
+
+```{r ex1_part1_clust1}
+prod(dim(slvEx1.df))
+sum(slvEx1.df)
+prod(dim(slvEx1.df)) - sum(slvEx1.df)
+```
+
+
+```{r ex1_part1_calc_lik}
+ex1.expt1.000 = -log(6) - log(7) - (sum(log(2)) - sum(log(1:4)))
+ex1.expt1.001 = log(2) - sum(log(5:7)) - (sum(log(2)) - sum(log(1:4)))
+ex1.expt1.011 = sum(log(2:3)) - sum(log(4:7)) - (sum(log(2)) - sum(log(1:4)))
+ex1.expt1.100 = log(2) - sum(log(5:7)) - (sum(log(2)) - sum(log(1:4)))
+ex1.expt1 = c(ex1.expt1.000, ex1.expt1.001, 
+              ex1.expt1.011, ex1.expt1.100)[slvEx1AllPatIndex]
+print(ex1.expt1, digits = 12)
+ # [1] -2.45673577282 -2.45673577282 -2.16905370037 -1.25276296850 -2.16905370037
+ # [6] -2.16905370037 -2.16905370037 -1.25276296850 -1.25276296850 -1.25276296850
+
+ex1.ans1 = c()
+for(patIndex in 1:nrow(slvEx1.df)){
+  ex1.ans1[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2, 3))), 
+                             sample = slvEx1.df[patIndex,], 
+                             alphaC = 2, 
+                             betaC = 3))
+}
+  
+sum(abs(ex1.expt1 - ex1.ans1))
+sum(abs((ex1.expt1 - ex1.ans1)/ex1.expt1))
+```
+
+```{r ex1_part1_calc_mdp}
+ex1.mdp.expt1 = 15/(7 * 13)
+ex1.mdp.ans1 = calcMDPColPrior(alpha = 12, setList = list(c(1,1,1)), setCountMax = 3)
+
+checkAbsDiff(expected = ex1.mdp.expt1, 
+             answer = ex1.mdp.ans1)
+checkAbsRelativeDiff(expected = ex1.mdp.expt1, 
+                     answer = ex1.mdp.ans1, 
+                     rel = min(abs(c(ex1.mdp.expt1, ex1.mdp.ans1))))
+```
+
+### Partition 2
+
+Partition: (1, 1, 2)
+
+```{r ex1_part2_clust1}
+prod(dim(slvEx1.df[, 1:2]))
+sum(slvEx1.df[, 1:2])
+prod(dim(slvEx1.df[, 1:2])) - sum(slvEx1.df[, 1:2])
+```
+
+```{r ex1_part2_clust2}
+length(slvEx1.df[, 3])
+sum(slvEx1.df[, 3])
+```
+
+```{r ex1_part2_calc_lik}
+# Profile pattern: 000
+ex1.expt2.000 = (-log(5) - log(6)) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 001
+ex1.expt2.001 = (-log(5) - log(6)) + # column cluster 1
+  (log(2) - sum(log(3:5))) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 011
+ex1.expt2.011 = (log(2) - sum(log(4:6))) + # column cluster 1
+  (log(2) - sum(log(3:5))) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 100
+ex1.expt2.100 = (log(2) - sum(log(4:6))) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Expected likelihood of ex1 data
+ex1.expt2 = c(ex1.expt2.000, ex1.expt2.001,
+              ex1.expt2.011, ex1.expt2.100)[slvEx1AllPatIndex]
+print(ex1.expt2, digits = 12)
+ # [1] -2.52572864431 -2.52572864431 -2.12026353620 -1.42711635564 -1.83258146375
+ # [6] -1.83258146375 -1.83258146375 -1.42711635564 -1.42711635564 -1.42711635564
+print(sum(ex1.expt2), digits = 12)
+# -18.3779306386
+
+ex1.ans2 = c()
+for(patIndex in 1:nrow(slvEx1.df)){
+  ex1.ans2[patIndex] =  log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 2), c(3))), 
+                  sample = slvEx1.df[patIndex,], 
+                  alphaC = 2, 
+                  betaC = 3))
+}
+
+sum(abs(ex1.ans2 - ex1.expt2))
+sum(abs((ex1.ans2 - ex1.expt2)/ex1.expt2))
+```
+
+```{r ex1_part2_calc_mdp}
+ex1.mdp.expt2 = 20/(7 * 13)
+ex1.mdp.ans2 = calcMDPColPrior(alpha = 12, setList = list(c(1,1), c(3)), setCountMax = 3)
+
+abs(ex1.mdp.expt2 - ex1.mdp.ans2)/max(c(ex1.mdp.expt2, ex1.mdp.ans2))
+abs((ex1.mdp.expt2 - ex1.mdp.ans2)/abs(max(c(ex1.mdp.expt2, ex1.mdp.ans2)))) < 1e-10
+
+checkAbsDiff(expected = ex1.mdp.expt2, 
+             answer = ex1.mdp.ans2)
+checkAbsRelativeDiff(expected = ex1.mdp.expt2, 
+                     answer = ex1.mdp.ans2, 
+                     rel = min(abs(c(ex1.mdp.expt2, ex1.mdp.ans2))))
+```
+
+### Partition 3
+
+Partition: (1, 2, 1)
+
+```{r ex1_part3_clust1}
+prod(dim(slvEx1.df[, c(1,3)]))
+sum(slvEx1.df[, c(1,3)])
+```
+
+```{r ex1_part3_clust2}
+length(slvEx1.df[, 2]) - sum(slvEx1.df[, 2])
+```
+
+```{r ex1_part3_calc_lik}
+# Profile pattern: 000
+ex1.expt3.000 = (-log(5) - log(6)) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 001
+ex1.expt3.001 = (log(2) - sum(log(4:6))) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 011
+ex1.expt3.011 = (log(2) - sum(log(4:6))) + # column cluster 1
+  (log(2) - sum(log(3:5))) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 100
+ex1.expt3.100 = (log(2) - sum(log(4:6))) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Expected likelihood of ex1 data
+ex1.expt3 = c(ex1.expt3.000, ex1.expt3.001, 
+              ex1.expt3.011, ex1.expt3.100)[slvEx1AllPatIndex]
+print(ex1.expt3, digits = 12)
+ # [1] -2.52572864431 -2.52572864431 -2.12026353620 -1.42711635564 -2.12026353620
+ # [6] -2.12026353620 -2.12026353620 -1.42711635564 -1.42711635564 -1.42711635564
+print(sum(ex1.expt3), digits = 12)
+# -19.240976856
+
+
+
+ex1.ans3 = c()
+for(patIndex in 1:nrow(slvEx1.df)){
+  ex1.ans3[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 3), c(2))), 
+                  sample = slvEx1.df[patIndex,], 
+                  alphaC = 2, 
+                  betaC = 3))
+}
+
+sum(abs(ex1.ans3 - ex1.expt3))
+sum(abs((ex1.ans3 - ex1.expt3)/ ex1.expt3))
+```
+
+```{r ex1_part3_calc_mdp}
+ex1.mdp.expt3 = 20/(7 * 13)
+ex1.mdp.ans3 = calcMDPColPrior(alpha = 12, 
+                                  setList = list(c(1,3), c(2)), 
+                                  setCountMax = 3)
+
+checkAbsDiff(expected = ex1.mdp.expt3, 
+             answer = ex1.mdp.ans3)
+checkAbsRelativeDiff(expected = ex1.mdp.expt3, 
+                     answer = ex1.mdp.ans3, 
+                     rel = min(abs(c(ex1.mdp.expt3, ex1.mdp.ans3))))
+```
+
+### Partition 4
+
+Partition: (1, 2, 2)
+
+```{r ex1_part4_clust1}
+# 1    2    2
+length(slvEx1.df[, 1])
+sum(slvEx1.df[, 1])
+```
+
+```{r ex1_part4_clust2}
+prod(dim(slvEx1.df[, c(2,3)]))
+sum(slvEx1.df[, c(2,3)])
+```
+
+```{r ex1_part4_calc_lik}
+# Profile pattern: 000
+ex1.expt4.000 = (-log(5) - log(6)) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 001
+ex1.expt4.001 = (-log(4) - log(5)) + # column cluster 1
+   (log(2) - sum(log(4:6))) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 011
+ex1.expt4.011 = (-log(4) - log(5)) + # column cluster 1
+  (log(2) - sum(log(4:6)))  - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 100
+ex1.expt4.100 = (log(2) - sum(log(3:5))) + # column cluster 1
+  (-log(5) - log(6)) - # column cluster 2
+  2*(sum(log(2)) - sum(log(1:4))) # denominator
+# Expected likelihood of ex1 data
+ex1.expt4 = c(ex1.expt4.000, ex1.expt4.001, 
+              ex1.expt4.011, ex1.expt4.100)[slvEx1AllPatIndex]
+print(ex1.expt4, digits = 12)
+# [1] -2.12026353620 -2.12026353620 -1.83258146375 -1.42711635564 -2.12026353620
+# [6] -2.12026353620 -2.12026353620 -1.42711635564 -1.42711635564 -1.4271163556
+print(sum(ex1.expt4), digits = 12)
+# -18.1423645673
+
+
+ex1.ans4 = c()
+for(patIndex in 1:nrow(slvEx1.df)){
+  ex1.ans4[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 3))), 
+                  sample = slvEx1.df[patIndex,], 
+                  alphaC = 2, 
+                  betaC = 3))
+}
+
+sum(abs(ex1.ans4 - ex1.expt4))
+sum(abs((ex1.ans4 - ex1.expt4)/ex1.expt4))
+```
+
+```{r ex1_part4_calc_mdp}
+ex1.mdp.expt4 = 20/(7 * 13)
+ex1.mdp.ans4 = calcMDPColPrior(alpha = 12, 
+                                  setList = list(c(2,3), c(1)), 
+                                  setCountMax = 3)
+
+checkAbsDiff(expected = ex1.mdp.expt4, 
+             answer = ex1.mdp.ans4)
+checkAbsRelativeDiff(expected = ex1.mdp.expt4, 
+                     answer = ex1.mdp.ans4, 
+                     rel = min(abs(c(ex1.mdp.expt4, ex1.mdp.ans4))))
+```
+
+
+### Partition 5
+
+Partition: (1, 2, 3)
+
+```{r ex1_part5_clust1}
+length(slvEx1.df[, 1])
+sum(slvEx1.df[, 1])
+```
+
+```{r ex1_part5_clust2}
+length(slvEx1.df[, 2])
+sum(slvEx1.df[, 2])
+```
+
+```{r ex1_part5_clust3}
+length(slvEx1.df[, 3])
+sum(slvEx1.df[, 3])
+```
+
+```{r ex1_part5_calc_lik}
+# Profile pattern: 000
+ex1.expt5.000 = 3*(-log(4) - log(5)) - # column clusters 1, 2 & 3
+  3*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 001
+ex1.expt5.001 = 2*(-log(4) - log(5)) + # column clusters 1 & 2
+   (log(2) - sum(log(3:5))) - # column cluster 3
+  3*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 011
+ex1.expt5.011 = (-log(4) - log(5))+ # column cluster 1
+  2*(log(2) - sum(log(3:5)))  - # column cluster 2 & 3
+  3*(sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 100
+ex1.expt5.100 = (log(2) - sum(log(3:5))) + # column cluster 1
+  2*(-log(4) - log(5)) - # column cluster 2
+  3*(sum(log(2)) - sum(log(1:4))) # denominator
+# Expected likelihood of ex1 data
+ex1.expt5 = c(ex1.expt5.000, ex1.expt5.001, 
+              ex1.expt5.011, ex1.expt5.100)[slvEx1AllPatIndex]
+print(ex1.expt5, digits = 12)
+ # [1] -2.34340708751 -2.34340708751 -1.93794197941 -1.53247687130 -1.93794197941
+ # [6] -1.93794197941 -1.93794197941 -1.53247687130 -1.53247687130 -1.53247687130
+print(sum(ex1.expt5), digits = 12)
+# -18.5684895778
+
+
+ex1.ans5 = c()
+for(patIndex in 1:nrow(slvEx1.df)){
+  ex1.ans5[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2), c(3))), 
+                  sample = slvEx1.df[patIndex,], 
+                  alphaC = 2, 
+                  betaC = 3))
+}
+
+sum(abs(ex1.ans5 - ex1.expt5))
+sum(abs((ex1.ans5 - ex1.expt5)/ex1.expt5))
+```
+
+
+```{r ex1_part5_calc_mdp}
+ex1.mdp.expt5 = 16/(7 * 13)
+ex1.mdp.ans5 = calcMDPColPrior(alpha = 12, 
+                                  setList = list(c(1), c(2), c(3)), 
+                                  setCountMax = 3)
+
+checkAbsDiff(expected = ex1.mdp.expt5, 
+             answer = ex1.mdp.ans5)
+checkAbsRelativeDiff(expected = ex1.mdp.expt5,
+                     answer = ex1.mdp.ans5, 
+                     rel = min(abs(c(ex1.mdp.expt5, ex1.mdp.ans5))))
+```
+
+## Test \texttt{calcLogSubTypeLik} Function
+
+```{r ex1_subtype_lik}
+ex1.subtype.lik.expt = 
+  sum(exp(colSums(cbind(ex1.expt1, ex1.expt2, ex1.expt3, ex1.expt4, ex1.expt5)))*
+  c(ex1.mdp.expt1, ex1.mdp.expt2, ex1.mdp.expt3, ex1.mdp.expt4, ex1.mdp.expt5))
+
+ex1.subtype.log.lik.expt = log(ex1.subtype.lik.expt)
+
+elts3AllPartSetMDPPrior = unlist(lapply(elts3AllPartSet, 
+                                        calcMDPColPrior, 
+                                        alpha = 12, 
+                                        setCountMax = 3))
+
+
+ex1.subtype.log.lik.ans = calcNoBLoCLogSubTypeLik(eltsAllPartSetList = list(elts3AllPartSet), 
+                                            eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior),
+                                            sample = slvEx1.df, 
+                                            mkrList = list(colnames(slvEx1.df)), 
+                                            alphaC = 2, 
+                                            betaC = 3)
+
+
+ex1.subtype.log.lik.expt - ex1.subtype.log.lik.ans
+```
+
+# Partition with four elements
+
+```{r ex2_enum_part}
+elts4AllPartMat = enumerate.partitions(4)
+#       [,1] [,2] [,3] [,4]
+#  [1,]    1    1    1    1
+#  [2,]    1    1    1    2
+#  [3,]    1    1    2    1
+#  [4,]    1    1    2    2
+#  [5,]    1    1    2    3
+#  [6,]    1    2    1    1
+#  [7,]    1    2    1    2
+#  [8,]    1    2    1    3
+#  [9,]    1    2    2    1
+# [10,]    1    2    2    2
+# [11,]    1    2    2    3
+# [12,]    1    2    3    1
+# [13,]    1    2    3    2
+# [14,]    1    2    3    3
+# [15,]    1    2    3    4
+
+elts4AllPartSet = apply(elts4AllPartMat, 1, 
+                        function(z){
+                          setCount = max(z)
+                          sets = list()
+                          for(setIndex in 1:setCount){
+                            sets[[setIndex]] = sort(which(z == setIndex))
+                          }
+                          
+                          return(sets)
+                          
+                        })
+```
+
+
+
+```{r}
+set.seed(123)
+slvClust1ExIndx2 = sample(which(kmeansClust3Index==1), 2)
+# 180 179 
+#  75  74 
+slvClust2ExIndx2 = sample(which(kmeansClust3Index==2), 5)
+# 111 173 130 148 149 
+#   6  68  25  43  44
+slvClust3ExIndx2 = sample(which(kmeansClust3Index==3), 3)
+# 120 168 135 
+#  15  63  30 
+```
+
+```{r}
+rowExIndx2 = c(slvClust1ExIndx2, slvClust2ExIndx2, slvClust3ExIndx2)
+slvEx2.df = sample.df[rowExIndx2 ,c("HTN3", "MUC7", "PRB4", "SMR3B" )]
+slvEx2.df
+slvEx2AllPat = apply(slvEx2.df, 1, paste, collapse = "")
+slvEx2.patW = as.numeric(table(sort(apply(slvEx2.df, 1, paste, collapse = ""))))
+slvEx2AllPatIndex = match(slvEx2AllPat, unique(sort(slvEx2AllPat)))
+```
+
+## Test \texttt{} Function
+
+### Partition 1 (1, 1, 1, 1)
+
+```{r ex2_part1_clust1}
+sum(slvEx2.df)
+prod(dim(slvEx2.df))
+```
+
+
+```{r ex2_part1_calc_lik}
+# Profile pattern: 0100
+ex2.expt1.0100 = sum(log(2:3)) - sum(log(5:8)) - # column cluster 1
+  (sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt1.0101 = sum(log(2:3)) - sum(log(5:8)) - # column cluster 1
+  (sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 011
+ex2.expt1.1101 = (log(2) - sum(log(6:8))) - # column cluster 1
+  (sum(log(2)) - sum(log(1:4))) # denominator
+# Profile pattern: 100
+ex2.expt1.1111 = - sum(log(7:8)) - # column cluster 1
+  (sum(log(2)) - sum(log(1:4))) # denominator
+# Expected likelihood of ex1 data
+ex2.expt1 = c(ex2.expt1.0100, ex2.expt1.0101, 
+              ex2.expt1.1101, ex2.expt1.1111)[slvEx2AllPatIndex]
+print(ex2.expt1, digits = 12)
+# -1.54044504095 -1.54044504095 -2.63905732962 -2.63905732962 -2.63905732962
+# -2.63905732962 -2.63905732962 -3.14988295338 -3.14988295338 -3.14988295338
+print(sum(ex2.expt1), digits = 12)
+# -25.7258255901
+
+ex2.ans1 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans1[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1:4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans1 - ex2.expt1))
+sum(abs((ex2.ans1 - ex2.expt1)/ ex2.expt1) )
+```
+
+
+```{r ex2_part1_calc_mdp}
+ex2.mdp.expt1 = 35/(3 * 17 * 19)
+ex2.mdp.ans1 = calcMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2, 3, 4)), 
+                                  setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt1, 
+             answer = ex2.mdp.ans1)
+checkAbsRelativeDiff(expected = ex2.mdp.expt1,
+                     answer = ex2.mdp.ans1, 
+                     rel = min(abs(c(ex2.mdp.expt1, ex2.mdp.ans1))))
+```
+
+### Partition 2
+
+Partition pattern: (1, 1, 1, 2)
+
+```{r ex2_part2_clust1}
+sum(slvEx2.df[, 1:3])
+prod(dim(slvEx2.df[, 1:3]))
+```
+
+
+```{r ex2_part2_clust2}
+sum(slvEx2.df[,4])
+length(slvEx2.df[,4])
+```
+
+```{r ex2_part2_calc_lik}
+# Profile pattern: 0100
+ex2.expt2.0100 = sum(log(2:3)) - sum(log(4:7)) + # column cluster 1
+  (log(2) - sum(log(3:5))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt2.0101 = sum(log(2:3)) - sum(log(4:7)) + # column cluster 1
+  (-log(4) - log(5)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt2.1101 = (log(2) - sum(log(5:7))) + # column cluster 1
+  (-sum(log(4:5))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt2.1111 = -sum(log(6:7)) + # column cluster 1
+  (-sum(log(4:5))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt2 = c(ex2.expt2.0100, ex2.expt2.0101, 
+              ex2.expt2.1101, ex2.expt2.1111)[slvEx2AllPatIndex]
+print(ex2.expt2, digits = 12)
+# -1.76358859226 -1.76358859226 -2.67987932414 -2.67987932414 -2.67987932414
+# -2.67987932414 -2.67987932414 -2.96756139659 -3.37302650470 -2.96756139659
+print(sum(ex2.expt2), digits = 12)
+# -26.2347231031
+
+
+ex2.ans2 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans2[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1:3), c(4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans2 - ex2.expt2))
+sum(abs((ex2.ans2 - ex2.expt2)/ ex2.expt2) )
+
+```
+
+
+```{r ex2_part2_calc_mdp}
+ex2.mdp.expt2 = 20/(17 * 19)
+ex2.mdp.ans2 = calcMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2, 3), c(4)), 
+                                  setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt2, 
+             answer = ex2.mdp.ans2)
+checkAbsRelativeDiff(expected = ex2.mdp.expt2,
+                     answer = ex2.mdp.ans2, 
+                     rel = min(abs(c(ex2.mdp.expt2, ex2.mdp.ans2))))
+```
+
+### Partition 3
+
+Partition pattern: (1, 1, 2, 1)
+
+```{r ex2_part3_clust1}
+sum(slvEx2.df[, c(1, 2, 4)])
+prod(dim(slvEx2.df[, c(1, 2, 4)]))
+```
+
+
+```{r ex2_part3_clust2}
+sum(slvEx2.df[,3])
+length(slvEx2.df[,3])
+```
+
+```{r ex2_part3_calc_lik}
+# Profile pattern: 0100
+ex2.expt3.0100 = sum(log(2:3)) - sum(log(4:7)) + # column cluster 1
+  (log(2) - sum(log(3:5))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt3.0101 = (log(2) - sum(log(5:7)))  + # column cluster 1
+  (log(2) - sum(log(3:5)))  - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt3.1101 = -sum(log(6:7)) + # column cluster 1
+  (log(2) - sum(log(3:5))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt3.1111 = -sum(log(6:7)) + # column cluster 1
+  (-sum(log(4:5))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt3 = c(ex2.expt3.0100, ex2.expt3.0101, 
+              ex2.expt3.1101, ex2.expt3.1111)[slvEx2AllPatIndex]
+print(ex2.expt3, digits = 12)
+# -1.76358859226 -1.76358859226 -2.16905370037 -2.16905370037 -2.16905370037
+# -2.16905370037 -2.16905370037 -3.08534443224 -3.37302650470 -3.08534443224
+print(sum(ex2.expt3), digits = 12)
+# -23.9161610556
+
+
+ex2.ans3 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans3[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1:2,4), c(3))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans3 - ex2.expt3))
+sum(abs((ex2.ans3 - ex2.expt3)/ ex2.expt3) )
+
+```
+
+```{r ex2_part3_calc_mdp}
+ex2.mdp.expt3 = 20/(17 * 19)
+ex2.mdp.ans3 = calcMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2, 4), c(3)), 
+                                  setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt3, 
+             answer = ex2.mdp.ans3)
+checkAbsRelativeDiff(expected = ex2.mdp.expt3,
+                     answer = ex2.mdp.ans3, 
+                     rel = min(abs(c(ex2.mdp.expt3, ex2.mdp.ans3))))
+```
+
+### Partition 4
+
+Partition pattern: (1, 1, 2, 2)
+
+```{r ex2_part4_clust1}
+sum(slvEx2.df[, c(1, 2)])
+prod(dim(slvEx2.df[, c(1, 2)]))
+```
+
+
+```{r ex2_part4_clust2}
+sum(slvEx2.df[, c(3, 4)])
+prod(dim(slvEx2.df[, c(3, 4)]))
+```
+
+```{r ex2_part4_calc_lik}
+# Profile pattern: 0100
+ex2.expt4.0100 = log(2) - sum(log(4:6)) + # column cluster 1
+  (log(2) - sum(log(4:6))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt4.0101 = 2*(log(2) - sum(log(4:6)))  -  # column clusters 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt4.1101 = -sum(log(5:6)) + # column cluster 1
+  (log(2) - sum(log(4:6))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt4.1111 = -2*sum(log(5:6)) - # column cluster 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt4 = c(ex2.expt4.0100, ex2.expt4.0101, 
+              ex2.expt4.1101, ex2.expt4.1111)[slvEx2AllPatIndex]
+print(ex2.expt4, digits = 12)
+# -1.83258146375 -1.83258146375 -2.52572864431 -2.52572864431 -2.52572864431
+# -2.52572864431 -2.52572864431 -3.21887582487 -3.21887582487 -3.21887582487
+print(sum(ex2.expt4), digits = 12)
+# -25.9504336236
+
+
+ex2.ans4 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans4[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1:2), c(3:4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans4 - ex2.expt4))
+sum(abs((ex2.ans4 - ex2.expt4)/ ex2.expt4) )
+
+```
+
+
+```{r ex2_part4_calc_mdp}
+ex2.mdp.expt4 = 50/(3 * 17 * 19)
+ex2.mdp.ans4 = calcMDPColPrior(alpha = 16, 
+                                  setList = list(c(1, 2), c(3, 4)), 
+                                  setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt4, 
+             answer = ex2.mdp.ans4)
+checkAbsRelativeDiff(expected = ex2.mdp.expt4,
+                     answer = ex2.mdp.ans4, 
+                     rel = min(abs(c(ex2.mdp.expt4, ex2.mdp.ans4))))
+```
+
+### Partition 5
+
+Partition pattern: (1, 1, 2, 3)
+
+```{r ex2_part5_clust1}
+sum(slvEx2.df[, c(1, 2)])
+prod(dim(slvEx2.df[, c(1, 2)]))
+```
+
+
+```{r ex2_part5_clust2}
+sum(slvEx2.df[, 3])
+length(slvEx2.df[, 3])
+```
+
+```{r ex2_part5_clust3}
+sum(slvEx2.df[, 4])
+length(slvEx2.df[,4])
+```
+
+```{r ex2_part5_calc_lik}
+# Profile pattern: 0100
+ex2.expt5.0100 = log(2) - sum(log(4:6)) + # column cluster 1
+  2*(log(2) - sum(log(3:5))) - # column clusters 2 & 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt5.0101 = log(2) - sum(log(4:6)) + # column clusters 1
+  log(2) - sum(log(3:5)) + # column cluster 2
+  sum(-log(4:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt5.1101 = -sum(log(5:6)) + # column cluster 1
+  (log(2) - sum(log(3:5))) + # column cluster 2
+  sum(-log(4:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt5.1111 = -sum(log(5:6)) + # column cluster 1
+  2*sum(-log(4:5)) - # column clusters 2 & 3
+  3*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt5 = c(ex2.expt5.0100, ex2.expt5.0101, 
+              ex2.expt5.1101, ex2.expt5.1111)[slvEx2AllPatIndex]
+print(ex2.expt5, digits = 12)
+# -1.93794197941 -1.93794197941 -2.34340708751 -2.34340708751 -2.34340708751
+# -2.34340708751 -2.34340708751 -3.03655426807 -3.44201937618 -3.03655426807
+print(sum(ex2.expt5), digits = 12)
+# -25.1080473087
+
+
+ex2.ans5 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans5[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1:2), c(3), c(4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans5 - ex2.expt5))
+sum(abs((ex2.ans5 - ex2.expt5)/ ex2.expt5))
+
+```
+
+
+```{r ex2_part5_calc_mdp}
+ex2.mdp.expt5 = 80/(3 * 17 * 19)
+ex2.mdp.ans5 = calcMDPColPrior(alpha = 16, 
+                               setList = list(c(1, 2), c(3), c(4)), 
+                               setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt5, 
+             answer = ex2.mdp.ans5)
+checkAbsRelativeDiff(expected = ex2.mdp.expt5,
+                     answer = ex2.mdp.ans5, 
+                     rel = min(abs(c(ex2.mdp.expt5, ex2.mdp.ans5))))
+```
+
+### Partition 6
+
+Partition pattern: (1, 2, 1, 1)
+
+```{r ex2_part6_clust1}
+sum(slvEx2.df[, c(1, 3, 4)])
+prod(dim(slvEx2.df[, c(1, 3, 4)]))
+```
+
+
+```{r ex2_part6_clust2}
+sum(slvEx2.df[, 2])
+length(slvEx2.df[, 2])
+```
+
+```{r ex2_part6_calc_lik}
+# Profile pattern: 0100
+ex2.expt6.0100 = log(2) - sum(log(5:7))  + # column cluster 1
+  sum(-log(4:5)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt6.0101 = sum(log(2:3)) - sum(log(4:7)) + # column clusters 1
+  sum(-log(4:5)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt6.1101 = log(2) - sum(log(5:7)) + # column cluster 1
+  sum(-log(4:5)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt6.1111 = -sum(log(6:7)) + # column cluster 1
+  sum(-log(4:5)) - # column cluster 2 
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt6 = c(ex2.expt6.0100, ex2.expt6.0101, 
+              ex2.expt6.1101, ex2.expt6.1111)[slvEx2AllPatIndex]
+print(ex2.expt6, digits = 12)
+# -1.76358859226 -1.76358859226 -2.67987932414 -2.67987932414 -2.67987932414
+# -2.67987932414 -2.67987932414 -2.96756139659 -2.67987932414 -2.96756139659
+print(sum(ex2.expt6), digits = 12)
+# -25.5415759225
+
+
+ex2.ans6 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans6[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1,3,4), c(2))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans6 - ex2.expt6))
+sum(abs((ex2.ans6 - ex2.expt6)/ ex2.expt6))
+
+```
+
+
+```{r ex2_part6_calc_mdp}
+ex2.mdp.expt6 = 20/(17 * 19)
+ex2.mdp.ans6 = calcMDPColPrior(alpha = 16, 
+                               setList = list(c(1, 3, 4), c(2)), 
+                               setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt6, 
+             answer = ex2.mdp.ans6)
+checkAbsRelativeDiff(expected = ex2.mdp.expt6,
+                     answer = ex2.mdp.ans6, 
+                     rel = min(abs(c(ex2.mdp.expt6, ex2.mdp.ans6))))
+```
+
+### Partition 7
+
+Partition: (1, 2, 1, 2)
+
+
+```{r ex2_part7_clust1}
+sum(slvEx2.df[, c(1, 3)])
+prod(dim(slvEx2.df[, c(1, 3)]))
+```
+
+
+```{r ex2_part7_clust2}
+sum(slvEx2.df[, c(2, 4)])
+prod(dim(slvEx2.df[, c(2, 4)]))
+```
+
+```{r ex2_part7_calc_lik}
+# Profile pattern: 0100
+ex2.expt7.0100 = 2*(log(2) - sum(log(4:6))) - # column clusters 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt7.0101 = (log(2) - sum(log(4:6))) + # column clusters 1
+  sum(-log(5:6)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt7.1101 = log(2) - sum(log(4:6)) + # column cluster 1
+  sum(-log(5:6)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt7.1111 = -2*sum(log(5:6)) - # column cluster 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt7 = c(ex2.expt7.0100, ex2.expt7.0101, 
+              ex2.expt7.1101, ex2.expt7.1111)[slvEx2AllPatIndex]
+print(ex2.expt7, digits = 12)
+# -1.83258146375 -1.83258146375 -2.52572864431 -2.52572864431 -2.52572864431
+# -2.52572864431 -2.52572864431 -2.52572864431 -3.21887582487 -2.52572864431
+print(sum(ex2.expt7), digits = 12)
+# -24.5641392625
+
+
+ex2.ans7 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans7[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1,3), c(2,4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans7 - ex2.expt7))
+sum(abs((ex2.ans7 - ex2.expt7)/ ex2.expt7))
+
+```
+
+
+```{r ex2_part7_calc_mdp}
+ex2.mdp.expt7 = 50/(3 * 17 * 19)
+ex2.mdp.ans7 = calcMDPColPrior(alpha = 16, 
+                               setList = list(c(1, 3), c(2, 4)), 
+                               setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt7, 
+             answer = ex2.mdp.ans7)
+checkAbsRelativeDiff(expected = ex2.mdp.expt7,
+                     answer = ex2.mdp.ans7, 
+                     rel = min(abs(c(ex2.mdp.expt7, ex2.mdp.ans7))))
+```
+
+### Partition 8
+
+Partition pattern: (1, 2, 1, 3)
+
+```{r ex2_part8_clust1}
+sum(slvEx2.df[, c(1, 3)])
+prod(dim(slvEx2.df[, c(1, 3)]))
+```
+
+
+```{r ex2_part8_clust2}
+sum(slvEx2.df[, 2])
+length(slvEx2.df[, 2])
+```
+
+```{r ex2_part8_clust3}
+sum(slvEx2.df[, 4])
+length(slvEx2.df[,4])
+```
+
+```{r ex2_part8_calc_lik}
+# Profile pattern: 0100
+ex2.expt8.0100 = log(2) - sum(log(4:6)) + # column cluster 1
+  sum(-log(4:5)) + # column cluster 2
+  log(2) - sum(log(3:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt8.0101 = (log(2) - sum(log(4:6))) + # column clusters 1
+  2*sum(-log(4:5)) - # column clusters 2 & 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt8.1101 = log(2) - sum(log(4:6)) + # column cluster 1
+  2*sum(-log(4:5)) - # column cluster 2 & 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt8.1111 = -sum(log(5:6)) + # column cluster 1
+  2*sum(-log(4:5)) - # column cluster 2 & 3
+  3*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt8 = c(ex2.expt8.0100, ex2.expt8.0101, 
+              ex2.expt8.1101, ex2.expt8.1111)[slvEx2AllPatIndex]
+print(ex2.expt8, digits = 12)
+# -1.93794197941 -1.93794197941 -2.63108915997 -2.63108915997 -2.63108915997
+# -2.63108915997 -2.63108915997 -2.63108915997 -3.03655426807 -2.63108915997
+print(sum(ex2.expt8), digits = 12)
+# -25.3300623466
+
+
+ex2.ans8 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans8[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1,3), c(2), c(4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans8 - ex2.expt8))
+sum(abs((ex2.ans8 - ex2.expt8)/ ex2.expt8))
+
+
+```
+
+
+```{r ex2_part8_calc_mdp}
+ex2.mdp.expt8 = 80/(3 * 17 * 19)
+ex2.mdp.ans8 = calcMDPColPrior(alpha = 16, 
+                               setList = list(c(1, 3), c(2), c(4)), 
+                               setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt8, 
+             answer = ex2.mdp.ans8)
+checkAbsRelativeDiff(expected = ex2.mdp.expt8,
+                     answer = ex2.mdp.ans8,
+                     rel = min(abs(c(ex2.mdp.expt8, ex2.mdp.ans8))))
+```
+
+### Partition 9
+
+Partition: (1, 2, 2, 1)
+
+
+```{r ex2_part9_clust1}
+sum(slvEx2.df[, c(1, 4)])
+prod(dim(slvEx2.df[, c(1, 4)]))
+```
+
+
+```{r ex2_part9_clust2}
+sum(slvEx2.df[, c(2, 3)])
+prod(dim(slvEx2.df[, c(2, 3)]))
+```
+
+```{r ex2_part9_calc_lik}
+# Profile pattern: 0100
+ex2.expt9.0100 = 2*(log(2) - sum(log(4:6))) - # column clusters 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt9.0101 = 2*(log(2) - sum(log(4:6))) - # column clusters 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt9.1101 = -sum(log(5:6)) +  # column cluster 1
+  log(2) - sum(log(4:6)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt9.1111 = -2*sum(log(5:6)) - # column clusters 1 & 2
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt9 = c(ex2.expt9.0100, ex2.expt9.0101, 
+              ex2.expt9.1101, ex2.expt9.1111)[slvEx2AllPatIndex]
+print(ex2.expt9, digits = 12)
+# -1.83258146375 -1.83258146375 -2.52572864431 -2.52572864431 -2.52572864431
+# -2.52572864431 -2.52572864431 -3.21887582487 -3.21887582487 -3.21887582487
+print(sum(ex2.expt9), digits = 12)
+# -25.9504336236
+
+
+ex2.ans9 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans9[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 4), c(2, 3))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans9 - ex2.expt9))
+sum(abs((ex2.ans9 - ex2.expt9)/ ex2.expt9))
+
+```
+
+
+
+```{r ex2_part9_calc_mdp}
+ex2.mdp.expt9 = 50/(3 * 17 * 19)
+ex2.mdp.ans9 = calcMDPColPrior(alpha = 16, 
+                               setList = list(c(1, 4), c(2, 3)), 
+                               setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt9, 
+             answer = ex2.mdp.ans9)
+checkAbsRelativeDiff(expected = ex2.mdp.expt9,
+                     answer = ex2.mdp.ans9, 
+                     rel = min(abs(c(ex2.mdp.expt9, ex2.mdp.ans9))))
+```
+
+### Partition 10
+
+Partition: (1, 2, 2, 2)
+
+
+
+```{r ex2_part10_clust1}
+sum(slvEx2.df[, 1])
+length(slvEx2.df[, 1])
+```
+
+
+```{r ex2_part10_clust2}
+sum(slvEx2.df[, 2:4])
+prod(dim(slvEx2.df[, 2:4]))
+```
+
+```{r ex2_part10_calc_lik}
+# Profile pattern: 0100
+ex2.expt10.0100 = log(2) - sum(log(3:5)) + # column cluster 1
+  (sum(log(2:3)) - sum(log(4:7))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt10.0101 = log(2) - sum(log(3:5)) + # column cluster 1
+  (log(2) - sum(log(5:7))) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt10.1101 = -sum(log(4:5)) +  # column cluster 1
+  log(2) - sum(log(5:7)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt10.1111 = -sum(log(4:5)) + # column cluster 1
+  sum(-log(6:7)) - # column cluster 2
+  2*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt10 = c(ex2.expt10.0100, ex2.expt10.0101, 
+              ex2.expt10.1101, ex2.expt10.1111)[slvEx2AllPatIndex]
+print(ex2.expt10, digits = 12)
+# -1.76358859226 -1.76358859226 -2.67987932414 -2.67987932414 -2.67987932414
+# -2.67987932414 -2.67987932414 -3.08534443224 -3.37302650470 -3.08534443224
+print(sum(ex2.expt10), digits = 12)
+# -26.4702891744
+
+
+ex2.ans10 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans10[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 3, 4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans10 - ex2.expt10))
+sum(abs((ex2.ans10 - ex2.expt10)/ ex2.expt10))
+
+```
+
+```{r ex2_part10_calc_mdp}
+ex2.mdp.expt10 = 20/(17 * 19)
+ex2.mdp.ans10 = calcMDPColPrior(alpha = 16, 
+                                setList = list(c(1), c(2, 3, 4)), 
+                                setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt10, 
+             answer = ex2.mdp.ans10)
+checkAbsRelativeDiff(expected = ex2.mdp.expt10,
+                     answer = ex2.mdp.ans10, 
+                     rel = min(abs(c(ex2.mdp.expt10, ex2.mdp.ans10))))
+```
+
+### Partition 11
+
+Partition: (1, 2, 2, 3)
+
+```{r ex2_part11_clust1}
+sum(slvEx2.df[, 1])
+length(slvEx2.df[, 1])
+```
+
+
+```{r ex2_part11_clust2}
+sum(slvEx2.df[, c(2, 3)])
+prod(dim(slvEx2.df[, c(2, 3)]))
+
+```
+
+```{r ex2_part11_clust3}
+sum(slvEx2.df[, 4])
+length(slvEx2.df[,4])
+```
+
+```{r ex2_part11_calc_lik}
+# Profile pattern: 0100
+ex2.expt11.0100 = 2*(log(2) - sum(log(3:5))) + # column clusters 1 & 3
+  (log(2) - sum(log(4:6))) - # column cluster 2
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt11.0101 = log(2) - sum(log(3:5)) + # column cluster 1
+  (log(2) - sum(log(4:6))) + # column cluster 2
+  sum(-log(4:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt11.1101 = -2*sum(log(4:5)) +  # column cluster 1 & 3
+  log(2) - sum(log(4:6)) - # column cluster 2
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt11.1111 = -2*sum(log(4:5)) + # column cluster 1 & 3
+  sum(-log(5:6)) - # column cluster 2
+  3*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt11 = c(ex2.expt11.0100, ex2.expt11.0101, 
+              ex2.expt11.1101, ex2.expt11.1111)[slvEx2AllPatIndex]
+print(ex2.expt11, digits = 12)
+# -1.93794197941 -1.93794197941 -2.63108915997 -2.63108915997 -2.63108915997
+# -2.63108915997 -2.63108915997 -3.03655426807 -3.44201937618 -3.03655426807
+print(sum(ex2.expt11), digits = 12)
+# -26.546457671
+
+
+ex2.ans11 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans11[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 3), c(4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans11 - ex2.expt11))
+sum(abs((ex2.ans11 - ex2.expt11)/ ex2.expt11))
+```
+
+
+
+```{r ex2_part11_calc_mdp}
+ex2.mdp.expt11 = 80/(3 * 17 * 19)
+ex2.mdp.ans11 = calcMDPColPrior(alpha = 16, 
+                                setList = list(c(1), c(2, 3), c(4)), 
+                                setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt11, 
+             answer = ex2.mdp.ans11)
+checkAbsRelativeDiff(expected = ex2.mdp.expt11,
+                     answer = ex2.mdp.ans11, 
+                     rel = min(abs(c(ex2.mdp.expt11, ex2.mdp.ans11))))
+```
+
+### Partition 12
+
+Partition: (1, 2, 3, 1)
+
+```{r ex2_part12_clust1}
+sum(slvEx2.df[, c(1, 4)])
+prod(dim(slvEx2.df[, c(1, 4)]))
+```
+
+
+```{r ex2_part12_clust2}
+sum(slvEx2.df[, 2])
+length(slvEx2.df[, 2])
+```
+
+```{r ex2_part12_clust3}
+sum(slvEx2.df[, 3])
+length(slvEx2.df[, 3])
+```
+
+```{r ex2_part12_calc_lik}
+# Profile pattern: 0100
+ex2.expt12.0100 = log(2) - sum(log(4:6)) + # column cluster 1
+  (log(2) - sum(log(3:5))) + # column cluster 2
+  sum(-log(4:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt12.0101 = log(2) - sum(log(4:6)) + # column cluster 1
+  sum(-log(4:5)) + # column cluster 2
+   (log(2) - sum(log(3:5))) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt12.1101 = sum(-log(5:6)) +  # column cluster 1
+  sum(-log(4:5)) +  # column cluster 2
+  log(2) - sum(log(3:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt12.1111 = sum(-log(5:6)) + # column cluster 1
+  -2*sum(log(4:5)) - # column cluster 2 & 3
+  3*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt12 = c(ex2.expt12.0100, ex2.expt12.0101, 
+              ex2.expt12.1101, ex2.expt12.1111)[slvEx2AllPatIndex]
+print(ex2.expt12, digits = 12)
+# -1.93794197941 -1.93794197941 -2.34340708751 -2.34340708751 -2.34340708751
+# -2.34340708751 -2.34340708751 -3.03655426807 -3.03655426807 -3.03655426807
+print(sum(ex2.expt12), digits = 12)
+# -24.7025822006
+
+
+ex2.ans12 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans12[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1, 4), c(2), c(3))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans12 - ex2.expt12))
+sum(abs((ex2.ans12 - ex2.expt12)/ ex2.expt12))
+
+
+```
+
+
+
+```{r ex2_part12_calc_mdp}
+ex2.mdp.expt12 = 80/(3 * 17 * 19)
+ex2.mdp.ans12 = calcMDPColPrior(alpha = 16, 
+                                setList = list(c(1, 4), c(2), c(3)), 
+                                setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt12,
+             answer = ex2.mdp.ans12)
+checkAbsRelativeDiff(expected = ex2.mdp.expt12,
+                     answer = ex2.mdp.ans12, 
+                     rel = min(abs(c(ex2.mdp.expt12, ex2.mdp.ans12))))
+```
+
+### Partition 13
+
+Partition: (1, 2, 3, 2)
+
+
+```{r ex2_part13_clust1}
+sum(slvEx2.df[, 1])
+length(slvEx2.df[, 1])
+```
+
+
+```{r ex2_part13_clust2}
+
+sum(slvEx2.df[, c(2, 4)])
+prod(dim(slvEx2.df[, c(2, 4)]))
+```
+
+```{r ex2_part13_clust3}
+sum(slvEx2.df[, 3])
+length(slvEx2.df[, 3])
+```
+
+```{r ex2_part13_calc_lik}
+# Profile pattern: 0100
+ex2.expt13.0100 = 2*(log(2) - sum(log(3:5))) + # column clusters 1 & 3
+  (log(2) - sum(log(4:6))) - # column cluster 2
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt13.0101 = 2*(log(2) - sum(log(3:5))) + # column clusters 1 & 3
+  sum(-log(5:6)) - # column cluster 2
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt13.1101 = sum(-log(4:5)) +  # column cluster 1
+  sum(-log(5:6)) +  # column cluster 2
+  log(2) - sum(log(3:5)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt13.1111 = -2*sum(log(4:5)) + # column cluster 1 & 3
+  sum(-log(5:6)) - # column cluster 2 
+  3*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt13 = c(ex2.expt13.0100, ex2.expt13.0101, 
+              ex2.expt13.1101, ex2.expt13.1111)[slvEx2AllPatIndex]
+print(ex2.expt13, digits = 12)
+# -1.93794197941 -1.93794197941 -2.34340708751 -2.34340708751 -2.34340708751
+# -2.34340708751 -2.34340708751 -3.03655426807 -3.44201937618 -2.74887219562
+print(sum(ex2.expt13), digits = 12)
+# -24.7025822006
+
+
+ex2.ans13 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans13[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2, 4), c(3))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans13 - ex2.expt13))
+sum(abs((ex2.ans13 - ex2.expt13)/ ex2.expt13))
+
+```
+
+
+```{r ex2_part13_calc_mdp}
+ex2.mdp.expt13 = 80/(3 * 17 * 19)
+ex2.mdp.ans13 = calcMDPColPrior(alpha = 16, 
+                                setList = list(c(1), c(2, 4), c(3)), 
+                                setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt13,
+             answer = ex2.mdp.ans13)
+checkAbsRelativeDiff(expected = ex2.mdp.expt13,
+                     answer = ex2.mdp.ans13, 
+                     rel = min(abs(c(ex2.mdp.expt13, ex2.mdp.ans13))))
+```
+
+### Partition 14
+
+Partition: (1, 2, 3, 3)
+
+```{r ex2_part14_clust1}
+sum(slvEx2.df[, 1])
+length(slvEx2.df[, 1])
+```
+
+
+```{r ex2_part14_clust2}
+sum(slvEx2.df[, 2])
+length(slvEx2.df[, 2])
+```
+
+```{r ex2_part14_clust3}
+sum(slvEx2.df[, c(3, 4)])
+prod(dim(slvEx2.df[, c(3, 4)]))
+```
+
+```{r ex2_part14_calc_lik}
+# Profile pattern: 0100
+ex2.expt14.0100 = log(2) - sum(log(3:5)) + # column cluster 1
+  sum(-log(4:5)) + # column cluster 2
+  log(2) -sum(log(4:6)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt14.0101 = log(2) - sum(log(3:5)) + # column cluster 1
+  sum(-log(4:5)) + # column cluster 2
+  log(2) -sum(log(4:6)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt14.1101 = 2*sum(-log(4:5)) +  # column cluster 1 & 2
+  log(2) - sum(log(4:6)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt14.1111 = -2*sum(log(4:5)) + # column clusters 1 & 2
+  sum(-log(5:6)) - # column cluster 3
+  3*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt14 = c(ex2.expt14.0100, ex2.expt14.0101, 
+              ex2.expt14.1101, ex2.expt14.1111)[slvEx2AllPatIndex]
+print(ex2.expt14, digits = 12)
+# -1.93794197941 -1.93794197941 -2.34340708751 -2.34340708751 -2.34340708751
+# -2.34340708751 -2.34340708751 -3.03655426807 -3.44201937618 -2.74887219562
+print(sum(ex2.expt14), digits = 12)
+# -26.1409925629
+
+
+ex2.ans14 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans14[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2), c(3, 4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans14 - ex2.expt14))
+sum(abs((ex2.ans14 - ex2.expt14)/ ex2.expt14))
+
+```
+
+
+
+```{r ex2_part14_calc_mdp}
+ex2.mdp.expt14 = 80/(3 * 17 * 19)
+ex2.mdp.ans14 = calcMDPColPrior(alpha = 16, 
+                                setList = list(c(1), c(2), c(3, 4)), 
+                                setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt14,
+             answer = ex2.mdp.ans14)
+checkAbsRelativeDiff(expected = ex2.mdp.expt14,
+                     answer = ex2.mdp.ans14, 
+                     rel = min(abs(c(ex2.mdp.expt14, ex2.mdp.ans14))))
+```
+
+### Partition 15
+
+
+Partition: (1, 2, 3, 4)
+
+```{r ex2_part15_clust1}
+sum(slvEx2.df[, 1])
+length(slvEx2.df[, 1])
+```
+
+
+```{r ex2_part15_clust2}
+sum(slvEx2.df[, 2])
+length(slvEx2.df[, 2])
+```
+
+```{r ex2_part15_clust3}
+sum(slvEx2.df[, 3])
+length(slvEx2.df[, 3])
+```
+
+```{r ex2_part15_clust4}
+sum(slvEx2.df[, 4])
+length(slvEx2.df[, 4])
+```
+
+```{r ex2_part15_calc_lik}
+# Profile pattern: 0100
+ex2.expt15.0100 = 3*(log(2) - sum(log(3:5))) + # column clusters 1, 3 & 4
+  sum(-log(4:5)) - # column cluster 2
+  4*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 0101
+ex2.expt15.0101 = 2*(log(2) - sum(log(3:5))) + # column clusters 1 & 3
+  2*sum(-log(4:5)) - # column clusters 2 & 4
+  4*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1101
+ex2.expt15.1101 = 3*sum(-log(4:5)) +  # column cluster 1, 2 & 4
+  log(2) - sum(log(3:5)) - # column cluster 3
+  4*(log(2) - sum(log(1:4))) # denominator
+# Profile pattern: 1111
+ex2.expt15.1111 = -4*sum(log(4:5)) - # column clusters 1, 2, 3  & 4
+  4*(log(2) - sum(log(1:4))) # denominator
+
+# Expected likelihood of ex1 data
+ex2.expt15 = c(ex2.expt15.0100, ex2.expt15.0101, 
+              ex2.expt15.1101, ex2.expt15.1111)[slvEx2AllPatIndex]
+print(ex2.expt15, digits = 12)
+# -2.04330249506 -2.04330249506 -2.44876760317 -2.44876760317 -2.44876760317
+# -2.44876760317 -2.44876760317 -2.85423271128 -3.25969781939 -2.85423271128
+print(sum(ex2.expt15), digits = 12)
+# -25.2986062479
+
+
+ex2.ans15 = c()
+for(patIndex in 1:nrow(slvEx2.df)){
+  ex2.ans15[patIndex] = log(calcLikIntAllPart(eltsAllPartSet = list(list(c(1), c(2), c(3), c(4))), 
+                         sample = slvEx2.df[patIndex,], 
+                         alphaC = 3, 
+                         betaC = 2))
+}
+
+sum(abs(ex2.ans15 - ex2.expt15))
+sum(abs((ex2.ans15 - ex2.expt15)/ ex2.expt15))
+
+```
+
+
+
+```{r ex2_part15_calc_mdp}
+ex2.mdp.expt15 = 64/(3 * 17 * 19)
+ex2.mdp.ans15 = calcMDPColPrior(alpha = 16, 
+                                setList = list(c(1), c(2), c(3), c(4)), 
+                                setCountMax = 4)
+
+checkAbsDiff(expected = ex2.mdp.expt15,
+             answer = ex2.mdp.ans15)
+checkAbsRelativeDiff(expected = ex2.mdp.expt15,
+                     answer = ex2.mdp.ans15,
+                     rel = min(abs(c(ex2.mdp.expt15, ex2.mdp.ans15))))
+```
+
+## Test \texttt{calcLogSubTypeLik} Function
+
+```{r ex2_subtype_lik}
+ex2.subtype.lik.expt = 
+  sum(exp(colSums(cbind(ex2.expt1, ex2.expt2, ex2.expt3, ex2.expt4, ex2.expt5,
+                        ex2.expt6, ex2.expt7, ex2.expt8, ex2.expt9, ex2.expt10,
+                        ex2.expt11, ex2.expt12, ex2.expt13, ex2.expt14, ex2.expt15)))*
+  c(ex2.mdp.expt1,  ex2.mdp.expt2,  ex2.mdp.expt3,  ex2.mdp.expt4,  ex2.mdp.expt5,
+    ex2.mdp.expt6,  ex2.mdp.expt7,  ex2.mdp.expt8,  ex2.mdp.expt9,  ex2.mdp.expt10,
+    ex2.mdp.expt11, ex2.mdp.expt12, ex2.mdp.expt13, ex2.mdp.expt14, ex2.mdp.expt15))
+
+ex2.subtype.log.lik.expt = log(ex2.subtype.lik.expt)
+
+elts4AllPartSetMDPPrior = unlist(lapply(elts4AllPartSet, 
+                                        calcMDPColPrior, 
+                                        alpha = 16, 
+                                        setCountMax = 4))
+
+ex2.subtype.log.lik.ans = calcNoBLoCLogSubTypeLik(eltsAllPartSetList = list(elts4AllPartSet), 
+                                            eltsAllPartSetPriorList = list(elts4AllPartSetMDPPrior),
+                                            sample = slvEx2.df, 
+                                            mkrList = list(colnames(slvEx2.df)), 
+                                            alphaC = 3, 
+                                            betaC = 2)
+sum(abs((ex2.subtype.log.lik.ans - ex2.subtype.log.lik.expt)/ ex2.subtype.log.lik.expt))
+```
+
+# Test \texttt{calcLogSubTypeLik} Function
+
+```{r ex_subtype_lik}
+ex.subtype.log.lik.expt = ex1.subtype.log.lik.expt + ex2.subtype.log.lik.expt
+print(ex.subtype.log.lik.expt, digits = 16)
+# -43.6730288478
+
+ex.subtype.log.lik.ans = 
+  calcNoBLoCLogSubTypeLik(eltsAllPartSetList = list(elts3AllPartSet, elts4AllPartSet),
+                          eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior, elts4AllPartSetMDPPrior),
+                    sample = cbind(slvEx1.df, slvEx2.df),
+                    mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)),
+                    alphaC = c(2, 3),
+                    betaC = c(3, 2))
+
+  
+sum(abs(ex.subtype.log.lik.ans - ex.subtype.log.lik.expt))
+sum(abs((ex.subtype.log.lik.ans - ex.subtype.log.lik.expt)/
+          ex.subtype.log.lik.expt))
+
+```
+
+# Test \texttt{calcLogTypeLik} Function
+
+```{r ex_type_lik, eval = F}
+
+subtype_lik_test1 = c()
+subtype_lik_test2 = c()
+ex.type.log.lik.expt = c()
+ex.type.log.lik.ans = c()
+for(partIndex in 1:length(allPartSets10List)){
+#for(partIndex in 1:1000){
+  
+  ex.subtype.log.lik.expt = c()
+  
+  for(setIndex in 1:length(allPartSets10List[[partIndex]])){
+    obsPartIndexes = allPartSets10List[[partIndex]][[setIndex]]
+     
+    ex.subtype.log.lik.expt[setIndex] = calcNoBLoCLogSubTypeLik(eltsAllPartSetList = list(elts3AllPartSet,
+                                                  elts4AllPartSet),
+                        eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior,
+                                                       elts4AllPartSetMDPPrior),
+                        sample = cbind(slvEx1.df[obsPartIndexes, ], 
+                                       slvEx2.df[obsPartIndexes, ]),
+                        mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)),
+                        alphaC = c(2, 3),
+                        betaC = c(3, 2))
+    
+      
+  }
+  ex.type.log.lik.expt[partIndex] = sum(ex.subtype.log.lik.expt)
+  
+  setIndexes = sample(1:10, length(allPartSets10List[[partIndex]]))
+  obsPartSets = list()
+  for(index in 1:length(setIndexes)){
+    obsPartSets[[setIndexes[index]]] = allPartSets10List[[partIndex]][[index]]
+  }
+  
+  ex.type.log.lik.ans[partIndex] = 
+    calcNoBLoCLogTypeLik(eltsAllPartSetList = list(elts3AllPartSet, elts4AllPartSet),
+                         eltsAllPartSetPriorList = list(elts3AllPartSetMDPPrior, elts4AllPartSetMDPPrior), 
+                         sample = cbind(slvEx1.df, slvEx2.df), 
+                         subtypeList = obsPartSets, 
+                         mkrList = list(colnames(slvEx1.df), colnames(slvEx2.df)), 
+                         alphaC = c(2, 3), 
+                         betaC = c(3, 2))
+  
+  subtype_lik_test1[partIndex] = checkAbsDiff(expected = ex.type.log.lik.expt[partIndex], 
+                                              answer = ex.type.log.lik.ans[partIndex],
+                                              print = FALSE)
+  subtype_lik_test2[partIndex] = checkAbsRelativeDiff(expected = ex.type.log.lik.expt[partIndex],
+                                                      answer = ex.type.log.lik.ans[partIndex], 
+                                                      rel = min(abs(c(ex.subtype.log.lik.expt[partIndex], 
+                                                                      ex.subtype.log.lik.ans[partIndex]))),
+                                                      print = FALSE)
+  if(partIndex %%1000 ==0){
+    message(partIndex)
+  }
+}
+```
+
+```{r save, eval = F, echo = F}
+ex.type.log.res.df = data.frame(expected = round(ex.type.log.lik.expt, 15), 
+                                answer = round(ex.type.log.lik.ans, 15))
+write.csv(ex.type.log.res.df,
+          file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.nob-loc.type.log.res.csv",
+          quote = F, row.names = F)
+
+save(ex.type.log.lik.expt,
+     ex.type.log.lik.ans,
+     subtype_lik_test1,
+     subtype_lik_test2,
+     file = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.nob-loc.type.log.res.rda")
+```

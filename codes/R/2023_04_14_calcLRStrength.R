@@ -16,7 +16,7 @@ typeLabels = c("cvf", "mtb", "slv", "bld", "smn")
 getLRStrengthTable = function(data.df = NULL){
   correctTypePostProb = data.df[,paste(typeLabels, "PostProb", sep="")][cbind(1:nrow(data.df),match(data.df$trueType, typeLabels))]
   correctTypeLR = correctTypePostProb/(1 - correctTypePostProb)*4
-  correctTypeLRCategory =cut(log10(correctTypeLR), c(-2,-1, -0.5, 0, 0.5, 1, 2, Inf))
+  correctTypeLRCategory =cut(log10(correctTypeLR), c(-2,-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, Inf))
   table(data.df$trueType,correctTypeLRCategory )
 }
 
