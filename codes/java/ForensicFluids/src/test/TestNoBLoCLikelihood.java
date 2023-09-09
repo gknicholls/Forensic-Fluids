@@ -1,11 +1,11 @@
 package test;
 
-import state.Parameter;
-import state.SubTypeList;
 import data.SingleMarkerData;
 import junit.framework.TestCase;
 import model.ClusterLikelihood;
-//import model.OldClusterLikelihood;
+import model.NoBLoCLikelihood;
+import state.Parameter;
+import state.SubTypeList;
 import utils.MathUtils;
 
 import java.io.BufferedReader;
@@ -13,7 +13,9 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class TestClusterLikelihood extends TestCase {
+//import model.OldClusterLikelihood;
+
+public class TestNoBLoCLikelihood extends TestCase {
 
     public interface Instance {
 
@@ -21,13 +23,15 @@ public class TestClusterLikelihood extends TestCase {
 
         int[][] getData();
 
-        double[] getExpectedResult();
+        double[] getExpectedMarginalizedMarkerGroupLik();
 
         double getAlpha();
 
         double getBeta();
 
         double[] getColPrior();
+
+        double[][][] getBetaTable();
 
         ArrayList<Integer> getSubtypeIndexes();
     }
@@ -71,13 +75,13 @@ public class TestClusterLikelihood extends TestCase {
 
 
         @Override
-        public double[] getExpectedResult() {
+        public double[] getExpectedMarginalizedMarkerGroupLik() {
             return new double[]{
-                    9.15135378264343e-09,
-                    2.82044324957933e-08,
-                    6.11241571116264e-09,
-                    1.12060954704648e-08,
-                    1.64505988352471e-08
+                    8.352222038398864e-09,
+                    1.043677052928005e-08,
+                    4.403012567040002e-09,
+                    1.320903770112002e-08,
+                    8.625959983006912e-09
             };
         }
 
@@ -90,6 +94,13 @@ public class TestClusterLikelihood extends TestCase {
                     0.2197802197802201,
                     0.1758241758241763
             };
+        }
+
+        public double[][][] getBetaTable(){
+            return new double[][][]{{{-2.995732273553991, -3.401197381662155},
+                    {-3.401197381662155, -4.094344562222100, -4.094344562222100},
+                    {-3.737669618283368, -4.653960350157523, -4.941642422609304, -4.653960350157523}
+                   }};
         }
 
         @Override
@@ -159,23 +170,23 @@ public class TestClusterLikelihood extends TestCase {
 
 
         @Override
-        public double[] getExpectedResult() {
+        public double[] getExpectedMarginalizedMarkerGroupLik() {
             return new double[]{
-                    12.0*6.213567834736545e-13,
-                    144.0*7.590906346753908e-14,
-                    144.0*1.238007816916047e-11,
-                    144.0*1.713712134340804e-13,
-                    1728.0*4.304705814376286e-13,
-                    144.0*2.819479500222888e-13,
-                    144.0*5.075224397855477e-12,
-                    1728.0*1.550575742854044e-13,
-                    144.0*6.31367628441347e-14,
-                    144.0*3.17437901773346e-14,
-                    1728.0*4.664541904122907e-15,
-                    1728.0*6.796903917436222e-13,
-                    1728.0*1.643614947307302e-12,
-                    1728.0*1.999089387481247e-14,
-                    20736.0*5.021550316009523e-14
+                    6.720721573733366e-12,
+                    4.040215422119243e-12,
+                    4.105284176313832e-11,
+                    5.368709120000038e-12,
+                    1.246561192484089e-11,
+                    8.080430844238501e-12,
+                    2.147483648000016e-11,
+                    9.983749980332087e-12,
+                    5.368709120000038e-12,
+                    3.192268975501622e-12,
+                    2.958148142320624e-12,
+                    1.869841788726112e-11,
+                    2.216108786638352e-11,
+                    4.437222213480934e-12,
+                    1.030279139755946e-11
             };
         }
 
@@ -199,6 +210,14 @@ public class TestClusterLikelihood extends TestCase {
                     64.0/(3.0 * 17.0 * 19.0)
 
             };
+        }
+
+        public double[][][] getBetaTable(){
+            return new double[][][]{{{-3.401197381662155, -2.995732273553991},
+                    {-4.094344562222100, -4.094344562222100, -3.401197381662155},
+                    {-4.653960350157523, -4.941642422609304, -4.653960350157523, -3.737669618283368},
+                    {-5.123963979403259, -5.634789603169249, -5.634789603169249, -5.123963979403259, -4.025351690735150}
+            }};
         }
 
         @Override
@@ -229,15 +248,18 @@ public class TestClusterLikelihood extends TestCase {
             double alpha = test.getAlpha();
             double beta = test.getBeta();
             double[] mkrGrpLik;
-            double[] expectedResult = test.getExpectedResult();
+            double[] expectedResult = test.getExpectedMarginalizedMarkerGroupLik();
 
             ArrayList<Integer>[] subtypeList = (ArrayList<Integer>[]) new ArrayList[]{test.getSubtypeIndexes()};
             SingleMarkerData data = new SingleMarkerData(new int[][][]{test.getData()});
             SubTypeList subTypeList = new SubTypeList(subtypeList );
+            double[][][] betaTable = test.getBetaTable();
 
 
-            mkrGrpLik = ClusterLikelihood.CalcIntAllPartsMkrGrpLik(
-                    partitions, data, 0, alpha, beta, subTypeList,0);
+            mkrGrpLik = NoBLoCLikelihood.calcNoBLoCIntAllPartsMkrGrpLik(
+                    partitions, data, 0,
+                    alpha, beta, subTypeList,0,
+                    betaTable);
 
             for (int partIndex = 0; partIndex < partitions.length; partIndex++) {
 
@@ -269,17 +291,17 @@ public class TestClusterLikelihood extends TestCase {
 
         Parameter alphaC = new Parameter("shape.a", alphaCValues, 0);
         Parameter betaC = new Parameter("shape.b", betaCValues, 0);
-        ClusterLikelihood likelihood = new ClusterLikelihood(mkrGrpPartitions,
+        NoBLoCLikelihood likelihood = new NoBLoCLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, subTypeList);
 
-        //double logSubLik = likelihood.calcLogSubtypeLikelihood(0);
+        double logSubLik = likelihood.calcLogSubtypeLikelihood(0);
 
-        //assertEquals(logSubLik, -49.6924097777349, 1e-10);
+        assertEquals(logSubLik, -43.67302884784564, 1e-10);
 
     }
 
     public void testCalcLogTypeLikelihood(){
-        String filepath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.type.log.res.csv";
+        String filepath = "/Users/chwu/Documents/research/bfc/github/Forensic-Fluids/output/ex.nob-loc.type.log.res.csv";
         double[][] logTypeLik = getTable(filepath, 115975);
 
         int[][][][] mkrGrpPartitions = new int[2][][][];
@@ -307,14 +329,12 @@ public class TestClusterLikelihood extends TestCase {
         ArrayList<Integer>[][] allParts10 = getCluster(clustFile, 115975);
 
         for(int partIndex = 0; partIndex < allParts10.length; partIndex++){
-            //System.out.println("partIndex: "+ partIndex);
             subtypeParts = (ArrayList<Integer>[]) new ArrayList[setMaxCount];
             for(int setIndex = 0; setIndex < subtypeParts.length; setIndex++){
                 subtypeParts[setIndex] = new ArrayList<Integer>();
             }
             int[] samples = MathUtils.sample(allParts10[partIndex].length, 0,setMaxCount -1);
             for(int setIndex = 0; setIndex < allParts10[partIndex].length; setIndex++){
-                //System.out.println(samples[setIndex]);
                 subtypeParts[samples[setIndex]] = allParts10[partIndex][setIndex];
             }
 
@@ -322,7 +342,7 @@ public class TestClusterLikelihood extends TestCase {
 
             Parameter alphaC = new Parameter("shape.a", alphaCValues, 0);
             Parameter betaC = new Parameter("shape.b", betaCValues, 0);
-            ClusterLikelihood likelihood = new ClusterLikelihood(mkrGrpPartitions,
+            NoBLoCLikelihood likelihood = new NoBLoCLikelihood(mkrGrpPartitions,
                     colPriors, data, alphaC, betaC, subTypeList);
 
             logSubLik = likelihood.getLogLikelihood();

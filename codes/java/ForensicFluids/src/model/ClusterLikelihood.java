@@ -7,17 +7,21 @@ import org.apache.commons.math3.special.Beta;
 
 public class ClusterLikelihood extends AbstractProbability {
 
-    private double logLikelihood;
-    private double storedLogLikelihood;
-    private int[][][][] eltsAllPartSetList;
-    private double[][] eltsAllPartSetPriorList;
-    private SingleMarkerData sample;
-    private Parameter alphaC;
-    private Parameter betaC;
-    private double[][] subtypeMkrLik;
-    private double[][] storedSubtypeMkrLik;
-    private SubTypeList subtypeSets;
-    private boolean updateAll;
+    protected double logLikelihood;
+    protected double storedLogLikelihood;
+    protected int[][][][] eltsAllPartSetList;
+    protected double[][] eltsAllPartSetPriorList;
+    protected SingleMarkerData sample;
+    protected Parameter alphaC;
+    protected Parameter betaC;
+    protected double[][] subtypeMkrLik;
+    protected double[][] storedSubtypeMkrLik;
+    protected SubTypeList subtypeSets;
+    protected boolean updateAll;
+
+    public ClusterLikelihood(){
+
+    }
 
     public ClusterLikelihood(String label,
                              int[][][][] eltsAllPartSetList,
@@ -69,6 +73,17 @@ public class ClusterLikelihood extends AbstractProbability {
 
 
 
+    public double[] calcIntAllPartsMkrGrpLik(int[][][] eltsAllPartSet,
+                                                    SingleMarkerData sample,
+                                                    int mkrGrpIndex,
+                                                    double alphaC,
+                                                    double betaC,
+                                                    SubTypeList subtypeSets,
+                                                    int subtypeIndex){
+        return CalcIntAllPartsMkrGrpLik(eltsAllPartSet, sample, mkrGrpIndex,
+                alphaC, betaC, subtypeSets, subtypeIndex);
+
+    }
 
 
     public static double[] CalcIntAllPartsMkrGrpLik(int[][][] eltsAllPartSet,
@@ -122,7 +137,7 @@ public class ClusterLikelihood extends AbstractProbability {
 
     }
 
-    private static int[] CalculateAmplifiedCount(SingleMarkerData sample,
+    protected static int[] CalculateAmplifiedCount(SingleMarkerData sample,
                                                  int mkrGrpIndex,
                                                  int[] set,
                                                  SubTypeList subtypeSets,
@@ -211,8 +226,7 @@ public class ClusterLikelihood extends AbstractProbability {
                     alphaC.isUpdated(mkrGrpIndex) ||
                     betaC.isUpdated(mkrGrpIndex) ||
                     subtypeSets.isUpdated(subtypeIndex)){
-                colPartLik =
-                        CalcIntAllPartsMkrGrpLik(
+                colPartLik = calcIntAllPartsMkrGrpLik(
                                 eltsAllPartSetList[mkrGrpIndex],
                                 sample,
                                 mkrGrpIndex,

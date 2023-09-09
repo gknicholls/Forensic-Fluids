@@ -7,6 +7,7 @@ import inference.*;
 import model.AbstractProbability;
 import model.CompoundClusterLikelihood;
 import model.CompoundClusterPrior;
+import model.CompoundNoBLoCLikelihood;
 import state.*;
 import utils.DataUtils;
 import utils.ParamUtils;
@@ -43,6 +44,7 @@ public class ClassifyForensicFluid {
     public static String UNKNOWN_TYPE_PRIOR = "unknownTypePrior";
     public static String INITIAL_CLUSTER = "initialClustering";
     public static String INITIAL_TYPE = "initialType";
+    public static String USE_NOBLOC = "useNoBLoC";
     public static String SEED = "seed";
     public static final int[][] COL_RANGE = {{0, 4}, {5, 11}, {12, 16}, {17, 21}, {22, 26}};
 
@@ -56,6 +58,7 @@ public class ClassifyForensicFluid {
     private int chainLength;
     private int logEvery;
     private String outputFilePath;
+    private boolean useNoBLoC;
 
     static public int threadCount = 1;
     public static ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -192,8 +195,10 @@ public class ClassifyForensicFluid {
 
             }else if(currLabel.equals(OUTPUT_PATH)) {
                 outputFilePath = lineElts[1];
-            }else if(currLabel.equals(UNKNOWN_TYPE_PRIOR)){
+            }else if(currLabel.equals(UNKNOWN_TYPE_PRIOR)) {
                 unknownTypePriorParamVals = DataUtils.processSeqsDouble(lineElts[1], ",");
+            }else if(currLabel.equals(USE_NOBLOC)){
+                useNoBLoC = Boolean.parseBoolean(lineElts[1]);
             }else if(currLabel.equals(SEED)){
                 seed = Long.parseLong(lineElts[1]);
 
@@ -351,12 +356,22 @@ public class ClassifyForensicFluid {
             mdpPrior = new CompoundClusterPrior(
                     "multiTypeMDP", alphaRow, maxRowClustCount, totalObsCounts, typeList);
         }
+        CompoundClusterLikelihood lik;
 
-        CompoundClusterLikelihood lik = new CompoundClusterLikelihood("multitypeLikelihood",
-                mkrGrpPartitions, colPriors, dataSets,
-                shapeA,
-                shapeB,
-                typeList);
+        if(useNoBLoC){
+            lik = new CompoundNoBLoCLikelihood("multitypeLikelihood",
+                    mkrGrpPartitions, colPriors, dataSets,
+                    shapeA,
+                    shapeB,
+                    typeList);
+        }else{
+            lik = new CompoundClusterLikelihood("multitypeLikelihood",
+                    mkrGrpPartitions, colPriors, dataSets,
+                    shapeA,
+                    shapeB,
+                    typeList);
+        }
+
 
         if(unknownTypeParam == null){
             return new AbstractProbability[]{mdpPrior, lik};

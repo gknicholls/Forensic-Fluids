@@ -20,4 +20,8 @@ public class SingleMarkerData {
     public int getMarkerGroupCount(){
         return singleTypeData.length;
     }
+
+    public int getMarkerCount(int groupIndex){
+        return singleTypeData[groupIndex][0].length;
+    }
 }

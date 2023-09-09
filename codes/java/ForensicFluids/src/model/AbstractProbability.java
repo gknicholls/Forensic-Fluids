@@ -5,6 +5,9 @@ import state.State;
 public abstract class AbstractProbability extends AbstractState {
     protected double logP;
     protected double storedLogP;
+    public AbstractProbability(){
+
+    }
     public AbstractProbability(String label) {
         super(label);
     }

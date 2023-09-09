@@ -272,9 +272,8 @@ public class TestClusterLikelihood extends TestCase {
         ClusterLikelihood likelihood = new ClusterLikelihood(mkrGrpPartitions,
                 colPriors, data, alphaC, betaC, subTypeList);
 
-        //double logSubLik = likelihood.calcLogSubtypeLikelihood(0);
-
-        //assertEquals(logSubLik, -49.6924097777349, 1e-10);
+        double logSubLik = likelihood.calcLogSubtypeLikelihood(0);
+        assertEquals(logSubLik, -39.22384562644693, 1e-10);
 
     }
 

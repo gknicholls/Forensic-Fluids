@@ -4,6 +4,8 @@ import state.State;
 
 public abstract class AbstractState implements State {
     protected String label;
+    public AbstractState(){
+    }
     public AbstractState(String label){
         this.label = label;
     }

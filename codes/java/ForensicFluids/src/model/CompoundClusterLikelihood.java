@@ -5,17 +5,17 @@ import state.Parameter;
 import state.TypeList;
 
 public class CompoundClusterLikelihood extends AbstractProbability {
-    private int[][][][] eltsAllPartSetList;
-    private double[][] eltsAllPartSetPriorList;
-    private CompoundMarkerData multiTypeSamples;
-    private Parameter[] alphaC;
-    private Parameter[] betaC;
-    private TypeList typeClusters;
-    private ClusterLikelihood[] liks;
-    private double[] logMultiTypeLikelihoods;
-    private double[] storedLogMultiTypeLikelihoods;
-    private double logMultiTypeLikelihood;
-    private double storedLogMultiTypeLikelihood;
+    protected int[][][][] eltsAllPartSetList;
+    protected double[][] eltsAllPartSetPriorList;
+    protected CompoundMarkerData multiTypeSamples;
+    protected Parameter[] alphaC;
+    protected Parameter[] betaC;
+    protected TypeList typeClusters;
+    protected ClusterLikelihood[] liks;
+    protected double[] logMultiTypeLikelihoods;
+    protected double[] storedLogMultiTypeLikelihoods;
+    protected double logMultiTypeLikelihood;
+    protected double storedLogMultiTypeLikelihood;
 
     public CompoundClusterLikelihood(String label){
         super(label);
