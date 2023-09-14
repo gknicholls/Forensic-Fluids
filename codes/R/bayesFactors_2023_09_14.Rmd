@@ -1,0 +1,512 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r required_func}
+bfLabels = c("CVF", "MTB", "SLV", "BLD", "SMN")
+
+# Sort the ids within each subtype for a given fluid type
+sortEltsInSubtypes = function(subtypesStr = NULL){
+  subtypes = unlist(strsplit(subtypesStr, split = "],[", fixed = T))
+  
+  subtypes = gsub(subtypes, pattern = "[", replace = "", fixed = T)
+  subtypes = gsub(subtypes, pattern = "]", replace = "", fixed = T)
+  eltSortedSubtypes = sapply(subtypes, function(subtype){
+    sortedElts = sort(as.numeric(unlist(strsplit(subtype, split = ","))))
+    paste("[", paste(sortedElts, collapse=","), "]", sep = "")
+  })
+  paste(eltSortedSubtypes, collapse = ",")
+}
+
+# Sort the ids within each subtype for a set of fluid types
+sortEltsInClust = function(clustMat = NULL){
+  
+  eltSortedClustMat = apply(clustMat, 2, 
+                            function(subtypeDistr){
+                              sapply(subtypeDistr,  sortEltsInSubtypes)
+                              })
+  return(eltSortedClustMat)
+  
+}
+
+# Sort the ids within each subtype for a set of fluid types
+getSubtypeClustPosterior = function(clustMat = NULL){
+  
+   clustPostDistr = apply(clustMat, 2, 
+                          function(subtypeDistr){
+                            sort(table(subtypeDistr)/length(subtypeDistr), 
+                                 decreasing = T)
+                            })
+   
+   return(clustPostDistr)
+  
+}
+
+# This function calculates the 'old' candidate estimator marginal likelihood 
+# but we do not use this anymore.
+getLogMargLikList = function(clustPostDistrList = NULL, 
+                             clustMat = NULL, 
+                             mcmcLog.df = NULL){
+  
+  logMargLikList = list()
+  for(typeIndex in 1:length(clustPostDistrList)){
+    
+    clustInMCMCList = match(names(clustPostDistrList[[typeIndex]]), clustMat[, typeIndex])
+    
+    logMargLikList[[typeIndex]] = 
+      mcmcLog.df[clustInMCMCList, paste("multiTypeMDP", typeIndex - 1, sep = ".")] + 
+      mcmcLog.df[clustInMCMCList, paste("multitypeLikelihood", typeIndex - 1, sep = ".")] - 
+      log(clustPostDistrList[[typeIndex]])
+  }
+  return(logMargLikList)
+}
+
+
+
+# clustPostDistrList: a list where each element is the posterior distribution of the subtype
+#                     clusterings of each fluid type in decreasing order of posterior probability.
+# clustMat: A matrix with rows corresponding to MCMC samples of the subtype clustering, and columns to fluid types
+# mcmcLog.df: a data.frame of the MCMC log file
+# hpdPropr: the hpd percentage in proportion format, i.e., between 0 and 1.
+getLogHPDMargLikList = function(clustPostDistrList = NULL,
+                                clustMat = NULL, 
+                                mcmcLog.df = NULL, 
+                                hpdProp = NULL){
+  
+  logMargLikList = c()
+  # Iterate through each fluid type
+  for(typeIndex in 1:length(clustPostDistrList)){
+    
+    # Matching the subtype clusterings against the order in the log file
+    clustInMCMCList = match(names(clustPostDistrList[[typeIndex]]), clustMat[, typeIndex])
+    # Find the last index to be included in the HPD
+    lastIndex = which(cumsum(clustPostDistrList[[typeIndex]]) > hpdProp)[1]
+    # Obtain the matching row numbers to the subtype clusterings in the log file
+    hpdSetInLog = clustInMCMCList[1:lastIndex]
+    
+    # Prior column labels
+    priorNameColNames = paste("multiTypeMDP", typeIndex - 1, sep = ".")
+    # Likelihood column labels
+    likColNames = paste("multitypeLikelihood", typeIndex - 1, sep = ".")
+    
+    # Calculate the HPD canditate marginal likelihood
+    logMargLikList[typeIndex] = 
+      log(mean(exp(mcmcLog.df[hpdSetInLog, priorNameColNames] + 
+                 mcmcLog.df[hpdSetInLog, likColNames]))) -
+      log(mean(clustPostDistrList[[typeIndex]][1:lastIndex]))
+    
+  }
+  
+  names(logMargLikList) = colnames(clustMat)
+  
+  return(logMargLikList)
+}
+
+# Calculates the bridge estimate of the BF for a given fluid type
+bayesFactorBridgeEstimator = function(mcmc1Lik1 = NULL, 
+                                      mcmc1Lik2 = NULL, 
+                                      mcmc2Lik1 = NULL, 
+                                      mcmc2Lik2 = NULL){
+  bfbe = sum(exp(0.5*(mcmc2Lik1 - mcmc2Lik2)))/
+    sum(exp(0.5*(mcmc1Lik2 - mcmc1Lik1)))
+  
+  return(bfbe)
+  
+}
+
+# Calculates the bridge estimate of the BF for a given set of fluid types
+allFluidTypesBayesFactorBridgeEstimator = 
+  function(mcmc1Log.df = NULL, 
+           mcmc2Log.df = NULL, 
+           mcmc1Lik1Prefix = NULL,
+           mcmc1Lik2Prefix = NULL,
+           mcmc2Lik1Prefix = NULL,
+           mcmc2Lik2Prefix = NULL,
+           typeIndices = NULL){
+    
+    bfbeVec = c()
+    mcmc1Lik1ColLabels = paste(mcmc1Lik1Prefix, typeIndices, sep = ".")
+    mcmc1Lik2ColLabels = paste(mcmc1Lik2Prefix, typeIndices, sep = ".")
+    mcmc2Lik1ColLabels = paste(mcmc2Lik1Prefix, typeIndices, sep = ".")
+    mcmc2Lik2ColLabels = paste(mcmc2Lik2Prefix, typeIndices, sep = ".")
+    
+    for(index in 1:length(typeIndices)){
+      bfbeVec[index] = bayesFactorBridgeEstimator(
+        mcmc1Lik1 = mcmc1Log.df[,mcmc1Lik1ColLabels[index]], 
+        mcmc1Lik2 = mcmc1Log.df[,mcmc1Lik2ColLabels[index]],
+        mcmc2Lik1 = mcmc2Log.df[,mcmc2Lik1ColLabels[index]], 
+        mcmc2Lik2 = mcmc2Log.df[,mcmc2Lik2ColLabels[index]])
+    }
+    
+  return(bfbeVec)
+}
+
+
+```
+
+# HPD candidate estimate of BF
+
+## Comparing BDPs with different J's and L's
+
+```{r}
+# Read in the mcmc log file
+trainBDPJ1L1Path = 
+  "/Users/chwu/Documents/research/bfc/paper/analysis/test/sensitivityJ/testSamplesBin_2022_09_22_bayes_J1_c1e-10_all.log"
+trainBDPJ1L1.df = read.table(file = trainBDPJ1L1Path, header = T, as.is = T, sep = "\t")
+trainBDPJ1L1.df = trainBDPJ1L1.df[-c(1:ceiling(nrow(trainBDPJ1L1.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainBDPJ1L1ClustMat = do.call(rbind, strsplit(trainBDPJ1L1.df$typeList, split=" "))
+trainBDPJ1L1ClustMat = gsub(trainBDPJ1L1ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainBDPJ1L1ClustMat = gsub(trainBDPJ1L1ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainBDPJ1L1EltSortedClustMat = sortEltsInClust(trainBDPJ1L1ClustMat)
+colnames(trainBDPJ1L1EltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainBDPJ1L1ClustPostDistrList = getSubtypeClustPosterior(trainBDPJ1L1EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainBDPJ1L1LogHPD50MargLikVec = getLogHPDMargLikList(clustPostDistrList = trainBDPJ1L1ClustPostDistrList, 
+                                                  clustMat = trainBDPJ1L1EltSortedClustMat, 
+                                                  mcmcLog.df = trainBDPJ1L1.df,
+                                                  hpd = 0.5)
+trainBDPJ1L1LogHPD50MargLikVec 
+#       CVF       MTB       SLV       BLD       SMN 
+# -659.3046 -397.5837 -469.9341 -208.2522 -508.2314 
+```
+
+```{r bdp_J5_Lmax}
+# Read in the mcmc log file
+trainBDPJ1LmaxPath = "/Users/chwu/Documents/research/bfc/paper/analysis/test/sensitivityJ/testSamplesBin_2022_09_22_bayes_J1_all.log"
+trainBDPJ1Lmax.df = read.table(file = trainBDPJ1LmaxPath, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainBDPJ1Lmax.df = trainBDPJ1Lmax.df[-c(1:ceiling(nrow(trainBDPJ1Lmax.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainBDPJ1LmaxClustMat = do.call(rbind, strsplit(trainBDPJ1Lmax.df$typeList, split=" "))
+trainBDPJ1LmaxClustMat = gsub(trainBDPJ1LmaxClustMat, pattern = "[[", replace = "[", fixed = T)
+trainBDPJ1LmaxClustMat = gsub(trainBDPJ1LmaxClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainBDPJ1LmaxEltSortedClustMat = sortEltsInClust(trainBDPJ1LmaxClustMat)
+colnames(trainBDPJ1LmaxEltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainBDPJ1LmaxClustPostDistrList = getSubtypeClustPosterior(trainBDPJ1LmaxEltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainBDPJ1LmaxLogHPD50MargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainBDPJ1LmaxClustPostDistrList, 
+                       clustMat = trainBDPJ1LmaxEltSortedClustMat, 
+                       mcmcLog.df = trainBDPJ1Lmax.df,
+                       hpdProp = 0.5)
+
+trainBDPJ1LmaxLogHPD50MargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -587.7687 -343.0809 -406.9861 -181.7530 -475.1598 
+```
+
+
+## BDP
+
+```{r bdp_J5}
+# Read in the mcmc log file
+trainBDPJ5Path = "/Users/chwu/Documents/research/bfc/paper/analysis/test/cut/testSamplesBin_cut_2022_09_22_main.log"
+trainBDPJ5.df = read.table(file = trainBDPJ5Path, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainBDPJ5.df = trainBDPJ5.df[-c(1:ceiling(nrow(trainBDPJ5.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainBDPJ5ClustMat = do.call(rbind, strsplit(trainBDPJ5.df$typeList, split=" "))
+trainBDPJ5ClustMat = gsub(trainBDPJ5ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainBDPJ5ClustMat = gsub(trainBDPJ5ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainBDPJ5EltSortedClustMat = sortEltsInClust(trainBDPJ5ClustMat)
+colnames(trainBDPJ5EltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainBDPJ5ClustPostDistrList = getSubtypeClustPosterior(trainBDPJ5EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainBDPJ5LogHPD50MargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainBDPJ5ClustPostDistrList, 
+                       clustMat = trainBDPJ5EltSortedClustMat, 
+                       mcmcLog.df = trainBDPJ5.df, hpd = 0.5)
+trainBDPJ5LogHPD50MargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -411.9722 -330.4622 -329.7755 -152.7926 -380.1920 
+```
+
+
+```{r bdp_J10}
+# Read in the mcmc log file
+trainBDPJ10Path = 
+  "/Users/chwu/Documents/research/bfc/paper/analysis/test/sensitivityJ/testSamplesBin_cut_2022_09_22_J10_main.log"
+trainBDPJ10.df = read.table(file = trainBDPJ10Path, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainBDPJ10.df = trainBDPJ10.df[-c(1:ceiling(nrow(trainBDPJ10.df)/10)),]
+
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainBDPJ10ClustMat = do.call(rbind, strsplit(trainBDPJ10.df$typeList, split=" "))
+trainBDPJ10ClustMat = gsub(trainBDPJ10ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainBDPJ10ClustMat = gsub(trainBDPJ10ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainBDPJ10EltSortedClustMat = sortEltsInClust(trainBDPJ10ClustMat)
+colnames(trainBDPJ10EltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainBDPJ10ClustPostDistrList = getSubtypeClustPosterior(trainBDPJ10EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainBDPJ10LogHPD50MargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainBDPJ10ClustPostDistrList, 
+                       clustMat = trainBDPJ10EltSortedClustMat, 
+                       mcmcLog.df = trainBDPJ10.df, hpd = 0.5)
+
+trainBDPJ10LogHPD50MargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -413.8953 -330.9179 -329.5388 -153.2891 -383.0709
+```
+
+```{r bdp_J15}
+# Read in the mcmc log file
+trainBDPJ15Path = 
+  "/Users/chwu/Documents/research/bfc/paper/analysis/test/sensitivityJ/testSamplesBin_cut_2022_09_22_J15_main.log"
+trainBDPJ15.df = read.table(file = trainBDPJ15Path, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainBDPJ15.df = trainBDPJ15.df[-c(1:ceiling(nrow(trainBDPJ15.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainBDPJ15ClustMat = do.call(rbind, strsplit(trainBDPJ15.df$typeList, split=" "))
+trainBDPJ15ClustMat = gsub(trainBDPJ15ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainBDPJ15ClustMat = gsub(trainBDPJ15ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainBDPJ15EltSortedClustMat = sortEltsInClust(trainBDPJ15ClustMat)
+colnames(trainBDPJ15EltSortedClustMat) = bfLabels 
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainBDPJ15ClustPostDistrList = getSubtypeClustPosterior(trainBDPJ15EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainBDPJ15LogMargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainBDPJ15ClustPostDistrList, 
+                       clustMat = trainBDPJ15EltSortedClustMat, 
+                       mcmcLog.df = trainBDPJ15.df, hpdProp = 0.5)
+
+trainBDPJ15LogMargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -417.9894 -334.4891 -331.7949 -155.9580 -387.1673 
+```
+
+```{r BDP_calc_BF_to_compare_J}
+# J = 1 & L = L_g vs J = 1 & L = 1
+sum(trainBDPJ1LmaxLogHPD50MargLikVec - trainBDPJ1L1LogHPD50MargLikVec)
+# [1] 248.5576
+
+# J = 5 & L = L_g vs J = 1 & L = L_g
+sum(trainBDPJ5LogHPD50MargLikVec - trainBDPJ1LmaxHPD50MargLikVec)
+# 389.5539
+
+# J = 10 & L = L_g vs J = 5 & L = L_g
+sum(trainBDPJ10LogHPDMargLikVec - trainBDPJ5LogHPD50MargLikVec)
+# -5.517567
+
+# J = 15 & L = L_g vs J = 10 & L = L_g
+sum(trainBDPJ15LogMargLikVec - trainBDPJ10LogHPDMargLikVec)
+# -16.68664
+```
+
+### NoB-LoC
+
+```{r nob-loc_J5}
+# Read in the mcmc log file
+trainNoBLoCJ5Path = "/Users/chwu/Documents/research/bfc/analysis/2023_09_08/testSamplesBin_NoBLoC_J5.log"
+trainNoBLoCJ5.df = read.table(file = trainNoBLoCJ5Path, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainNoBLoCJ5.df = trainNoBLoCJ5.df[-c(1:ceiling(nrow(trainNoBLoCJ5.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainNoBLoCJ5ClustMat = do.call(rbind, strsplit(trainNoBLoCJ5.df$typeList, split=" "))
+trainNoBLoCJ5ClustMat = gsub(trainNoBLoCJ5ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainNoBLoCJ5ClustMat = gsub(trainNoBLoCJ5ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainNoBLoCJ5EltSortedClustMat = sortEltsInClust(trainNoBLoCJ5ClustMat)
+colnames(trainNoBLoCJ5EltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainNoBLoCJ5ClustPostDistrList = getSubtypeClustPosterior(trainNoBLoCJ5EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainNoBLoCJ5LogHPD50MargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainNoBLoCJ5ClustPostDistrList, 
+                       clustMat = trainNoBLoCJ5EltSortedClustMat,
+                       mcmcLog.df = trainNoBLoCJ5.df, hpdProp = 0.5)
+
+trainNoBLoCJ5LogHPD50MargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -543.5088 -387.9362 -527.4707 -294.2015 -525.4983
+
+sum(trainBDPJ5LogHPD50MargLikVec - trainNoBLoCJ5LogMargLikHPD50)
+```
+
+
+```{r nob-loc_J10}
+# Read in the mcmc log file
+trainNoBLoCJ10Path = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_08/testSamplesBin_NoBLoC_J10.log"
+trainNoBLoCJ10.df = read.table(file = trainNoBLoCJ10Path, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainNoBLoCJ10.df = trainNoBLoCJ10.df[-c(1:ceiling(nrow(trainNoBLoCJ10.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainNoBLoCJ10ClustMat = do.call(rbind, strsplit(trainNoBLoCJ10.df$typeList, split=" "))
+trainNoBLoCJ10ClustMat = gsub(trainNoBLoCJ10ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainNoBLoCJ10ClustMat = gsub(trainNoBLoCJ10ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainNoBLoCJ10EltSortedClustMat = sortEltsInClust(trainNoBLoCJ10ClustMat)
+colnames(trainNoBLoCJ10EltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainNoBLoCJ10ClustPostDistrList = getSubtypeClustPosterior(trainNoBLoCJ10EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainNoBLoCJ10LogHPD50MargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainNoBLoCJ10ClustPostDistrList, 
+                       clustMat = trainNoBLoCJ10EltSortedClustMat, 
+                       mcmcLog.df = trainNoBLoCJ10.df, hpdProp = 0.5)
+trainNoBLoCJ10LogHPD50MargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -548.4427 -391.4157 -532.5672 -298.0815 -530.5880 
+
+sum(trainBDPJ10LogHPD50MargLikVec  - trainNoBLoCJ10LogHPD50MargLikVec)
+```
+
+```{r nob-loc_J15}
+# Read in the mcmc log file
+trainNoBLoCJ15Path = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_08/testSamplesBin_NoBLoC_J15.log"
+trainNoBLoCJ15.df = read.table(file = trainNoBLoCJ15Path, header = T, as.is = T, sep = "\t")
+# Remove burnin
+trainNoBLoCJ15.df = trainNoBLoCJ15.df[-c(1:ceiling(nrow(trainNoBLoCJ15.df)/10)),]
+
+# Convert the typeList column into a matrix with 5 columns 
+# corresponding to the subtype clustering configuration of the 5 fluid types
+trainNoBLoCJ15ClustMat = do.call(rbind, strsplit(trainNoBLoCJ15.df$typeList, split=" "))
+trainNoBLoCJ15ClustMat = gsub(trainNoBLoCJ15ClustMat, pattern = "[[", replace = "[", fixed = T)
+trainNoBLoCJ15ClustMat = gsub(trainNoBLoCJ15ClustMat, pattern = "]]", replace = "]", fixed = T)
+
+# Sort the element in increasing order in each subytpe
+trainNoBLoCJ15EltSortedClustMat = sortEltsInClust(trainNoBLoCJ15ClustMat)
+colnames(trainNoBLoCJ15EltSortedClustMat) = bfLabels
+# Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
+trainNoBLoCJ15ClustPostDistrList = getSubtypeClustPosterior(trainNoBLoCJ15EltSortedClustMat)
+# Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
+trainNoBLoCJ15LogHPD50MargLikVec = 
+  getLogHPDMargLikList(clustPostDistrList = trainNoBLoCJ15ClustPostDistrList, 
+                       clustMat = trainNoBLoCJ15EltSortedClustMat, 
+                       mcmcLog.df = trainNoBLoCJ15.df, hpdProp = 0.5)
+trainNoBLoCJ15LogHPD50MargLikVec
+#       CVF       MTB       SLV       BLD       SMN 
+# -548.4427 -391.4157 -532.5672 -298.0815 -530.5880 
+
+sum(trainBDPJ15LogHPD50MargLikVec  - trainNoBLoCJ15LogHPD50MargLikVec)
+```
+
+# Bridge estimator
+
+```{r bdpVsNoBLoc_J5}
+# Load the files containing the required likelihoods given the 
+# MCMC with BDP
+trainBdpJ5BFBELikPath = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_12/trainBdpJ5BayesFactorBridgeEstimator.txt_liks.txt"
+trainBdpJ5BFBEPath.df = read.table(file = trainBdpJ5BFBELikPath, header = T, as.is = T)
+# MCMC with NoB-LoC
+trainBdpJ5BFBELikPath = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_12/trainNoBLoCJ5BayesFactorBridgeEstimator.txt_liks.txt"
+trainNoBLoCJ5BBFBELik.df = read.table(file =trainBdpJ5BFBELikPath, header = T, as.is = T)
+
+# Calculate the bridge estimator
+trainBdpJ5BFBE = 
+  allFluidTypesBayesFactorBridgeEstimator(mcmc1Log.df = trainBdpJ5BFBEPath.df, 
+           mcmc2Log.df = trainNoBLoCJ5BBFBELik.df, 
+           mcmc1Lik1Prefix = "multitypeLikelihood",
+           mcmc1Lik2Prefix = "NoB.LoC",
+           mcmc2Lik1Prefix = "BDP",
+           mcmc2Lik2Prefix = "multitypeLikelihood",
+           typeIndices = c(0:4))
+
+# log BF per fluid type
+log(trainBdpJ5BFBE)
+# [1] 123.01494  57.16643 193.95269 139.74212 142.40324
+
+# Total log BF
+sum(log(trainBdpJ5BFBE))
+# [1] 656.2794
+
+```
+
+```{r bdpVsNoBLoc_J10}
+# Load the files containing the required likelihoods given the 
+# MCMC with BDP
+trainBdpJ10BFBELikPath = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_14/trainBdpJ10BayesFactorBridgeEstimator.txt_liks.txt"
+trainBdpJ10BFBEPath.df = read.table(file = trainBdpJ10BFBELikPath, header = T, as.is = T)
+# MCMC with NoB-LoC
+trainBdpJ10BFBELikPath = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_14/trainNoBLoCJ10BayesFactorBridgeEstimator.txt_liks.txt"
+trainNoBLoCJ10BBFBELik.df = read.table(file = trainBdpJ10BFBELikPath, header = T, as.is = T)
+
+# Calculate the bridge estimator
+trainBdpJ10BFBE = 
+  allFluidTypesBayesFactorBridgeEstimator(mcmc1Log.df = trainBdpJ10BFBEPath.df, 
+           mcmc2Log.df = trainNoBLoCJ10BBFBELik.df, 
+           mcmc1Lik1Prefix = "multitypeLikelihood",
+           mcmc1Lik2Prefix = "NoB.LoC",
+           mcmc2Lik1Prefix = "BDP",
+           mcmc2Lik2Prefix = "multitypeLikelihood",
+           typeIndices = c(0:4))
+
+# log BF per fluid type
+log(trainBdpJ10BFBE)
+# [1] 123.46591  58.87916 196.44030 141.78859 146.23614
+
+# Total log BF
+sum(log(trainBdpJ10BFBE))
+# [1] 666.8101
+
+```
+
+
+```{r bdpVsNoBLoc_J15}
+# Load the files containing the required likelihoods given the 
+# MCMC with BDP
+trainBdpJ15BFBELikPath = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_14/trainBdpJ15BayesFactorBridgeEstimator.txt_liks.txt"
+trainBdpJ15BFBEPath.df = read.table(file = trainBdpJ15BFBELikPath, header = T, as.is = T)
+# MCMC with NoB-LoC
+trainBdpJ15BFBELikPath = 
+  "/Users/chwu/Documents/research/bfc/analysis/2023_09_14/trainNoBLoCJ15BayesFactorBridgeEstimator.txt_liks.txt"
+trainNoBLoCJ15BBFBELik.df = read.table(file = trainBdpJ15BFBELikPath, header = T, as.is = T)
+
+# Calculate the bridge estimator
+trainBdpJ15BFBE = 
+  allFluidTypesBayesFactorBridgeEstimator(mcmc1Log.df = trainBdpJ15BFBEPath.df, 
+           mcmc2Log.df = trainNoBLoCJ15BBFBELik.df, 
+           mcmc1Lik1Prefix = "multitypeLikelihood",
+           mcmc1Lik2Prefix = "NoB.LoC",
+           mcmc2Lik1Prefix = "BDP",
+           mcmc2Lik2Prefix = "multitypeLikelihood",
+           typeIndices = c(0:4))
+
+# log BF per fluid type
+log(trainBdpJ15BFBE)
+# [1] 125.20116  59.49475 194.19658 138.50762 143.28620
+
+# Total log BF
+sum(log(trainBdpJ15BFBE))
+# [1] 660.6863
+
+```
