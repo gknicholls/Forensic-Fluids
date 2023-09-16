@@ -173,9 +173,13 @@ trainBDPJ1L1LogHPD50MargLikVec = getLogHPDMargLikList(clustPostDistrList = train
                                                   clustMat = trainBDPJ1L1EltSortedClustMat, 
                                                   mcmcLog.df = trainBDPJ1L1.df,
                                                   hpd = 0.5)
+
 trainBDPJ1L1LogHPD50MargLikVec 
 #       CVF       MTB       SLV       BLD       SMN 
 # -659.3046 -397.5837 -469.9341 -208.2522 -508.2314 
+
+sum(trainBDPJ1L1LogHPD50MargLikVec/log(10))
+
 ```
 
 ```{r bdp_J5_Lmax}
@@ -205,7 +209,9 @@ trainBDPJ1LmaxLogHPD50MargLikVec =
 
 trainBDPJ1LmaxLogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
-# -587.7687 -343.0809 -406.9861 -181.7530 -475.1598 
+# -587.7687 -343.0809 -406.9861 -181.7530 -475.1598
+
+sum(trainBDPJ1LmaxLogHPD50MargLikVec/log(10))
 ```
 
 
@@ -237,6 +243,9 @@ trainBDPJ5LogHPD50MargLikVec =
 trainBDPJ5LogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
 # -411.9722 -330.4622 -329.7755 -152.7926 -380.1920 
+
+# log10(marginal likelihood)
+sum(trainBDPJ5LogHPD50MargLikVec/log(10))
 ```
 
 
@@ -269,6 +278,10 @@ trainBDPJ10LogHPD50MargLikVec =
 trainBDPJ10LogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
 # -413.8953 -330.9179 -329.5388 -153.2891 -383.0709
+
+# log10(marginal likelihood)
+sum(trainBDPJ10LogHPD50MargLikVec/log(10))
+# [1] -699.5234
 ```
 
 ```{r bdp_J15}
@@ -291,14 +304,17 @@ colnames(trainBDPJ15EltSortedClustMat) = bfLabels
 # Get the posterior distribution of the subtype clusterings for each fluid type, i.e., \hat{p}(R_f|X_f)'s
 trainBDPJ15ClustPostDistrList = getSubtypeClustPosterior(trainBDPJ15EltSortedClustMat)
 # Calculate the candidate estimate of marginal likelihood for each fluid type \hat{p}(X_f)
-trainBDPJ15LogMargLikVec = 
+trainBDPJ15LogHPD50MargLikVec = 
   getLogHPDMargLikList(clustPostDistrList = trainBDPJ15ClustPostDistrList, 
                        clustMat = trainBDPJ15EltSortedClustMat, 
                        mcmcLog.df = trainBDPJ15.df, hpdProp = 0.5)
 
-trainBDPJ15LogMargLikVec
+trainBDPJ15LogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
 # -417.9894 -334.4891 -331.7949 -155.9580 -387.1673 
+
+sum(trainBDPJ15LogHPD50MargLikVec/log(10))
+# -706.7703
 ```
 
 ```{r BDP_calc_BF_to_compare_J}
@@ -349,7 +365,10 @@ trainNoBLoCJ5LogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
 # -543.5088 -387.9362 -527.4707 -294.2015 -525.4983
 
-sum(trainBDPJ5LogHPD50MargLikVec - trainNoBLoCJ5LogMargLikHPD50)
+# log10(marginal likelihood)
+sum(trainNoBLoCJ5LogHPD50MargLikVec/log(10))
+
+
 ```
 
 
@@ -381,7 +400,10 @@ trainNoBLoCJ10LogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
 # -548.4427 -391.4157 -532.5672 -298.0815 -530.5880 
 
-sum(trainBDPJ10LogHPD50MargLikVec  - trainNoBLoCJ10LogHPD50MargLikVec)
+# log10(marginal likelihood)
+sum(trainNoBLoCJ10LogHPD50MargLikVec/log(10))
+
+
 ```
 
 ```{r nob-loc_J15}
@@ -412,7 +434,20 @@ trainNoBLoCJ15LogHPD50MargLikVec
 #       CVF       MTB       SLV       BLD       SMN 
 # -548.4427 -391.4157 -532.5672 -298.0815 -530.5880 
 
-sum(trainBDPJ15LogHPD50MargLikVec  - trainNoBLoCJ15LogHPD50MargLikVec)
+
+# log10(marginal likelihood)
+sum(trainNoBLoCJ15LogHPD50MargLikVec/log(10))
+
+```
+
+
+```{r}
+sum((trainBDPJ5LogHPD50MargLikVec  - 
+       trainNoBLoCJ5LogHPD50MargLikVec)/log(10))
+sum((trainBDPJ10LogHPD50MargLikVec  - 
+       trainNoBLoCJ10LogHPD50MargLikVec)/log(10))
+sum((trainBDPJ15LogHPD50MargLikVec  - 
+       trainNoBLoCJ15LogHPD50MargLikVec)/log(10))
 ```
 
 # Bridge estimator
@@ -442,9 +477,9 @@ trainBdpJ5BFBE =
 log(trainBdpJ5BFBE)
 # [1] 123.01494  57.16643 193.95269 139.74212 142.40324
 
-# Total log BF
-sum(log(trainBdpJ5BFBE))
-# [1] 656.2794
+# Total log10 BF
+sum(log10(trainBdpJ5BFBE))
+# [1] 285.0185
 
 ```
 
@@ -474,8 +509,8 @@ log(trainBdpJ10BFBE)
 # [1] 123.46591  58.87916 196.44030 141.78859 146.23614
 
 # Total log BF
-sum(log(trainBdpJ10BFBE))
-# [1] 666.8101
+sum(log10(trainBdpJ10BFBE))
+# 289.5919
 
 ```
 
@@ -506,7 +541,7 @@ log(trainBdpJ15BFBE)
 # [1] 125.20116  59.49475 194.19658 138.50762 143.28620
 
 # Total log BF
-sum(log(trainBdpJ15BFBE))
+sum(log10(trainBdpJ15BFBE))
 # [1] 660.6863
 
 ```
