@@ -1,0 +1,124 @@
+---
+title: Post-processing of the output files from the Bayesian- and Cut-Model inference
+  of forensic body fluid classification.
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+
+```{r}
+# Counts the number of subtypes in a fluid type,
+# given a subtype clustering configuration across five fluid types
+getTypeDistr <- function(postTypeVar){
+  
+  counts<-sapply(c(0:4), 
+                 function(type, post.type){
+                   length(which(post.type == type))
+                 }, post.type = postTypeVar)
+  
+  return(counts/length(postTypeVar))
+}
+
+
+# Summarises the posterior distribution of 
+# the number of subtypes for each of the five fluid types
+getSubtypeCounts = function(typeList = NULL){
+  setList = strsplit(typeList, split = " ")
+  setCountList  = lapply(setList , function(z){
+    unlist(lapply(strsplit(z, split = "],[", fixed = T), length))
+  })
+  setCountMat = do.call(rbind, setCountList)
+  colnames(setCountMat) = c("CVF", "MTB", "SLV", "BLD", "SMN")
+  return(setCountMat)
+}
+
+
+# Summarises the posterior distribution of the fluid type
+getCountDistr = function(tabList = NULL, vecLength = NULL){
+  
+  countDistrList = lapply(tabList, function(countTab, vecLength){
+    setCountDistrVec = rep(0, vecLength)
+    setCountDistrVec[as.numeric(names(countTab))] = as.numeric(countTab)/sum(countTab)
+    return(setCountDistrVec)
+  }, vecLength = vecLength)
+  
+  return(do.call(rbind, countDistrList))
+}
+```
+
+# Loading the output files into R
+
+```{r load_output_files}
+# Bayesian analysis with BDP (J_f = 5 & L_g = M_g)
+rowJ5ColJMax.df = read.table(file = "testSamplesBin_2022_09_22_bayes_all.log",
+                             header = T, as.is = T, sep = "\t")
+rowJ5ColJMax.df = rowJ5ColJMax.df[-c(1:ceiling(nrow(rowJ5ColJMax.df)/10)),]
+dim(rowJ5ColJMax.df )
+
+getSubtypeCounts(rowJ5ColJMax.df$typeList[1])
+
+# Cut-Model analysis with BDP (J_f = 5 & L_g = M_g)
+rowJ5ColJMaxCut.df = read.table(file = "testSamplesBin_2022_09_22_cut_side_all.log",
+                                header = T, as.is = T, sep = "\t")
+rowJ5ColJMaxCut.df = rowJ5ColJMaxCut.df [-c(1:ceiling(nrow(rowJ5ColJMaxCut.df)/10)),]
+dim(rowJ5ColJMaxCut.df)
+
+```
+
+# Posterior distribution of the fluid type 
+
+## Baysian inference 
+
+
+```{r bayes_summary_fluid_type_posterior}
+rowJ5ColJMaxTestProfileTypePosterior = 
+  t(apply(rowJ5ColJMax.df[,paste("unknownType", c(0:45), sep = ".")], 2, getTypeDistr))
+colnames(rowJ5ColJMaxTestProfileTypePosterior) = c("CVF", "MTB", "SLV", "BLD", "SMN")
+rowJ5ColJMaxTestProfileTypePosterior = round(rowJ5ColJMaxTestProfileTypePosterior, 3)
+rowJ5ColJMaxTestProfileTypePosterior
+```
+
+## Cut-Model inference
+
+```{r cut-model_summary_fluid_type_posterior}
+rowJ5ColJMaxCutTestProfileTypePosterior = 
+  t(apply(rowJ5ColJMaxCut.df[,paste("unknownType", c(0:45), sep = ".")], 2, getTypeDistr))
+colnames(rowJ5ColJMaxCutTestProfileTypePosterior) = c("CVF", "MTB", "SLV", "BLD", "SMN")
+rowJ5ColJMaxCutTestProfileTypePosterior = round(rowJ5ColJMaxCutTestProfileTypePosterior, 3)
+rowJ5ColJMaxCutTestProfileTypePosterior
+```
+
+
+# Posterior distribution of the number of subtypes within each fluid type
+
+```{r posterior_distr_subtype_count}
+# Bayesian analysis
+rowJ5ColJMaxSetCountMat = getSubtypeCounts(rowJ5ColJMax.df$typeList)
+rowJ5ColJMaxSetCountTabList = apply(rowJ5ColJMaxSetCountMat, 2, table)
+rowJ5ColJMaxSetCountDistr = getCountDistr(rowJ5ColJMaxSetCountTabList, 5)
+colnames(rowJ5ColJMaxSetCountDistr ) = c(1:ncol(rowJ5ColJMaxSetCountDistr ))
+
+# Cut-Model analysis
+rowJ5ColJMaxCutSetCountMat = getSubtypeCounts(rowJ5ColJMaxCut.df$typeList)
+rowJ5ColJMaxCutSetCountTabList = apply(rowJ5ColJMaxCutSetCountMat, 2, table)
+rowJ5ColJMaxCutSetCountDistr = getCountDistr(rowJ5ColJMaxCutSetCountTabList, 5)
+colnames(rowJ5ColJMaxCutSetCountDistr ) = c(1:ncol(rowJ5ColJMaxCutSetCountDistr ))
+```
+
+
+```{r plot_posterior_distr_subtype_count, fig.height=3.5}
+par(mfrow = c(1, 2), mar = c(4, 5, 2.25, 2), las = 1)
+barplot(rowJ5ColJMaxSetCountDistr[,-1], beside = T, ylim = c(0, 0.8),
+        xlab = c(expression("Bayes:"~italic(J)[italic(f)]~
+                              "= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)])),
+        ylab = "Posterior probability")
+mtext("(a)", adj = -0.45, line = 0.6, cex = 0.7)
+barplot(rowJ5ColJMaxCutSetCountDistr[,-1], beside = T, ylim = c(0, 0.8),
+        xlab = c(expression("Cut:"~italic(J)[italic(f)]~
+                              "= 5  & "~italic(L)[italic(g)]~"="~italic(M)[italic(g)])),
+        ylab = "Posterior probability")
+mtext("(b)", adj = -0.45, line = 0.6, cex = 0.7)
+legend("topright", rownames(rowJ5ColJMaxSetCountDistr), 
+       pch = 15, bty = "n", col = gray(1:5/5), cex = 1)
+```
