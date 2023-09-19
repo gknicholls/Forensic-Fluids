@@ -61,3 +61,14 @@ java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluidCutModel testSa
 * The "testSamplesBin_2022_09_22_cut_bdp_J5_all.txt" file is a text file with two columns that specifies all information and data required to execute the analysis. Therefore, it includes comma-delimited files for the test and training mRNA profile data, as well as pre-computed input files ("allPartitionSets5.txt" and "allPartitionSets7.txt") to speed up the calculation as in the Bayesian analysis.
 
 The output file "testSamplesBin_2022_09_22_cut_bdp_J5_all.log" is produced, when running the command line presented earlier in this section. This contains the Cut-Model posterior samples of the classification of the test mRNA profiles, allowing us to  plot the posterior distribution of the subtypes (see Section 3 below).
+
+---
+
+# Section 3: Post-MCMC analysis
+
+In the output files from the MCMC simulations, the fluid type classification is embedded in the posterior distribution of subtype clustering configuration of the training and test profiles.
+Therefore, some post-processing in R is required to extract some information of interest.
+
+The R markdown file postMCMCSummaries.Rmd provides a couple of examples of the summaries used in the paper, namely, 1) the posterior distribution of the fluid type of an unlabelled profile, and 2) the posterior distribution of the number of subtypes given a fluid type (i.e., Figure 10 a & b).
+
+To run postMCMCSummaries.Rmd, please ensure that the output files testSamplesBin_2022_09_22_bayes_bdp_J5_all.log and testSamplesBin_2022_09_22_cut_bdp_J5_all.log are in the same folder as your working directory.
