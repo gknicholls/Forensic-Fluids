@@ -27,6 +27,9 @@ For this example, thinning is applied to save space, and only every 10000th samp
 
 Once the analysis is completed, we can use the "testSamplesBin_2022_09_22_bayes_bdp_J5_all.log" file to plot the posterior distribution of the subtypes (see Section 3 below).
 
+
+---
+
 # Section 2: Classification of Forensic Body Fluids by Cut-Model Inference
 
 This example again uses the 46 test mRNA profiles in Section 1, but here, they are classified jointly using the BDP in Cut-Model inference. Therefore, the analysis consists of two stages.
