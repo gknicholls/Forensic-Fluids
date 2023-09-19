@@ -51,7 +51,7 @@ getCountDistr = function(tabList = NULL, vecLength = NULL){
 
 ```{r load_output_files}
 # Bayesian analysis with BDP (J_f = 5 & L_g = M_g)
-rowJ5ColJMax.df = read.table(file = "testSamplesBin_2022_09_22_bayes_all.log",
+rowJ5ColJMax.df = read.table(file = "testSamplesBin_2022_09_22_bayes_bdp_J5_all.log",
                              header = T, as.is = T, sep = "\t")
 rowJ5ColJMax.df = rowJ5ColJMax.df[-c(1:ceiling(nrow(rowJ5ColJMax.df)/10)),]
 dim(rowJ5ColJMax.df )
@@ -59,7 +59,7 @@ dim(rowJ5ColJMax.df )
 getSubtypeCounts(rowJ5ColJMax.df$typeList[1])
 
 # Cut-Model analysis with BDP (J_f = 5 & L_g = M_g)
-rowJ5ColJMaxCut.df = read.table(file = "testSamplesBin_2022_09_22_cut_side_all.log",
+rowJ5ColJMaxCut.df = read.table(file = "testSamplesBin_2022_09_22_cut_bdp_J5_all.log",
                                 header = T, as.is = T, sep = "\t")
 rowJ5ColJMaxCut.df = rowJ5ColJMaxCut.df [-c(1:ceiling(nrow(rowJ5ColJMaxCut.df)/10)),]
 dim(rowJ5ColJMaxCut.df)
