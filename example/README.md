@@ -4,7 +4,7 @@ In this example, 46 test mRNA profiles (saved in the comma-delimited file, testS
 
 The BDP is trained using labeled 321 labelled mRNA profiles (saved in the following five comma delimited files): 
 
-* 59 cervical fluid profiles (singleBin_cvf.csv)
+* 59 cervical fluid profiles (\texttt{singleBin_cvf.csv})
 * 31 menstrual blood profiles (singleBin_mtb.csv)
 * 80 saliva profiles (singleBin_slv.csv)
 * 65 blood profiles (singleBin_bld.csv)
