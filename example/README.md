@@ -22,7 +22,7 @@ java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid trainSamples_2
 
 * The ClassifyForensicFluid.jar bundle contains all the compiled java codes that implements classification by BDP, and java 14.0.1 or above is required execute this file.
 * classify.ClassifyForensicFluid indicates the main class to be called in the ClassifyForensicFluid.jar bundle to start the software program.
-* The "trainSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specifies all information and data required for the analysis.
+* The "trainSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specifies all information and data required for the analysis. Apart from the mRNA profiles data files, i.e., the comma-delimited files mentioned above, this input file also requires some pre-computed inputs to speed up the calculation, which are all the partition configurations for a given marker group, and they are stored in the text files "allPartitionSets5.txt" and "allPartitionSets7.txt."
 
 Shortly after running the above command, a text file, "testSamplesBin_2022_09_22_bayes_bdp_J5_all.log" will be produced, and  the posterior samples simulated by MCMC is stored in this file. 
 For this example, thinning is applied to save space, and only every 10000th sample is recorded.
