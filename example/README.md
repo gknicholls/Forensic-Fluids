@@ -1,3 +1,9 @@
+# Introduction
+
+We present a couple examples of how to run the java codes that implements BDP classification of forensic body fluids.
+These examples are selected from the analysis presented in the paper by Wu, C. H., Roeder, A. D., & Nicholls, G. K. (2023).
+Java 14.0.1 or above is required.
+
 # Section 1: Classification of Forensic Body Fluids by Bayesian Inference
 
 In this example, 46 test mRNA profiles (saved in the comma-delimited file, testSamplesBin_2022_09_22_unknown.csv) are classified by jointly using the BDP in Bayesian inference.
@@ -18,7 +24,7 @@ To run the analysis at the command line, use the following command:
 java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid trainSamples_2022_09_22_bayes_bdp_J5.txt
 
 
-* The ClassifyForensicFluid.jar bundle contains all the compiled java codes that implements classification by BDP, and java 14.0.1 or above is required execute this file.
+* The ClassifyForensicFluid.jar bundle contains all the compiled java codes that implements classification by BDP.
 * classify.ClassifyForensicFluid is the main class to be called in the ClassifyForensicFluid.jar bundle to start the software program for the Bayesian analysis.
 * The "trainSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specifies all information and data required for the analysis. Apart from the mRNA profiles data files, i.e., the comma-delimited files mentioned above, this input file also requires some pre-computed inputs to speed up the calculation, which are all the partition configurations for a given marker group, and they are stored in the text files "allPartitionSets5.txt" and "allPartitionSets7.txt."
 
