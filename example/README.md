@@ -1,9 +1,8 @@
 # Introduction
 
-We present a couple of examples on how to run the java codes that implements  classification of forensic body fluids via BDP.
+We present a couple of examples of how to run the Java codes that implement the classification of forensic body fluids via BDP.
 These examples are selected from the analysis presented in the paper by Wu, C. H., Roeder, A. D., & Nicholls, G. K. (2023) and cover both Bayesian and Cut-Model analyses.
-Section 1 explains how to execute the body fluid classification via BDP in Bayesian inference.
-In Section 2, the analysis is performed in Cut-Model inference instead.
+Section 1 explains how to execute the body fluid classification via BDP in Bayesian inference, while Section 2 shows how to perform the classification in Cut-Model inference instead.
 Section 3 demonstrates how some summaries of interest are extracted by post-processing.
 
 
