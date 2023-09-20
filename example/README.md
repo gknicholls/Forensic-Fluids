@@ -1,7 +1,7 @@
 # Introduction
 
 We present a couple examples of how to run the java codes that implements BDP classification of forensic body fluids.
-These examples are selected from the analysis presented in the paper by Wu, C. H., Roeder, A. D., & Nicholls, G. K. (2023).
+These examples are selected from the analysis presented in the paper by Wu, C. H., Roeder, A. D., & Nicholls, G. K. (2023), and covers both Bayesian and Cut-Model analyses.
 Java 14.0.1 or above is required.
 
 # Section 1: Classification of Forensic Body Fluids by Bayesian Inference
