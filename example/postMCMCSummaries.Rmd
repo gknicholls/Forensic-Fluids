@@ -49,6 +49,9 @@ getCountDistr = function(tabList = NULL, vecLength = NULL){
 
 # Loading the output files into R
 
+Load the output files from the example classification analyses with BDP into R.
+The output file for Bayesian analysis is \texttt{testSamplesBin\_2022\_09\_22\_bayes\_bdp\_J5\_all.log}, while that for the Cut-Model analysis is \texttt{testSamplesBin\_2022\_09\_22\_cut\_bdp\_J5\_all.log}, which are both tab-delimited files.
+
 ```{r load_output_files}
 # Bayesian analysis with BDP (J_f = 5 & L_g = M_g)
 rowJ5ColJMax.df = read.table(file = "testSamplesBin_2022_09_22_bayes_bdp_J5_all.log",
@@ -66,9 +69,14 @@ dim(rowJ5ColJMaxCut.df)
 
 ```
 
-# Posterior distribution of the fluid type 
+# Posterior distribution of the fluid type
+
+The main result of interest is fluid type classification, so in this section, we produce numeric matrices that summaries the posterior distribution across the five fluid types for each unlabelled profile.
+These numeric matrices have 46 rows and five columns, respectively corresponding to 46 unlabelled profiles in the test set and the five fluid types considered.
+
 
 ## Baysian inference 
+
 
 
 ```{r bayes_summary_fluid_type_posterior}
@@ -91,6 +99,9 @@ rowJ5ColJMaxCutTestProfileTypePosterior
 
 
 # Posterior distribution of the number of subtypes within each fluid type
+
+This section summarises the posterior distribution of the number of subtypes within each fluid type.
+Specifically, the code below created the barplots in Figure 10 panels a) and b).
 
 ```{r posterior_distr_subtype_count}
 # Bayesian analysis
