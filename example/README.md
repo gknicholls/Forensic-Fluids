@@ -10,16 +10,18 @@ Java (version 14.0.1 or above) is required for Sections 1 & 2, while Section 3 u
 
 # Section 1: Classification of Forensic Body Fluids by Bayesian Inference
 
-In this example, the 46 mRNA profiles in a test dataset (saved in the comma-delimited file, testSamplesBin_2022_09_22_unknown.csv) are classified by jointly using the BDP in Bayesian inference. These test profiles are treated as if their labels were unknown.
+In this example, the 46 mRNA profiles in a test dataset (saved in the comma-delimited file, testSamplesBin_2022_09_22_unknown.csv) are classified by jointly using BDP-CaRMa in Bayesian inference. 
+These test profiles are treated as if their labels were unknown.
 
-The BDP is trained using labelled 321 labelled mRNA profiles (saved in the following five comma delimited files): 
+The BDP-CaRMa is fitted to the 321 labelled mRNA profiles (saved in the following five comma delimited files): 
 
 * 59 cervical fluid profiles (singleBin_cvf.csv)
 * 31 menstrual blood profiles (singleBin_mtb.csv)
 * 80 saliva profiles (singleBin_slv.csv)
 * 65 blood profiles (singleBin_bld.csv)
 * 86 semen profiles (singleBin_smn.csv)
-In the Bayesian analysis, the training of BDP and the classification of test mRNA profiles are carried out jointly in a single analysis. Here, we assume that the number of subtypes within each body fluid type does not exceed five.
+In the Bayesian analysis, fitting a BDP-CaRMa model and the classification of test mRNA profiles are carried out jointly in a single analysis. 
+Here, we assume that the number of subtypes within each body fluid type does not exceed five.
 
 
 To run the analysis at the command line, use the following command:
@@ -27,7 +29,7 @@ To run the analysis at the command line, use the following command:
 java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid trainSamples_2022_09_22_bayes_bdp_J5.txt
 
 
-* The ClassifyForensicFluid.jar bundle contains all the compiled Java codes for implementing classification by BDP.
+* The ClassifyForensicFluid.jar bundle contains all the compiled Java codes for implementing classification by BDP-CaRMa.
 * classify.ClassifyForensicFluid is the main class to be called in the ClassifyForensicFluid.jar bundle to start the software program for the Bayesian analysis.
 * The "trainSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specify all information and data required for the analysis. Apart from the mRNA profiles data files, i.e., the comma-delimited files mentioned above, this input file also specifies pre-computed inputs for speeding up the calculation, namely, all the partition configurations for a given marker group, which are stored in the text files "allPartitionSets5.txt" and "allPartitionSets7.txt."
 
@@ -41,14 +43,16 @@ Once the analysis is completed, we can use the output file, "testSamplesBin_2022
 
 # Section 2: Classification of Forensic Body Fluids by Cut-Model Inference
 
-This example again uses the 46 test profiles in Section 1, but here, they are classified jointly using the BDP in Cut-Model inference instead. 
+This example again uses the 46 test profiles in Section 1, but here, they are classified jointly by BDP-CaRMa in Cut-Model inference instead. 
 Therefore, the analysis consists of two stages.
-Sections 2.1 and 2.2 respectively explain how to execute the Java codes implementing BDP for Stages 1 and 2 of the Cut-Model analysis.
+Sections 2.1 and 2.2 respectively explain how to execute the Java codes implementing BDP-CaRMa for Stages 1 and 2 of the Cut-Model analysis.
 
 
 ## Section 2.1: Stage 1 of Cut-Model Inference:
 
-In Stage 1, we train the BDP using the training data only. The training data containing 321 mRNA profiles is the same as in Section 1. We assume that the number of subtypes within each body fluid type does not exceed five.
+In Stage 1, we fit the BDP-CaRMa to the training data only. 
+The training data containing 321 mRNA profiles is the same as in Section 1.
+We assume that the number of subtypes within each body fluid type does not exceed five.
 
 To perform Stage 1 of the Cut-Model analysis at the command line, use the following command:
 
@@ -56,14 +60,15 @@ java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid trainSamples_2
 
 * ClassifyForensicFluid.jar and classify.ClassifyForensicFluid is the same as in Section 1.
 * The "trainSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specify all the information and data required for Stage 1 of the analysis.
-The key difference between this text file and "trainSamples_2022_09_22_bayes_bdp_J5.txt" in Section 1 is that "trainSamples_2022_09_22_bayes_bdp_J5.txt" must *only* specify the training profile data files and so provides no information on the unlabelled profiles to be classified.
+The key difference between this text file and "trainSamples_2022_09_22_bayes_bdp_J5.txt" in Section 1 is that "trainSamples_2022_09_22_bayes_bdp_J5.txt" must *only* specify the training data files and so provides no information on the unlabelled profiles to be classified.
 
 This analysis produces an output file called "trainSamples_2022_09_22_bayes_bdp_J5.log," which contains posterior samples of the subtype clustering for each fluid type given the training data. 
 This serves as the _main chain_ of Stage 2 of the Cut-Model analysis.
 
 ## Section 2.2: Stage 2 of Cut-Model Inference:
 
-In Stage 2, we fix the subtype clustering of the training profiles to the simulated posterior distribution obtained in Stage 1. Then, for each sample drawn from this posterior distribution, we infer the fluid type of the 46 test profiles jointly using Gibbs sampling.
+In Stage 2, we fix the subtype clustering of the training profiles to the simulated posterior distribution obtained in Stage 1. 
+Then, for each sample drawn from this posterior distribution, we infer the fluid type of the 46 test profiles jointly using Gibbs sampling.
 
 To perform Stage 2 of the Cut-Model analysis at the command line, run the following command:
 
