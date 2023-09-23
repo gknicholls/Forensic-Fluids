@@ -26,12 +26,12 @@ Here, we assume that the number of subtypes within each body fluid type does not
 
 To run the analysis at the command line, use the following command:
 
-java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid testSamples_2022_09_22_bayes_bdp_J5.txt
+java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid testSamples_2022_09_22_bayes_bdp_J5_all.txt
 
 
 * The ClassifyForensicFluid.jar bundle contains all the compiled Java codes for implementing classification by BDP-CaRMa.
 * classify.ClassifyForensicFluid is the main class to be called in the ClassifyForensicFluid.jar bundle to start the software program for the Bayesian analysis.
-* The "testSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specify all information and data required for the analysis. Apart from the mRNA profiles data files, i.e., the comma-delimited files mentioned above, this input file also specifies pre-computed inputs for speeding up the calculation, namely, all the partition configurations for a given marker group, which are stored in the text files "allPartitionSets5.txt" and "allPartitionSets7.txt."
+* The "testSamples_2022_09_22_bayes_bdp_J5_all.txt" file is a text file with two columns that specify all information and data required for the analysis. Apart from the mRNA profiles data files, i.e., the comma-delimited files mentioned above, this input file also specifies pre-computed inputs for speeding up the calculation, namely, all the partition configurations for a given marker group, which are stored in the text files "allPartitionSets5.txt" and "allPartitionSets7.txt."
 
 Shortly after running the above command, a text file, "testSamplesBin_2022_09_22_bayes_bdp_J5_all.log" will be produced, and the posterior samples simulated by MCMC will be stored in this file. 
 For this example, thinning is applied to save space, and only every 10000th sample is recorded.
@@ -60,7 +60,7 @@ java -cp ClassifyForensicFluid.jar classify.ClassifyForensicFluid trainSamples_2
 
 * ClassifyForensicFluid.jar and classify.ClassifyForensicFluid is the same as in Section 1.
 * The "trainSamples_2022_09_22_bayes_bdp_J5.txt" file is a text file with two columns that specify all the information and data required for Stage 1 of the analysis.
-The key difference between this text file and "testSamples_2022_09_22_bayes_bdp_J5.txt" in Section 1 is that "trainSamples_2022_09_22_bayes_bdp_J5.txt" must *only* specify the training data files and so provides no information on the unlabelled profiles to be classified.
+The key difference between this text file and "testSamples_2022_09_22_bayes_bdp_J5_all.txt" in Section 1 is that "trainSamples_2022_09_22_bayes_bdp_J5.txt" must *only* specify the training data files and so provides no information on the unlabelled profiles to be classified.
 
 This analysis produces an output file called "trainSamples_2022_09_22_bayes_bdp_J5.log," which contains posterior samples of the subtype clustering for each fluid type given the training data. 
 This serves as the _main chain_ of Stage 2 of the Cut-Model analysis.
