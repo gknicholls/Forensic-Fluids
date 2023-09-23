@@ -17,7 +17,7 @@ public class CompoundNoBLoCLikelihood extends CompoundClusterLikelihood{
         super(label, eltsAllPartSetList,
                 eltsAllPartSetPriorList, multiTypeSamples,
                 alphaCValues, betaCValues, typeClusters);
-        System.err.println("Using NoB-LoC model set up.");
+
     }
 
     public CompoundNoBLoCLikelihood(String label,
@@ -30,7 +30,6 @@ public class CompoundNoBLoCLikelihood extends CompoundClusterLikelihood{
         super(label, eltsAllPartSetList,
                 eltsAllPartSetPriorList, multiTypeSamples,
                 alphaC, betaC, typeClusters);
-        System.err.println("Using NoB-LoC model set up.");
     }
 
     public void setUp(){

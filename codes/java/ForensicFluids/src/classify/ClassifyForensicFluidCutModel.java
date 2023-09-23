@@ -239,7 +239,8 @@ public class ClassifyForensicFluidCutModel {
 
 
 
-        System.out.println("Seed: " + seed);
+        System.err.println("Seed: " + seed);
+        System.err.println("Cut-Model inference of forensic body fluid classification");
 
         mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         colPriors = DataUtils.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);

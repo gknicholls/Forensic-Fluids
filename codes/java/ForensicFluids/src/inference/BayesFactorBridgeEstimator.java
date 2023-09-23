@@ -2,18 +2,15 @@ package inference;
 
 import data.CompoundMarkerData;
 import data.CompoundMarkerDataWithUnknown;
-import distribution.Multinomial;
-import model.AbstractProbability;
 import model.CompoundClusterLikelihood;
-import model.CompoundClusterPrior;
 import model.CompoundNoBLoCLikelihood;
 import state.*;
 import utils.DataUtils;
 import utils.ParamUtils;
-import utils.Randomizer;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +21,7 @@ import java.util.concurrent.Executors;
 /**
  * Created by jessiewu on 20/12/2022.
  */
-public class BFBridgeEstimator {
+public class BayesFactorBridgeEstimator {
     private String inputFile;
 
     public static String ALL_PARTS_SETS_5 = "allPartitionSets5File";
@@ -59,7 +56,6 @@ public class BFBridgeEstimator {
     private boolean useNoBLoC;
     private String[] likNames;
     private String otherModelName;
-    private double[] weightedLiks;
     private int burnin;
 
     static public int threadCount = 1;
@@ -69,8 +65,9 @@ public class BFBridgeEstimator {
 
         try {
             for(int fileIndex = 0; fileIndex < args.length; fileIndex++){
-                BFBridgeEstimator bfc = new BFBridgeEstimator(args[fileIndex]);
+                BayesFactorBridgeEstimator bfc = new BayesFactorBridgeEstimator(args[fileIndex]);
                 bfc.computeWeightML();
+
             }
 
 
@@ -83,7 +80,7 @@ public class BFBridgeEstimator {
 
 
 
-    public BFBridgeEstimator(String inputFile) throws Exception{
+    public BayesFactorBridgeEstimator(String inputFile) throws Exception{
         this.inputFile = inputFile;
         colRange = COL_RANGE;
         processInputFile();
@@ -157,7 +154,7 @@ public class BFBridgeEstimator {
             }else if(currLabel.equals(LIK_NAME)) {
 
                 likNameList.add(lineElts[1].trim());
-                likNameList.toArray(likNames);
+
             }else if(currLabel.equals(OTHER_MODEL_NAME)){
                 otherModelName = lineElts[1].trim();
             }else if(currLabel.equals(USE_NOBLOC)){
@@ -173,9 +170,9 @@ public class BFBridgeEstimator {
         }
         inputReader.close();
 
-
-
-
+        if(useNoBLoC){
+            System.err.println("Using NoB-LoC model set up.");
+        }
 
         mkrGrpPartitions =
                 DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
@@ -184,6 +181,7 @@ public class BFBridgeEstimator {
                         allPartitionSets5File, allPartitionSets7File);
         shapeAParams = setupShapeParameters(colShapeAList, "shapeA");
         shapeBParams = setupShapeParameters(colShapeBList, "shapeB");
+        likNames = new String[likNameList.size()];
         likNameList.toArray(likNames);
 
     }
@@ -202,12 +200,13 @@ public class BFBridgeEstimator {
                 likNameIndexes[typeIndex] = findLogColumnIndex(mainChainLogLine, likNames[typeIndex], "\t");
             }
             double[] liks = new double[likNames.length];
-            weightedLiks = new double[likNames.length];
+            double[] weightedLiks = new double[likNames.length];
             String[] logElts;
 
             int stepNum;
             double[] typeLogLiks;
-            PrintWriter likWriter = new PrintWriter(inputFile+"_liks.txt");
+            PrintStream likWriter = new PrintStream(inputFile+"_liks.txt");
+            likWriter.print("STATE\t");
             for(int typeIndex = 0; typeIndex < likNameIndexes.length; typeIndex++){
                 likWriter.print(likNames[typeIndex] + "\t");
 
@@ -221,16 +220,22 @@ public class BFBridgeEstimator {
 
                 logElts = mainChainLogLine.split("\t");
                 stepNum = Integer.parseInt(logElts[stateNameIndex]);
+
+                if((stepNum%1000000) == 0){
+                    System.out.println(stepNum);
+                }
+
                 if((stepNum - burnin) >= 0) {
+                    likWriter.print(stepNum  + "\t");
 
 
                     //Create the TypeList for the clustering of the training data of the current posterior sample.
+
                     TypeList typeList = ParamUtils.createTypeList(
                             totalObsCounts, maxRowClustCount, logElts[clusterIndex], null, -1);
                     typeLogLiks = new double[typeList.getTypeCount()];
 
-                    CompoundMarkerDataWithUnknown dataSets =
-                            (CompoundMarkerDataWithUnknown) DataUtils.createData(
+                    CompoundMarkerData  dataSets = createData(
                                     rnaProfilePathList, null, totalObsCounts,
                                     colRange, unknownCount, typeList);
 
@@ -252,8 +257,10 @@ public class BFBridgeEstimator {
                     for(int typeIndex = 0; typeIndex < liks.length; typeIndex++){
                         liks[typeIndex] = Double.parseDouble(logElts[likNameIndexes[typeIndex]]);
                         likWriter.print(liks[typeIndex]+"\t");
+
                     }
 
+                    lik.getLogLikelihood();
                     lik.getLogTypeLikelihoods(typeLogLiks);
 
 
@@ -271,6 +278,11 @@ public class BFBridgeEstimator {
 
 
             }
+            for(int typeIndex = 0; typeIndex < weightedLiks.length; typeIndex++){
+                System.out.print(weightedLiks[typeIndex]+"\t");
+            }
+            System.out.println();
+            likWriter.close();
 
         }catch (Exception e){
             throw new RuntimeException(e);
@@ -308,6 +320,37 @@ public class BFBridgeEstimator {
 
         return shapeParams;
 
+    }
+
+
+    private CompoundMarkerData createData(ArrayList<String> dataPathList,
+                                          String unknownPath, int[] totalObsCounts, int[][] colRange,
+                                          int unknownCount,
+                                          TypeList typeList) throws RuntimeException{
+        if(dataPathList.size() != totalObsCounts.length){
+            throw new RuntimeException("The number of data files does not match the number of type specific sample sizes.");
+        }
+        String[] dataPath = new String[dataPathList.size()];
+        dataPathList.toArray(dataPath);
+
+        int[][] rowInfo = new int[totalObsCounts.length][];
+        int[][][] colInfo = new int[totalObsCounts.length][][];
+        for(int typeIndex = 0; typeIndex < rowInfo.length; typeIndex++){
+            rowInfo[typeIndex] = new int[]{0, totalObsCounts[typeIndex] - 1};
+            colInfo[typeIndex] = colRange;
+        }
+
+        CompoundMarkerData dataSets;
+        if(unknownPath == null){
+            dataSets = new CompoundMarkerData(dataPath, rowInfo,  colInfo);
+        }else{
+            int[] rowInfoUnknown = new int[]{0, unknownCount - 1};
+            dataSets = new CompoundMarkerDataWithUnknown(
+                    dataPath, unknownPath, rowInfo,  colInfo, rowInfoUnknown, colRange, (TypeListWithUnknown) typeList);
+        }
+
+
+        return dataSets;
     }
 
 

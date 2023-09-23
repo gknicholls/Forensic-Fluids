@@ -213,12 +213,15 @@ public class ClassifyForensicFluid {
 
 
 
-        System.out.println("Seed: " + seed);
+        System.err.println("Seed: " + seed);
+        System.err.println("Bayesian inference of forensic body fluid classification");
 
         int[][][][] mkrGrpPartitions = DataUtils.getMkerGroupPartitions(allPartitionSets5File, allPartitionSets7File);
         double[][] colPriors = DataUtils.getColPriors(alpha5, alpha7, allPartitionSets5File, allPartitionSets7File);
 
-        TypeList typeList = ParamUtils.createTypeList(totalObsCounts, maxRowClustCount, clusterStr, unknownPath, initType);
+        TypeList typeList =
+                ParamUtils.createTypeList(totalObsCounts, maxRowClustCount,
+                        clusterStr, unknownPath, initType);
 
 
         CompoundMarkerData dataSets = createData(
@@ -232,7 +235,7 @@ public class ClassifyForensicFluid {
 
         unknownTypePriorParamVals = setUpUnknownTypePrior(unknownTypePriorParamVals, typeList);
 
-        System.out.println("unknownTypePriorParamVals: "+unknownTypePriorParamVals.length);
+        //System.out.println("unknownTypePriorParamVals: "+ unknownTypePriorParamVals.length);
 
         UnlabelledTypeWrapperParameter unknownTypeParam = null;
         if(unknownPath != null){
@@ -269,6 +272,8 @@ public class ClassifyForensicFluid {
                             String unknownPath, int[] totalObsCounts, int[][] colRange,
                             int unknownCount,
                             TypeList typeList) throws RuntimeException{
+        //System.out.println("dataPathList.size(): "+dataPathList.size());
+        //System.out.println("totalObsCounts.length: "+totalObsCounts.length);
         if(dataPathList.size() != totalObsCounts.length){
             throw new RuntimeException("The number of data files does not match the number of type specific sample sizes.");
         }
@@ -364,6 +369,7 @@ public class ClassifyForensicFluid {
                     shapeA,
                     shapeB,
                     typeList);
+            System.err.println("Using NoB-LoC model set up.");
         }else{
             lik = new CompoundClusterLikelihood("multitypeLikelihood",
                     mkrGrpPartitions, colPriors, dataSets,

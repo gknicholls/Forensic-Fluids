@@ -54,36 +54,39 @@ public class NoBLoCLikelihood extends ClusterLikelihood {
     }
 
     public static double[][][] setupBetaTable(SingleMarkerData sample,
-                                            Parameter alphaC,
-                                            Parameter betaC){
+                                              Parameter alphaC, // a specific to fluid type of interest
+                                              Parameter betaC){ // b specific to fluid type of interest
         int markerGrpCount  = sample.getMarkerGroupCount();
+        int partitionSize = -1;
 
-        int maxGroupSize = sample.getMarkerCount(0);
-        int temp;
-        for(int groupIndex = 1; groupIndex < markerGrpCount; groupIndex++){
-            temp = sample.getMarkerCount(groupIndex);
-            if(maxGroupSize < temp){
-                maxGroupSize = temp;
-            }
 
-        }
-
-        double[][][] betaTable = new double[markerGrpCount][maxGroupSize][];
+        double[][][] betaTable = new double[markerGrpCount][][];
         for(int groupIndex = 0; groupIndex < betaTable.length; groupIndex++){
-            for(int i = 0; i < betaTable[groupIndex].length; i++){
-                betaTable[groupIndex][i] = new double[i + 2];
-                for(int j = 0; j < betaTable[groupIndex][i].length; j++){
-                    //System.out.println(groupIndex+" " + (i+1) +" "+j);
-                    betaTable[groupIndex][i][j] = Beta.logBeta(
-                            alphaC.getValue(groupIndex) + j,
-                            betaC.getValue(groupIndex) + i + 1 - j);
+
+            betaTable[groupIndex] = new double[sample.getMarkerCount(groupIndex)][];
+
+            // partSizeIndex + 1 is the column partition size (# markers in a partition) of interest
+            for(int partSizeIndex = 0; partSizeIndex < betaTable[groupIndex].length; partSizeIndex++){
+                partitionSize = partSizeIndex + 1;
+
+                // partSizeIndex + 2 is the column partition size + 1,
+                // because the number of 1's in a partition be 0, ..., partition size (= partSizeIndex + 1).
+                betaTable[groupIndex][partSizeIndex] = new double[partitionSize + 1];
+
+                // Iterate through all possible counts of 1's
+                // betaTable[groupIndex][partSizeIndex].length = partition size + 1 (= partSizeIndex + 2)
+                // so oneCount iterates through 0, ..., partition size
+                for(int oneCount = 0; oneCount < betaTable[groupIndex][partSizeIndex].length; oneCount++){
+
+                    // Calculate the log beta function, i.e., log(Beta(a + #1's, b + #0's))
+                    betaTable[groupIndex][partSizeIndex][oneCount] = Beta.logBeta(
+                            alphaC.getValue(groupIndex) + oneCount, //a + #1's
+                            betaC.getValue(groupIndex) + partitionSize - oneCount); //b + #0's
                 }
 
             }
+
         }
-
-
-
 
         return betaTable;
     }
@@ -117,66 +120,55 @@ public class NoBLoCLikelihood extends ClusterLikelihood {
                                                           int subtypeIndex,
                                                           double[][][] betaTable){
 
+        // The number of the possible column partitions given a marker group
         int partCount = eltsAllPartSet.length;
+        // Constant a and b for a given fluid type and marker group
         double priorBetaNC = Beta.logBeta(alphaC, betaC);
         double logMarkerLik;
 
+        // # Rows in the subtype k of fluid type f, i.e., |R_{f(k)}|
         int subtypeSize = subtypeSets.getSubTypeSetSize(subtypeIndex);
 
-        int[] nonZeros;
-        double[] partLikVec = new double[eltsAllPartSet.length];
+        int[] zeroAndOnes;
+        double[] partLikVec = new double[partCount];
+
+        // Iterate through all possible column partition configurations given a marker group
         for(int partIndex = 0; partIndex < partCount; partIndex++){
-            //System.out.print("colPart: "+partIndex+" ");
 
             logMarkerLik = 0.0;
 
+            // Calculate the numerator product:
+            // Given a partition configuration, we iterate through each set,
+            // i.e., column subgroup, in that partition configuration.
             for(int setIndex = 0; setIndex < eltsAllPartSet[partIndex].length; setIndex++){
-                //System.out.println("set: "+setIndex+" ");
 
-
+                // Given the column subgroup of current column partition configuration,
+                // iterate through each row, i.e., rna profile.
                 for(int rowIndex = 0; rowIndex < subtypeSize; rowIndex++){
-                    nonZeros = CalculateAmplifiedCountPerProfile(
+
+                    // Count the number of 0's & 1's for current profile,
+                    // given the current column subgroup of current column partition configuration
+                    zeroAndOnes = CalculateAmplifiedCountPerProfile(
                             sample,
                             mkrGrpIndex,
-                            eltsAllPartSet[partIndex][setIndex],
-                            subtypeSets.getObs(subtypeIndex, rowIndex));
-                    //double temp1 = Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]);
-                    //double temp2 = betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1]-1][nonZeros[1]];
-                    /*if(temp1 - temp2 > 1e-10){
-                        System.out.println("mkrGrpIndex: "+ mkrGrpIndex+
-                                ", nonZeros[0]: " + nonZeros[0]+" "+
-                                ", nonZeros[1]: " + nonZeros[1]+" "+
-                                " alphaC: "+ alphaC+", betaC: "+ betaC+" "+
-                                betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1]][nonZeros[1]]+ " " +
-                                Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]) +" "+
-                                (Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]) -
-                                        betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1] - 1][nonZeros[1]]));
-                        throw new RuntimeException(temp1 + " " + temp2);
-                    }
-                    System.out.println(betaTable[mkrGrpIndex].length);
-                    System.out.println(betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1] - 1].length+" "+ (nonZeros[0] + nonZeros[1]));
+                            eltsAllPartSet[partIndex][setIndex], // column indices of the current column subgroup
+                            subtypeSets.getObs(subtypeIndex, rowIndex)); //The row index in the data for fluid type f
 
-                    System.out.println(betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1] - 1][nonZeros[1]]);*/
-                    logMarkerLik += betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1]-1][nonZeros[1]];
-                    //System.out.println(Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]));
-                    /*System.out.println("mkrGrpIndex: "+ mkrGrpIndex+
-                            ", nonZeros[0]: " + nonZeros[0]+" "+
-                            ", nonZeros[1]: " + nonZeros[1]+" "+
-                            " alphaC: "+ alphaC+", betaC: "+ betaC+" "+
-                            betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1]][nonZeros[1]]+ " " +
-                            Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]) +" "+
-                    (Beta.logBeta(alphaC + nonZeros[1], betaC + nonZeros[0]) -
-                            betaTable[mkrGrpIndex][nonZeros[0] + nonZeros[1] - 1][nonZeros[1]]));*/
+
+                    // Numerator of the fraction of the beta function,
+                    // which is the likelihood for the current profile,
+                    // of the current column subgroup, given the current
+                    // column- and the row partitions (subtype clustering).
+                    logMarkerLik += betaTable[mkrGrpIndex][zeroAndOnes[0] + zeroAndOnes[1] - 1][zeroAndOnes[1]];
 
 
                 }
 
 
             }
+
+            // Calculate the denominator product:
             logMarkerLik -= subtypeSize*eltsAllPartSet[partIndex].length*priorBetaNC;
-            //System.out.println(logMarkerLik);
-
-
 
             partLikVec[partIndex] = Math.exp(logMarkerLik);
 
@@ -196,11 +188,17 @@ public class NoBLoCLikelihood extends ClusterLikelihood {
         int zeroCount = 0;
         int oneCount = 0;
 
+        // Iterating through the column indices (i.e., in the array set)
+        // (of the column subgroup of interest).
         for(int colIndex = 0; colIndex < set.length; colIndex++){
 
             col = set[colIndex];
-            mkrStatus = sample.getData(mkrGrpIndex, obsIndex, col);
-            //System.out.print(mkrStatus+" ");
+            // Get the binary entry value in the matrix
+            mkrStatus = sample.getData(
+                    mkrGrpIndex, // which marker group
+                    obsIndex, // which profile
+                    col); // which marker conditioned on the marker group
+
             // As we account for missing values
             // both 0's and 1' need to be counted explicitly.
             if(mkrStatus == 0){
@@ -210,9 +208,6 @@ public class NoBLoCLikelihood extends ClusterLikelihood {
             }
 
         }
-        //System.out.println();
-
-
 
         return new int[]{zeroCount, oneCount};
 

@@ -21,31 +21,35 @@ public class ParamUtils {
             totalCount += totalObsCounts[typeIndex];
         }
 
+        System.err.println("Total number of training profiles: " + totalCount);
+
 
         int unknownCount = 0;
         try {
 
             BufferedReader unknownReader = new BufferedReader(new FileReader(unknownPath));
-            String unknownLine = unknownReader.readLine();
-            while ((unknownLine = unknownReader.readLine()) != null) {
+            unknownReader.readLine();// first line is header of markers
+            while (unknownReader.readLine() != null) {
                 unknownCount++;
             }
+            System.err.println("Total number of unknown profiles: " + unknownCount);
+
         }catch(Exception e){
             new RuntimeException(e);
         }
+
         int[] initialBF = new int[unknownCount];
         if(unknownPath != null ){
             for(int unknownIndex = 0; unknownIndex < initialBF.length; unknownIndex++){
-                initialBF[unknownIndex] = (initType > -1)? initType:Randomizer.nextInt(subTypeLists.length);
+                initialBF[unknownIndex] =
+                        (initType > -1)? initType:Randomizer.nextInt(subTypeLists.length);
             }
         }
-        //System.out.println("unknownCount1: " + unknownCount);
 
         if(clustering == null) {
-            ArrayList<Integer>[][] subtypeParts = (ArrayList<Integer>[][]) new ArrayList[subTypeLists.length][maxRowClustCount];
+            ArrayList<Integer>[][] subtypeParts =
+                    (ArrayList<Integer>[][]) new ArrayList[subTypeLists.length][maxRowClustCount];
             for (int typeIndex = 0; typeIndex < subTypeLists.length; typeIndex++) {
-
-
 
                 for (int setIndex = 0; setIndex < subtypeParts[typeIndex].length; setIndex++) {
                     subtypeParts[typeIndex][setIndex] = new ArrayList<>();
@@ -56,11 +60,11 @@ public class ParamUtils {
                     subtypeParts[typeIndex][0].add(obsIndex);
                 }
 
-
-
             }
 
             for(int unknownIndex = 0; unknownIndex < unknownCount; unknownIndex++){
+                //System.out.println("unknown IDs: "+totalCount + " " + unknownIndex+" "+
+                //        (totalCount + unknownIndex));
 
                 subtypeParts[initialBF[unknownIndex]][0].add(totalCount + unknownIndex);
 
@@ -106,10 +110,8 @@ public class ParamUtils {
 
         }
 
-
-
-
         TypeListWithUnknown typeList = new TypeListWithUnknown(subTypeLists, totalCount);
+
         return typeList;
     }
 
@@ -134,7 +136,8 @@ public class ParamUtils {
 
             }
 
-            currTypeClustStr = typeClustStr[typeIndex].substring(1, typeClustStr[typeIndex].length() - 1).replace("],[", "], [");
+            currTypeClustStr =
+                    typeClustStr[typeIndex].substring(1, typeClustStr[typeIndex].length() - 1).replace("],[", "], [");
             //System.out.println("setsStr: "+ currTypeClustStr);
             String [] setsStr = currTypeClustStr.split(", ");
 
@@ -147,6 +150,7 @@ public class ParamUtils {
                 obsSetStr = setsStr[setIndex].substring(1, setsStr[setIndex].length() - 1).split(",");
 
                 for(int obsIndex  = 0; obsIndex < obsSetStr.length; obsIndex++){
+                    //
                     subtypeParts[setIndex].add(Integer.parseInt(obsSetStr[obsIndex]));
                 }
 

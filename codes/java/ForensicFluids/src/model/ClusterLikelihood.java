@@ -235,6 +235,8 @@ public class ClusterLikelihood extends AbstractProbability {
                                 subtypeSets,
                                 subtypeIndex);
                 subtypeMkrLik[subtypeIndex][mkrGrpIndex] = 0.0;
+
+                //Iterate through all possible column partition configurations
                 for(int partIndex = 0; partIndex < eltsAllPartSetList[mkrGrpIndex].length; partIndex++){
 
                     subtypeMkrLik[subtypeIndex][mkrGrpIndex] += eltsAllPartSetPriorList[mkrGrpIndex][partIndex]*colPartLik[partIndex];
