@@ -4,10 +4,10 @@ public class TypeListWithUnknown extends TypeList{
     public static final int TYPE_POS = 0;
     public static final int SUBTYPE_POS = 1;
 
-    private int unknownObsCount;
-    private int[][] unknownClusterMap;
+    protected int unknownObsCount;
+    protected int[][] unknownClusterMap;
     private int[][] storedUnknownClusterMap;
-    private int unknownStartIndex;
+    protected int unknownStartIndex;
 
     public TypeListWithUnknown(SubTypeList[] subTypeLists, int unknownStartIndex){
         super(subTypeLists);
@@ -33,8 +33,8 @@ public class TypeListWithUnknown extends TypeList{
                 for(int eltIndex = 0; eltIndex < typeList[typeIndex].getSubTypeSetSize(subTypeIndex); eltIndex++){
                     obsNum = getObs(typeIndex, subTypeIndex, eltIndex);
                     if(obsNum >= unknownStartIndex ){
-                        unknownClusterMap[0][obsNum - unknownStartIndex] = typeIndex;
-                        unknownClusterMap[1][obsNum - unknownStartIndex] = subTypeIndex;
+                        unknownClusterMap[TYPE_POS][obsNum - unknownStartIndex] = typeIndex;
+                        unknownClusterMap[SUBTYPE_POS][obsNum - unknownStartIndex] = subTypeIndex;
                     }
                 }
             }
@@ -79,10 +79,10 @@ public class TypeListWithUnknown extends TypeList{
             //        unknownClusterMap[1].length);
             unknownClusterMap[TYPE_POS][obs - unknownStartIndex] = typeIndex;
             unknownClusterMap[SUBTYPE_POS][obs - unknownStartIndex] = subtypeIndex;
-        }else{
+        }/*else{
             //Very expensive
             createMap();
-        }
+        }*/
 
 
 
@@ -97,9 +97,9 @@ public class TypeListWithUnknown extends TypeList{
         if(rmvObs >= unknownStartIndex){
             unknownClusterMap[TYPE_POS][rmvObs - unknownStartIndex] = -1;
             unknownClusterMap[SUBTYPE_POS][rmvObs - unknownStartIndex] = -1;
-        }else{
+        }/*else{
             createMap();
-        }
+        }*/
 
         return rmvObs;
 
