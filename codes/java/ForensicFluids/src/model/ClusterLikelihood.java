@@ -20,7 +20,11 @@ public class ClusterLikelihood extends AbstractProbability {
     protected boolean updateAll;
 
     public ClusterLikelihood(){
+    }
 
+
+    public ClusterLikelihood(String label){
+        super(label);
     }
 
     public ClusterLikelihood(String label,
@@ -31,6 +35,19 @@ public class ClusterLikelihood extends AbstractProbability {
                              Parameter betaC,
                              SubTypeList subtypeSets){
         super(label);
+        initSetup(eltsAllPartSetList, eltsAllPartSetPriorList,
+                sample, alphaC, betaC, subtypeSets);
+        getLogLikelihood();
+        updateAll = false;
+
+    }
+
+    protected void initSetup(int[][][][] eltsAllPartSetList,
+                          double[][] eltsAllPartSetPriorList,
+                          SingleMarkerData sample,
+                          Parameter alphaC,
+                          Parameter betaC,
+                          SubTypeList subtypeSets){
         this.eltsAllPartSetList = eltsAllPartSetList;
         this.eltsAllPartSetPriorList = eltsAllPartSetPriorList;
         this.sample = sample;
@@ -39,8 +56,6 @@ public class ClusterLikelihood extends AbstractProbability {
         this.subtypeSets = subtypeSets;
         subtypeMkrLik = new double[subtypeSets.getSubTypeMaxCount()][sample.getMarkerGroupCount()];
         storedSubtypeMkrLik = new double[subtypeSets.getSubTypeMaxCount()][sample.getMarkerGroupCount()];
-        getLogLikelihood();
-        updateAll = false;
 
     }
 
