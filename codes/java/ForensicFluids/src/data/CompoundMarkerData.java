@@ -31,4 +31,8 @@ public class CompoundMarkerData {
         return dataSets[typeIndex];
     }
 
+    public int getMkrGrpSize(int mkrGroupIndex){
+        return dataSets[0].getMarkerCount(mkrGroupIndex);
+    }
+
 }

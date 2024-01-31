@@ -5,7 +5,7 @@ public class TypeListWithUnknown extends TypeList{
     public static final int SUBTYPE_POS = 1;
 
     protected int unknownObsCount;
-    protected int[][] unknownClusterMap;
+    private int[][] unknownClusterMap;
     private int[][] storedUnknownClusterMap;
     protected int unknownStartIndex;
 
@@ -67,8 +67,11 @@ public class TypeListWithUnknown extends TypeList{
 
 
         super.addObs(typeIndex, subtypeIndex, obs);
+        updateMapAfterAddObs(typeIndex, subtypeIndex, obs);
 
+    }
 
+    protected void updateMapAfterAddObs(int typeIndex, int subtypeIndex, int obs){
         //createMap();
         if(obs >= unknownStartIndex){
             //System.out.println("typeIndex: "+typeIndex);
@@ -84,14 +87,20 @@ public class TypeListWithUnknown extends TypeList{
             createMap();
         }*/
 
-
-
     }
 
     public int removeObs(int typeIndex, int subtypeIndex, int eltIndex){
 
         int rmvObs = super.removeObs(typeIndex, subtypeIndex, eltIndex);
 
+        updateMapAfterRmObs(typeIndex, subtypeIndex, rmvObs);
+
+        return rmvObs;
+
+    }
+
+
+    protected void updateMapAfterRmObs(int typeIndex, int subtypeIndex, int rmvObs){
         //createMap();
         // This is not really necessary but it will help with debugging.
         if(rmvObs >= unknownStartIndex){
@@ -100,8 +109,6 @@ public class TypeListWithUnknown extends TypeList{
         }/*else{
             createMap();
         }*/
-
-        return rmvObs;
 
     }
 

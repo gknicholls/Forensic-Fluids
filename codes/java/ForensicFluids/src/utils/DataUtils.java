@@ -114,7 +114,7 @@ public class DataUtils {
 
     }
 
-    private static int[][][] getClusterArray(String file, int lineCount){
+    public static int[][][] getClusterArray(String file, int lineCount){
         try{
 
             BufferedReader clustReader = new BufferedReader(new FileReader(file));

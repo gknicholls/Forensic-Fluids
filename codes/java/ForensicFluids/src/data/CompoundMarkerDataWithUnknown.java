@@ -46,6 +46,10 @@ public class CompoundMarkerDataWithUnknown extends CompoundMarkerData{
 
     }
 
+    public int getUnknownData(int mkrGrpIndex, int obsIndex, int mkrIndex){
+        return unknownFluid[mkrGrpIndex][obsIndex - getUnknownStartIndex][mkrIndex];
+    }
+
     public class MarkerData extends SingleMarkerData{
 
         public MarkerData(int[][][] singleTypeData){
